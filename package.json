@@ -6,9 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:setup": "node --env-file=.env.local scripts/db-setup.ts",
+    "db:check": "node --env-file=.env.local scripts/check-content.ts"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "gsap": "^3.15.0",
     "next": "16.3.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
