@@ -1,26 +1,39 @@
+import { defaultGlobal, type GlobalContent } from "@/content/global";
 import { defaultHomeContent, type HomeContent } from "@/content/home";
 import { sql } from "./db";
 
 /**
- * Whole-page content is one jsonb document keyed by page name.
- * ponytail: single row per page, no per-section tables. Split it up only if the
- * admin panel ever needs to edit two sections concurrently.
+ * Page content is one jsonb document per key.
+ *
+ *   global — brand, nav, footer: everything every page renders
+ *   home   — the home page's own sections
+ *
+ * ponytail: one row per document, no per-section tables. Split further only if
+ * two editors ever need to save different sections at the same time.
  */
-export async function getHomeContent(): Promise<HomeContent> {
+async function read<T>(key: string, fallback: T): Promise<T> {
   try {
-    const rows = await sql`select data from site_content where key = 'home'`;
-    return (rows[0]?.data as HomeContent) ?? defaultHomeContent;
+    const rows = await sql`select data from site_content where key = ${key}`;
+    // Merge over the defaults so a key added in code shows up before the row
+    // is next saved, instead of rendering as undefined.
+    return rows[0]?.data ? { ...fallback, ...(rows[0].data as T) } : fallback;
   } catch (error) {
-    // A dead DB must not take the marketing site down.
-    console.error("getHomeContent failed, serving defaults:", error);
-    return defaultHomeContent;
+    // A dead database must not take the marketing site down.
+    console.error(`content "${key}" failed, serving defaults:`, error);
+    return fallback;
   }
 }
 
-export async function saveHomeContent(data: HomeContent): Promise<void> {
+async function write(key: string, data: unknown) {
   await sql`
     insert into site_content (key, data, updated_at)
-    values ('home', ${JSON.stringify(data)}::jsonb, now())
+    values (${key}, ${JSON.stringify(data)}::jsonb, now())
     on conflict (key) do update
       set data = excluded.data, updated_at = now()`;
 }
+
+export const getHomeContent = () => read<HomeContent>("home", defaultHomeContent);
+export const saveHomeContent = (data: HomeContent) => write("home", data);
+
+export const getGlobalContent = () => read<GlobalContent>("global", defaultGlobal);
+export const saveGlobalContent = (data: GlobalContent) => write("global", data);

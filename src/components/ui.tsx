@@ -265,13 +265,24 @@ export function Button({
     primary:
       "bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white",
     outline: "border border-black/10 bg-transparent text-ink hover:border-ink/25",
-    white: "bg-white text-ink hover:bg-brand-soft",
+    white: "bg-white text-ink",
     "ghost-light": "text-ink/70 hover:text-brand",
+  }[variant];
+
+  // colour the pointer-origin fill grows in (see [data-fill] in globals.css).
+  // Each one keeps the label readable both before and after the fill lands.
+  const fill = {
+    primary: "#6c31e9",
+    outline: "var(--color-brand-soft)",
+    white: "var(--color-brand-soft)",
+    "ghost-light": undefined,
   }[variant];
 
   return (
     <a
       href={cta.href}
+      data-fill={fill ? "" : undefined}
+      style={fill ? ({ "--fill": fill } as React.CSSProperties) : undefined}
       className={`inline-flex min-h-11 items-center justify-center rounded-full px-6 py-3 text-[16px] font-medium transition-all duration-200 active:scale-[0.98] ${skin} ${focusRing} ${className}`}
     >
       {cta.label}

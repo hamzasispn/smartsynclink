@@ -1,10 +1,16 @@
 import type { HomeContent } from "@/content/home";
+import { HeroBackdrop } from "../hero-backdrop";
 import { Button, Container, Media, Tick } from "../ui";
 
 export function Hero({ data }: { data: HomeContent["hero"] }) {
   return (
-    <section className="relative pb-10 pt-10 lg:pt-46 bg-[url('/images/hero-bg.png')] bg-cover bg-center z-10">
-      <div className="absolute inset-0 -z-1 w-full h-full bg-[#D5D5D5] opacity-87"></div>
+    <section className="relative z-10 overflow-hidden pb-10 pt-28 sm:pt-32 lg:pt-46">
+      {/* backdrop images come from the dashboard now, not a hard-coded url */}
+      <HeroBackdrop
+        images={data.backgrounds ?? []}
+        seconds={data.backgroundSeconds ?? 7}
+      />
+      <div className="absolute inset-0 -z-1 h-full w-full bg-[#D5D5D5] opacity-87"></div>
       <Container>
         <h1
           className="rise mx-auto text-balance text-center text-[38px] font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[64px]"

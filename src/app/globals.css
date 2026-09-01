@@ -85,3 +85,253 @@ summary::-webkit-details-marker {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Markdown bodies rendered by <Prose> (blog posts, service pages). */
+.prose-site {
+  color: #1e1e1e;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.prose-site > * + * {
+  margin-top: 1.1em;
+}
+.prose-site h2 {
+  margin-top: 2em;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+.prose-site h3 {
+  margin-top: 1.6em;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+}
+.prose-site ul,
+.prose-site ol {
+  padding-left: 1.4em;
+}
+.prose-site ul {
+  list-style: disc;
+}
+.prose-site ol {
+  list-style: decimal;
+}
+.prose-site li + li {
+  margin-top: 0.4em;
+}
+.prose-site a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-site strong {
+  font-weight: 500;
+}
+.prose-site blockquote {
+  border-left: 3px solid var(--color-brand);
+  padding-left: 1.1em;
+  color: var(--color-muted);
+}
+.prose-site code {
+  background: var(--color-surface);
+  border-radius: 6px;
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
+}
+.prose-site pre {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--color-ink);
+  color: #f4f4f6;
+  padding: 1.1em 1.3em;
+}
+.prose-site pre code {
+  background: none;
+  padding: 0;
+}
+.prose-site img {
+  border-radius: 14px;
+}
+.prose-site hr {
+  border-color: var(--color-line);
+}
+
+/* --- pointer-origin button fill -------------------------------------------
+ * The fill grows from wherever the cursor entered. --mx/--my are written by
+ * <PointerFill>, one delegated listener for the whole document, so buttons
+ * stay server components and ship no JS of their own.
+ *
+ * Kept inside @layer components on purpose: these rules set position, and
+ * unlayered CSS outranks Tailwind utilities. Unlayered, this "position:
+ * relative" silently beat the "absolute" on the industries card buttons and
+ * dropped them out of their corner. In the components layer, any utility on
+ * the element wins — an absolutely positioned button stays absolute, and a
+ * static one still gets the containing block the ::before needs.
+ *
+ * ::before sits above the element own background but below its inline text
+ * (negative z-index inside the isolated stacking context), so the label never
+ * flickers. Every --fill is chosen to keep the label readable at 0% and 100%.
+ */
+@layer components {
+  [data-fill] {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  [data-fill]::before {
+    content: "";
+    position: absolute;
+    /* at rest: a 50px disc parked under the cursor entry point */
+    left: var(--mx, 50%);
+    top: var(--my, 50%);
+    z-index: -1;
+    width: 50px;
+    height: 50px;
+    border-radius: 9999px;
+    background: var(--fill);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition:
+      width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      left 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 0.45s ease,
+      opacity 0.2s ease;
+  }
+
+  [data-fill]:hover::before,
+  [data-fill]:focus-visible::before {
+    /* on entry it travels to the centre and grows to the full button box */
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    opacity: 1;
+  }
+}
+
+/* --- nav dropdown / mega panel -------------------------------------------
+ * Opening and closing is pure CSS off :hover / :focus-within — no JS, so the
+ * header stays a server component.
+ *
+ * visibility is what makes the panel unhittable when closed, and it cannot be
+ * transitioned, only delayed. Delaying it on the way out keeps the panel alive
+ * for a moment after the pointer leaves, so a wobble at the trigger edge or a
+ * diagonal path toward the panel no longer dismisses it. On the way in the
+ * delay is 0, so it still opens instantly.
+ */
+@layer components {
+  .nav-panel {
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.18s ease,
+      visibility 0s linear 0.18s;
+  }
+
+  .group:hover > .nav-panel,
+  .group:focus-within > .nav-panel {
+    visibility: visible;
+    opacity: 1;
+    transition:
+      opacity 0.22s ease,
+      visibility 0s;
+  }
+
+  /* mega tiles arrive one after another rather than all at once. The stagger
+   * lives only on the open state, so closing takes them out together instead
+   * of unwinding tile by tile. */
+  .mega-item {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .group:hover .mega-item,
+  .group:focus-within .mega-item {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(var(--i, 0) * 45ms + 80ms);
+  }
+}
+
+/* --- logo mark spin ------------------------------------------------------
+ * transform-box: view-box makes transform-origin resolve in viewBox units, so
+ * 21px 21px lands on the centre of the circle rather than on the bounding box
+ * of whatever the group happens to paint.
+ */
+@keyframes logoSpin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.logo-spin {
+  transform-box: view-box;
+  transform-origin: 21px 21px;
+  animation: logoSpin 12s linear infinite;
+}
+
+/* --- final-CTA orb -------------------------------------------------------
+ * CSS rather than GSAP: it runs off the compositor, costs no JS, and keeps
+ * the section free of the per-frame work that stalled the inbox card.
+ */
+@keyframes orbSpin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@keyframes orbBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+@keyframes chipFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.orb-spin {
+  animation: orbSpin 18s linear infinite;
+}
+.orb-breathe {
+  animation: orbBreathe 4.5s ease-in-out infinite;
+}
+.orb-chip {
+  /* --i staggers the four chips so they drift independently, not in lockstep */
+  animation: chipFloat 5s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.7s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb-spin,
+  .orb-breathe,
+  .orb-chip {
+    animation: none;
+  }
+  [data-fill]::before {
+    transition: opacity 0.01ms;
+  }
+  .mega-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .logo-spin {
+    animation: none;
+  }
+}

@@ -5,34 +5,20 @@
 
 export type Cta = { label: string; href: string };
 export type Bullet = { title: string; body?: string };
-export type NavItem = { label: string; href: string; hasMenu?: boolean };
 /** An empty src renders the placeholder instead — see <Media>. */
 export type Media = { src: string; alt: string };
 
 export const defaultHomeContent = {
-  brand: {
-    name: "SmartSyncLink",
-  },
-
-  nav: {
-    items: [
-      { label: "Home", href: "/" },
-      { label: "Solution", href: "#solutions", hasMenu: true },
-      { label: "Contractors", href: "#industries" },
-      { label: "Aesthetics", href: "#industries" },
-      { label: "Realtors", href: "#industries" },
-      { label: "Portfolio", href: "#portfolio" },
-      { label: "Blog", href: "/blog" },
-    ] as NavItem[],
-    login: { label: "Login", href: "/login" } as Cta,
-    cta: { label: "Start Free Trial", href: "#pricing" } as Cta,
-  },
-
   hero: {
     heading: "Never Lose Another Lead Again.",
     subheading:
       "AI answers calls, replies to messages, books appointments, follows up automatically and helps your business close more customers without hiring more staff.",
     image: { src: "/images/hero-img.png", alt: "Business owner working on a laptop" } as Media,
+    // More than one turns the hero backdrop into a slow crossfade.
+    backgrounds: [
+      { src: "/images/hero-bg.png", alt: "" },
+    ] as Media[],
+    backgroundSeconds: 7,
     primary: { label: "Book Your Free Strategy Call", href: "#contact" } as Cta,
     secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
     stats: [
@@ -46,10 +32,12 @@ export const defaultHomeContent = {
 
   heroVideo: {
     label: "Intro video",
+    video: { src: "", alt: "" } as Media,
   },
 
   showcaseVideo: {
     label: "Product walkthrough",
+    video: { src: "", alt: "" } as Media,
   },
 
   intro: {
@@ -330,82 +318,6 @@ export const defaultHomeContent = {
       "AI replies to messages",
       "AI books appointments",
       "AI follows up automatically",
-    ],
-  },
-
-  footer: {
-    about:
-      "One intelligent platform to automate customer communication, manage leads, book appointments, and grow your business without the complexity of multiple tools.",
-    socials: ["LinkedIn", "X", "Facebook", "YouTube", "Instagram"],
-    columns: [
-      {
-        title: "Quick Links",
-        links: [
-          { label: "Home", href: "/" },
-          { label: "Features", href: "#solutions" },
-          { label: "Industries", href: "#industries" },
-          { label: "Pricing", href: "#pricing" },
-          { label: "Integrations", href: "#integrations" },
-          { label: "Customer Stories", href: "#reviews" },
-          { label: "About Us", href: "/about" },
-          { label: "Contact", href: "#contact" },
-        ] as NavItem[],
-      },
-      {
-        title: "Solutions",
-        links: [
-          { label: "AI Voice Receptionist", href: "#solutions" },
-          { label: "Smart CRM", href: "#solutions" },
-          { label: "Unified Inbox", href: "#solutions" },
-          { label: "Appointment Scheduling", href: "#solutions" },
-          { label: "Marketing Automation", href: "#solutions" },
-          { label: "Reputation Management", href: "#solutions" },
-          { label: "Workflow Automation", href: "#solutions" },
-          { label: "Business Analytics", href: "#solutions" },
-        ] as NavItem[],
-      },
-      {
-        title: "Resources",
-        links: [
-          { label: "Help Center", href: "/help" },
-          { label: "Knowledge Base", href: "/kb" },
-          { label: "Blog", href: "/blog" },
-          { label: "Case Studies", href: "/case-studies" },
-          { label: "ROI Calculator", href: "/roi" },
-          { label: "FAQs", href: "/faqs" },
-          { label: "API Documentation", href: "/docs" },
-          { label: "Release Notes", href: "/changelog" },
-        ] as NavItem[],
-      },
-      {
-        title: "Legal",
-        links: [
-          { label: "Privacy Policy", href: "/privacy" },
-          { label: "Terms of Service", href: "/terms" },
-          { label: "Cookie Policy", href: "/cookies" },
-          { label: "Security", href: "/security" },
-          { label: "Compliance", href: "/compliance" },
-          { label: "Data Processing Agreement", href: "/dpa" },
-        ] as NavItem[],
-      },
-    ],
-    newsletter: {
-      heading: "Get Practical Automation Tips Delivered to Your Inbox",
-      body: "Join thousands of business owners receiving proven strategies, product updates, and automation insights.",
-      placeholder: "Email Address",
-      cta: { label: "Subscribe", href: "#subscribe" } as Cta,
-    },
-    contact: {
-      phone: "+1 737 252-4262",
-      whatsapp: "(555) 989-9218",
-      email: "info@smartsynclink.com",
-    },
-    copyright: "© 2026 Smart Sync Link. All rights reserved.",
-    badges: [
-      "Enterprise-Grade Security",
-      "99.9% Uptime",
-      "Secure Cloud Infrastructure",
-      "4.5/5 Average Rating",
     ],
   },
 };

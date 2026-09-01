@@ -13,19 +13,19 @@ import {
   Steps,
   Testimonials,
 } from "@/components/sections";
-import { getHomeContent } from "@/lib/content";
+import { getGlobalContent, getHomeContent } from "@/lib/content";
 
 // Admin panel can call revalidatePath("/") for instant updates.
 export const revalidate = 60;
 
 export default async function Home() {
-  const c = await getHomeContent();
+  const [c, global] = await Promise.all([getHomeContent(), getGlobalContent()]);
 
   return (
     <>
       {/* header sits on the hero backdrop, as in the design */}
       <div className="blueprint relative overflow-hidden">
-        <Header brand={c.brand} nav={c.nav} />
+        <Header brand={global.brand} nav={global.nav} />
         <Hero data={c.hero} />
         <HeroVideo data={c.heroVideo} />
       </div>
@@ -42,7 +42,7 @@ export default async function Home() {
         <FinalCta data={c.finalCta} />
       </main>
 
-      <Footer brand={c.brand} data={c.footer} />
+      <Footer brand={global.brand} data={global.footer} />
     </>
   );
 }

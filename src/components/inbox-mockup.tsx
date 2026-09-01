@@ -89,14 +89,17 @@ export function InboxMockup() {
       .map((i) => zone("msg" + i))
       .filter((z) => z.length);
 
-    /* ---- scroll-driven build-up ---------------------------------------
-     * Scrubbed: every step is tied to scroll position, so the card keeps
-     * assembling as the visitor moves.
+    /* ---- entrance build-up ---------------------------------------------
+     * Played once on entry, deliberately NOT scrubbed.
      *
-     * The range spans the card's whole traversal of the viewport
-     * (top 80% -> bottom 30%, ~900px of scroll) instead of the 630px window
-     * used before — that one burned most of its length while the card was
-     * still under the fold, so nothing was ever seen.
+     * Scrubbing re-wrote transforms on ~100 nodes of this 600KB path-heavy
+     * SVG on every scroll frame. SVG content cannot be promoted to its own
+     * compositor layer, so each of those frames re-rasterised the whole card
+     * and the page locked up while the visitor scrolled past. Playing the same
+     * timeline costs that work once, over a fixed ~3s, and nothing afterwards.
+     *
+     * The step gaps below read as seconds now rather than scroll progress,
+     * which is what makes the card assemble one piece at a time.
      *
      * immediateRender stays ON (the default). With it off, a .from() only
      * paints its start value when its turn arrives, leaving every element
@@ -104,20 +107,18 @@ export function InboxMockup() {
      */
     const build = gsap.timeline({
       defaults: { ease: "power2.out" },
-      scrollTrigger: {
-        trigger: svg,
-        start: "top 80%",
-        end: "bottom 30%",
-        scrub: 1,
-        onUpdate: (self) => {
-          // typing only runs once the card is fully assembled
-          const done = self.progress > 0.99;
-          if (done !== typingOn) {
-            typingOn = done;
-            loops.forEach((l) => (done ? l.play() : l.pause()));
-          }
-        },
+      paused: true,
+      onComplete: () => {
+        typingOn = true;
+        loops.forEach((l) => l.play());
       },
+    });
+
+    ScrollTrigger.create({
+      trigger: svg,
+      start: "top 78%",
+      once: true,
+      onEnter: () => build.play(),
     });
 
     let at = 0;

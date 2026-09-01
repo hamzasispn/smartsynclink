@@ -1,13 +1,16 @@
 import type { HomeContent } from "@/content/home";
+import { Reveal } from "../reveal";
 import { Button, Container, Media, SectionHead } from "../ui";
 
 export function Industries({ data }: { data: HomeContent["industries"] }) {
   return (
     <section id="industries" className="py-24 lg:py-28">
       <Container>
-        <SectionHead heading={data.heading} subheading={data.subheading} />
+        <Reveal>
+          <SectionHead heading={data.heading} subheading={data.subheading} />
+        </Reveal>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <Reveal className="mt-16 grid gap-6 md:grid-cols-3" stagger={0.16} delay={0.18}>
           {data.cards.map((card) => (
             <article
               key={card.title}
@@ -33,7 +36,7 @@ export function Industries({ data }: { data: HomeContent["industries"] }) {
               />
             </article>
           ))}
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

@@ -1,4 +1,5 @@
 import type { Bullet, HomeContent } from "@/content/home";
+import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
 import { InboxMockup } from "../inbox-mockup";
 import { Button, CheckSolid, Container, Media } from "../ui";
@@ -12,7 +13,8 @@ function FeatureList({ bullets }: { bullets: Bullet[] }) {
             <CheckSolid className="size-[19px] shrink-0 text-ink" />
             <p className="text-[20px] font-medium tracking-[-0.01em] text-ink">
               {bullet.title}
-            </p></div>
+            </p>
+          </div>
           {bullet.body ? (
             <p className="text-[15px] leading-[136%] text-[#1E1E1E]">
               {bullet.body}
@@ -28,7 +30,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
   return (
     <section id="solutions" className="py-24 lg:py-28">
       <Container>
-        <div className="grid gap-[16px] lg:grid-cols-12">
+        <Reveal className="grid gap-[16px] lg:grid-cols-12" stagger={0.14}>
           {/* complete solution — gradient card */}
           <article className="flex flex-col overflow-hidden rounded-[16px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] px-5.5 pt-6 pb-0 text-white lg:col-span-4">
             <span className="w-fit rounded-full bg-white/20 px-3.5 py-1.5 text-[16px] font-normal">
@@ -85,7 +87,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
               <Button cta={data.campaigns.cta} className="mt-4 w-fit" />
             </div>
           </article>
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

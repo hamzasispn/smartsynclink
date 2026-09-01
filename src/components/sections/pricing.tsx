@@ -1,10 +1,7 @@
 import type { HomeContent } from "@/content/home";
+import { Reveal } from "../reveal";
 import { Button, CheckRing, Container, SectionHead } from "../ui";
 
-// Figma: linear gradient #292176 0% → #374AA8 58% → #6C31E9 100%, layer blur 100.
-// Two per card, bleeding out of the top-right and bottom-left corners.
-// 22% on the light cards; full strength on the featured one, where the blue
-// background would otherwise swallow it.
 const GLOW = "linear-gradient(180deg, #292176 0%, #374AA8 58%, #6C31E9 100%)";
 
 export function Pricing({ data }: { data: HomeContent["pricing"] }) {
@@ -15,19 +12,21 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-40 -translate-x-1/2 select-none text-[120px] font-medium leading-none tracking-[-0.04em] text-ink/[0.038] sm:text-[190px]"
+        className="pointer-events-none absolute left-1/2 top-20 -translate-x-1/2 select-none text-[324px] font-black leading-none tracking-[-0.04em] text-ink/[0.038]"
       >
         {data.watermark}
       </span>
 
       <Container className="relative">
-        <SectionHead
-          badge={data.badge}
-          heading={data.heading}
-          subheading={data.subheading}
-        />
+        <Reveal>
+          <SectionHead
+            badge={data.badge}
+            heading={data.heading}
+            subheading={data.subheading}
+          />
+        </Reveal>
 
-        <div className="mt-20 grid gap-[25px] lg:grid-cols-3">
+        <Reveal className="mt-20 grid gap-[25px] lg:grid-cols-3" stagger={0.16} delay={0.18}>
           {data.plans.map((plan) => {
             const hot = plan.featured;
             return (
@@ -54,7 +53,7 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
                 </div>
 
                 {plan.badge ? (
-                  <span className="absolute -top-3.5 right-8 rounded-full bg-brand px-4 py-1.5 text-[16px] font-normal text-white shadow-lift">
+                  <span className="absolute -top-3.5 right-8 rounded-full px-4 py-1.5 text-[16px] font-normal text-brand bg-white border-brand border-solid border shadow-lift">
                     {plan.badge}
                   </span>
                 ) : null}
@@ -106,7 +105,7 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
               </article>
             );
           })}
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

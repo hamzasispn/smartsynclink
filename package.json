@@ -8,18 +8,25 @@
     "start": "next start",
     "lint": "eslint",
     "db:setup": "node --env-file=.env.local scripts/db-setup.ts",
-    "db:check": "node --env-file=.env.local scripts/check-content.ts"
+    "db:check": "node --env-file=.env.local scripts/check-content.ts",
+    "admin:create": "node --env-file=.env.local scripts/create-admin.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.122.0",
     "@neondatabase/serverless": "^1.1.0",
+    "better-auth": "^1.7.2",
     "gsap": "^3.15.0",
+    "marked": "^18.0.11",
     "next": "16.3.3",
+    "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

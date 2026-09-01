@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { PointerFill } from "@/components/pointer-fill";
 
 // Inter variable: opsz 14→32, wght 100→900 (verified from the fvar table).
 // opsz 32 IS the Display cut. globals.css pins the axis there for every
@@ -24,7 +25,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <PointerFill />
+      </body>
     </html>
   );
 }

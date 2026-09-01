@@ -1,17 +1,20 @@
 import type { HomeContent } from "@/content/home";
+import { Reveal } from "../reveal";
 import { Container, SectionHead } from "../ui";
 
 export function Steps({ data }: { data: HomeContent["steps"] }) {
   return (
     <section className="py-24 lg:py-28">
       <Container>
-        <SectionHead
-          badge={data.badge}
-          heading={data.heading}
-          subheading={data.subheading}
-        />
+        <Reveal>
+          <SectionHead
+            badge={data.badge}
+            heading={data.heading}
+            subheading={data.subheading}
+          />
+        </Reveal>
 
-        <div className="mt-16 grid gap-6 md:grid-cols-3">
+        <Reveal className="mt-16 grid gap-6 md:grid-cols-3" stagger={0.16} delay={0.18}>
           {data.items.map((item) => (
             <article
               key={item.step}
@@ -26,10 +29,12 @@ export function Steps({ data }: { data: HomeContent["steps"] }) {
                   ( {item.duration} )
                 </span>
               </h3>
-              <p className="mt-3 text-[16px] leading-[1.8] text-[#1e1e1e]">{item.body}</p>
+              <p className="mt-3 text-[16px] leading-[1.8] text-[#1e1e1e]">
+                {item.body}
+              </p>
             </article>
           ))}
-        </div>
+        </Reveal>
       </Container>
     </section>
   );

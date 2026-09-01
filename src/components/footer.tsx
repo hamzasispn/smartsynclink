@@ -1,4 +1,4 @@
-import type { HomeContent } from "@/content/home";
+import type { GlobalContent } from "@/content/global";
 import { Wordmark } from "./header";
 import { Container, SocialIcon, Tick } from "./ui";
 
@@ -6,15 +6,15 @@ export default function Footer({
   brand,
   data,
 }: {
-  brand: HomeContent["brand"];
-  data: HomeContent["footer"];
+  brand: GlobalContent["brand"];
+  data: GlobalContent["footer"];
 }) {
   return (
     <footer className="pb-10 pt-4">
       <Container>
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-4">
-            <Wordmark name={brand.name} />
+            <Wordmark brand={brand} />
             <p className="mt-5 max-w-[46ch] text-[16px] leading-[1.8] text-[#1e1e1e]">
               {data.about}
             </p>
