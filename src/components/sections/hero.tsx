@@ -30,13 +30,17 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         className="rise relative mt-10 flex justify-center lg:mt-14"
         style={{ "--i": 2 } as React.CSSProperties}
       >
-        <Media
-          image={data.image}
-          variant="plain"
-          priority
-          sizes="300px"
-          className="h-[300px] w-[240px] rounded-t-[110px] lg:h-[380px] lg:w-[300px]"
-        />
+        <div className="h-[300px] w-[240px] rounded-t-[110px] lg:h-[500px] lg:w-[600px]">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-full mix-blend-multiply object-cover"
+          >
+            <source src="/video/video.mp4" type="video/mp4" />
+          </video>
+        </div>
       </div>
 
       <Container>
