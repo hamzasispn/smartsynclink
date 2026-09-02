@@ -30,7 +30,8 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         className="rise relative mt-10 flex justify-center lg:mt-14"
         style={{ "--i": 2 } as React.CSSProperties}
       >
-        <div className="h-[300px] w-[240px] rounded-t-[110px] lg:h-[500px] lg:w-[600px]">
+        <div className="relative h-[300px] w-[240px] lg:h-[500px] lg:w-[700px]">
+          <div className="absolute top-1/2 left-1/2 -translate-1/2 -z-10 h-full w-[60%] border-4 border-brand rounded-t-full bg-[#D5D5D5]" />
           <video
             autoPlay
             loop
