@@ -24,11 +24,17 @@ export function slugify(input: string) {
     .slice(0, 80);
 }
 
+// see the note on listPosts — /services is prerendered too
 export async function listServices(includeDrafts = false) {
-  const rows = includeDrafts
-    ? await sql`select * from services order by position, created_at`
-    : await sql`select * from services where published order by position, created_at`;
-  return rows as Service[];
+  try {
+    const rows = includeDrafts
+      ? await sql`select * from services order by position, created_at`
+      : await sql`select * from services where published order by position, created_at`;
+    return rows as Service[];
+  } catch (error) {
+    console.error("listServices failed, serving an empty list:", error);
+    return [] as Service[];
+  }
 }
 
 export async function getService(idOrSlug: string) {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDate } from "@/lib/format";
 import { BtnLink, Card, Empty, PageHeader, Pill } from "@/components/admin/ui";
 import { listPosts } from "@/lib/posts";
 import { deletePostAction } from "@/app/admin/actions";
@@ -28,7 +29,7 @@ export default async function BlogPage() {
                   </Link>
                   <p className="mt-0.5 truncate text-[13px] text-muted">
                     {post.published_at
-                      ? new Date(post.published_at).toLocaleDateString()
+                      ? formatDate(post.published_at)
                       : "not published"}
                     {post.tags.length ? ` · ${post.tags.join(", ")}` : ""}
                   </p>

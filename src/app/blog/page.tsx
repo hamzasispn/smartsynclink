@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDate } from "@/lib/format";
 import type { Metadata } from "next";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
@@ -47,11 +48,7 @@ export default async function BlogIndex() {
                   <div className="flex flex-1 flex-col p-7">
                     <time className="text-[13px] text-muted">
                       {post.published_at
-                        ? new Date(post.published_at).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })
+                        ? formatDate(post.published_at)
                         : null}
                     </time>
                     <h2 className="mt-2 text-[19px] font-medium leading-snug tracking-[-0.02em] text-[#1e1e1e]">

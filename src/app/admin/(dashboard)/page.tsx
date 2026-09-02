@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDateTime } from "@/lib/format";
 import { BtnLink, Card, Empty, PageHeader, Pill, Stat } from "@/components/admin/ui";
 import { getAutopilot } from "@/lib/autopilot";
 import { listPosts, postCounts } from "@/lib/posts";
@@ -82,7 +83,7 @@ export default async function OverviewPage() {
               <dt className="text-muted">Next run</dt>
               <dd className="text-[#1e1e1e]">
                 {autopilot.next_run_at
-                  ? new Date(autopilot.next_run_at).toLocaleString()
+                  ? formatDateTime(autopilot.next_run_at)
                   : "—"}
               </dd>
             </div>

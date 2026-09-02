@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDateTime } from "@/lib/format";
 import { Btn, Card, Field, PageHeader, Pill, inputClass } from "@/components/admin/ui";
 import { AutopilotRun } from "@/components/admin/autopilot-run";
 import { TopicsField } from "@/components/admin/topics-field";
@@ -130,7 +131,7 @@ export default async function AutopilotPage() {
                 <dt className="text-muted">Last run</dt>
                 <dd className="text-[#1e1e1e]">
                   {cfg.last_run_at
-                    ? new Date(cfg.last_run_at).toLocaleString()
+                    ? formatDateTime(cfg.last_run_at)
                     : "never"}
                 </dd>
               </div>
@@ -138,7 +139,7 @@ export default async function AutopilotPage() {
                 <dt className="text-muted">Next run</dt>
                 <dd className="text-[#1e1e1e]">
                   {cfg.next_run_at
-                    ? new Date(cfg.next_run_at).toLocaleString()
+                    ? formatDateTime(cfg.next_run_at)
                     : "—"}
                 </dd>
               </div>

@@ -11,7 +11,14 @@ import { getService, listServices } from "@/lib/services";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return (await listServices()).map((s) => ({ slug: s.slug }));
+  // A build must not die because the database is unreachable — an empty list
+  // just means nothing is prerendered, and the pages still render on demand.
+  try {
+    return (await listServices()).map((s) => ({ slug: s.slug }));
+  } catch (error) {
+    console.error("generateStaticParams: skipping prerender:", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatDate } from "@/lib/format";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Footer from "@/components/footer";
@@ -11,7 +12,14 @@ import { getPost, listPosts } from "@/lib/posts";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  return (await listPosts()).map((p) => ({ slug: p.slug }));
+  // A build must not die because the database is unreachable — an empty list
+  // just means nothing is prerendered, and the pages still render on demand.
+  try {
+    return (await listPosts()).map((p) => ({ slug: p.slug }));
+  } catch (error) {
+    console.error("generateStaticParams: skipping prerender:", error);
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -46,11 +54,7 @@ export default async function PostPage({
           <article className="mt-6 max-w-[70ch]">
             <time className="text-[16px] text-muted">
               {post.published_at
-                ? new Date(post.published_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                ? formatDate(post.published_at)
                 : null}
             </time>
 

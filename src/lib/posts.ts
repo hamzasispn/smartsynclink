@@ -16,14 +16,22 @@ export type Post = {
   updated_at: string;
 };
 
+// Same bargain content.ts makes: an unreachable database means an empty list,
+// not a dead page. /blog is prerendered, so an uncaught throw here fails the
+// whole production build rather than just one request.
 export async function listPosts(includeDrafts = false) {
-  const rows = includeDrafts
-    ? await sql`select * from posts order by coalesce(published_at, created_at) desc`
-    : await sql`
-        select * from posts
-        where status = 'published' and published_at <= now()
-        order by published_at desc`;
-  return rows as Post[];
+  try {
+    const rows = includeDrafts
+      ? await sql`select * from posts order by coalesce(published_at, created_at) desc`
+      : await sql`
+          select * from posts
+          where status = 'published' and published_at <= now()
+          order by published_at desc`;
+    return rows as Post[];
+  } catch (error) {
+    console.error("listPosts failed, serving an empty list:", error);
+    return [] as Post[];
+  }
 }
 
 export async function getPost(idOrSlug: string, includeDrafts = false) {
