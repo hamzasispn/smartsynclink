@@ -1,0 +1,31 @@
+name: Blog autopilot
+
+# Vercel Cron is a paid feature above one run a day, so the tick comes from
+# here instead. Nothing about the app changes: /api/cron/autopilot is a plain
+# authenticated GET, and the *schedule* itself lives in the database
+# (autopilot.every_hours). This job only knocks on the door once an hour — the
+# app decides whether a post is actually due, so an early or late tick is fine.
+
+on:
+  schedule:
+    # :07 rather than :00 — GitHub queues every on-the-hour job at once, so
+    # off-peak minutes actually fire closer to their slot.
+    - cron: "7 * * * *"
+  workflow_dispatch: # lets you trigger a run by hand from the Actions tab
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Poke the autopilot endpoint
+        run: |
+          code=$(curl -sS --max-time 300 \
+            -o response.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SITE_URL }}/api/cron/autopilot")
+          echo "HTTP $code"
+          cat response.json
+          echo
+          # "skipped: not due yet" is a 200 and a perfectly normal outcome
+          test "$code" = "200"
