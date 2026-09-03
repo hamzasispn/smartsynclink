@@ -11,6 +11,10 @@ import { inputClass } from "./ui";
 
 export type ImageValue = { src: string; alt: string };
 
+// A Server Action body is capped at 1MB. Kept a little under 1024*1024 so the
+// multipart boundary and filename that ride along cannot tip it over.
+const MAX_UPLOAD = 1_000_000;
+
 /**
  * Replaces the raw src/alt text pair everywhere an image is edited.
  *
@@ -41,6 +45,17 @@ export function MediaPicker({
 
   function upload(file: File) {
     setError(null);
+
+    // Going over the cap throws a raw 413 that replaces the dashboard with
+    // an error page. Checking first keeps the failure inside the form, where
+    // it reads as a message next to the field instead of losing the page.
+    if (file.size > MAX_UPLOAD) {
+      setError(
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)}MB. The limit is 1MB — compress it and try again.`,
+      );
+      return;
+    }
+
     const form = new FormData();
     form.set("file", file);
     start(async () => {

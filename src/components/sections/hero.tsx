@@ -10,7 +10,7 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         images={data.backgrounds ?? []}
         seconds={data.backgroundSeconds ?? 7}
       />
-      <div className="absolute inset-0 -z-1 h-full w-full bg-[#D5D5D5] opacity-87"></div>
+      <div className="absolute inset-0 -z-1 h-full w-full bg-[#D5D5D5] opacity-85"></div>
       <Container>
         <h1
           className="rise mx-auto text-balance text-center text-[38px] font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[64px]"
@@ -31,7 +31,7 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         style={{ "--i": 2 } as React.CSSProperties}
       >
         <div className="relative h-[300px] w-[240px] lg:h-[500px] lg:w-[700px]">
-          <div className="absolute top-1/2 left-1/2 -translate-1/2 -z-10 h-full w-[60%] border-4 border-brand rounded-t-full bg-[#D5D5D5]" />
+          <div className="absolute top-1/2 left-1/2 -translate-1/2 -z-10 h-full w-[60%] border-4 border-brand rounded-t-full bg-[#D5D5D5] border-b-0" />
           <video
             autoPlay
             loop

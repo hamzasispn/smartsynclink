@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Loader } from "@/components/loader";
 import { PointerFill } from "@/components/pointer-fill";
 
 // Inter variable: opsz 14→32, wght 100→900 (verified from the fvar table).
@@ -26,6 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {/* without JS the curtain would never lift, so it never goes up */}
+        <noscript>
+          <style>{`.site-loader{display:none!important}`}</style>
+        </noscript>
+        <Loader />
         {children}
         <PointerFill />
       </body>

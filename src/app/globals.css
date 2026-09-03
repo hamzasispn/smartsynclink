@@ -276,6 +276,15 @@ summary::-webkit-details-marker {
   animation: logoSpin 12s linear infinite;
 }
 
+
+/* --- first-paint loader ---------------------------------------------------
+ * The mark keeps a CSS spin everywhere else, but a running CSS animation
+ * beats inline styles, so it would fight every transform GSAP writes here.
+ * Inside the loader, GSAP drives the rotation alone.
+ */
+.site-loader .logo-spin {
+  animation: none;
+}
 /* --- final-CTA orb -------------------------------------------------------
  * CSS rather than GSAP: it runs off the compositor, costs no JS, and keeps
  * the section free of the per-frame work that stalled the inbox card.
