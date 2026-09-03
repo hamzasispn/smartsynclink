@@ -12,7 +12,7 @@ export type MediaItem = {
 };
 
 const MAX_UPLOAD = 12 * 1024 * 1024; // what we accept before resizing
-const MAX_VIDEO = 64 * 1024 * 1024; // videos are stored as-is, so cap harder
+const MAX_VIDEO = 4 * 1024 * 1024; // must stay under serverActions.bodySizeLimit
 const MAX_EDGE = 1920;
 
 /**
@@ -79,12 +79,35 @@ export async function listMedia(limit = 60): Promise<MediaItem[]> {
 }
 
 /** base64 round-trip: the driver hands bytea back as a hex string otherwise. */
-export async function readMedia(id: string) {
-  const rows = await sql`
-    select mime, encode(data, 'base64') as b64 from media where id = ${id}`;
+/**
+ * Reads a stored file, optionally just one byte range.
+ *
+ * The slice is taken in Postgres, not here. Pulling the whole blob and
+ * slicing in Node made every range request pay for the entire file: a 128KB
+ * chunk of a 3.4MB clip took 12s, slower than fetching the lot, and a <video>
+ * asks for many chunks. Sliced in SQL, only the requested bytes travel.
+ *
+ * The total size comes from the `bytes` column rather than octet_length(data),
+ * so looking it up costs nothing.
+ */
+export async function readMedia(
+  id: string,
+  range?: { start: number; end: number },
+) {
+  const rows = range
+    ? await sql`
+        select mime, bytes,
+               encode(substring(data from ${range.start + 1} for ${range.end - range.start + 1}), 'base64') as b64
+        from media where id = ${id}`
+    : await sql`
+        select mime, bytes, encode(data, 'base64') as b64
+        from media where id = ${id}`;
+
   if (!rows[0]) return null;
   return {
     mime: rows[0].mime as string,
+    /** Size of the whole file, not of the slice returned. */
+    size: Number(rows[0].bytes),
     body: Buffer.from(rows[0].b64 as string, "base64"),
   };
 }

@@ -285,6 +285,25 @@ summary::-webkit-details-marker {
 .site-loader .logo-spin {
   animation: none;
 }
+
+/* --- hero floaters --------------------------------------------------------
+ * A slow rise and fall with the tilt easing the other way, so the four cards
+ * never move as a block. --i staggers them; --tilt is set per card.
+ */
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-14px) rotate(calc(var(--tilt, 0deg) * -0.6));
+  }
+}
+
+.hero-float {
+  animation: heroFloat 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.8s);
+}
 /* --- final-CTA orb -------------------------------------------------------
  * CSS rather than GSAP: it runs off the compositor, costs no JS, and keeps
  * the section free of the per-frame work that stalled the inbox card.
@@ -341,6 +360,9 @@ summary::-webkit-details-marker {
     transition: none;
   }
   .logo-spin {
+    animation: none;
+  }
+  .hero-float {
     animation: none;
   }
 }

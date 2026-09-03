@@ -1,16 +1,37 @@
 import type { HomeContent } from "@/content/home";
-import { HeroBackdrop } from "../hero-backdrop";
-import { Button, Container, Media, Tick } from "../ui";
+import { HeroFloaters } from "../hero-floaters";
+import { HeroVideos } from "../hero-videos";
+import { Button, Container, GLOW, Tick } from "../ui";
 
 export function Hero({ data }: { data: HomeContent["hero"] }) {
   return (
-    <section className="relative z-10 overflow-hidden pb-10 pt-28 sm:pt-32 lg:pt-46">
-      {/* backdrop images come from the dashboard now, not a hard-coded url */}
-      <HeroBackdrop
-        images={data.backgrounds ?? []}
-        seconds={data.backgroundSeconds ?? 7}
-      />
-      <div className="absolute inset-0 -z-1 h-full w-full bg-[#D5D5D5] opacity-85"></div>
+    // This background is load bearing, not decoration: z-10 makes the section
+    // its own stacking context, so the clip mix-blend-multiplies against
+    // whatever this element paints. Left transparent it had no backdrop to
+    // blend with, and the clip pure white sat as a visible box on the page.
+    //
+    // The literal value matches body in globals.css rather than --color-page,
+    // which is two shades off; a token here would show as a faint band.
+    <section className="relative z-10 overflow-hidden bg-[#fafaf9] pb-10 pt-28 sm:pt-32 lg:pt-46">
+      {/* Corner glow, the same recipe as the pricing cards. Sized and inset
+          so the blur stops short of the clip: the clip multiplies with
+          whatever is under it, and a tinted orb there would read as a smudge
+          rather than a glow. Not gated to xl like the floaters — a soft wash
+          in the corners has nothing to collide with. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-1 overflow-hidden"
+      >
+        <span
+          className="absolute -left-32 -top-32 size-[380px] rounded-full opacity-[0.22] blur-[100px]"
+          style={{ background: GLOW }}
+        />
+        <span
+          className="absolute -right-32 -bottom-32 size-[380px] rounded-full opacity-[0.22] blur-[100px]"
+          style={{ background: GLOW }}
+        />
+      </div>
+      <HeroFloaters />
       <Container>
         <h1
           className="rise mx-auto text-balance text-center text-[38px] font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[64px]"
@@ -31,16 +52,7 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         style={{ "--i": 2 } as React.CSSProperties}
       >
         <div className="relative h-[300px] w-[240px] lg:h-[500px] lg:w-[700px]">
-          <div className="absolute top-1/2 left-1/2 -translate-1/2 -z-10 h-full w-[60%] border-4 border-brand rounded-t-full bg-[#D5D5D5] border-b-0" />
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="h-full w-full mix-blend-multiply object-cover"
-          >
-            <source src="/video/video.mp4" type="video/mp4" />
-          </video>
+          <HeroVideos videos={data.videos ?? []} />
         </div>
       </div>
 

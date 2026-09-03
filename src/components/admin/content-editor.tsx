@@ -370,7 +370,7 @@ function ListEditor({
               {expanded ? (
                 <div className="space-y-3 border-t border-line px-3 py-3">
                   <Node
-                    path={[String(i)]}
+                    path={[label, String(i)]}
                     value={item}
                     depth={depth + 1}
                     shape={richest(shape)}
@@ -431,9 +431,11 @@ function Node({
       <MediaPicker
         label={label}
         value={value}
-        // src/alt is the same pair either way; the key name is what says
-        // whether this slot holds a picture or a clip
-        accept={/video/i.test(key) ? "video" : "image"}
+        // src/alt is the same pair either way; the name is what says whether
+        // this slot holds a picture or a clip. The whole path is checked, not
+        // just the last segment: inside a list the segment is an index, and
+        // "videos" only appears one level up.
+        accept={path.some((step) => /video/i.test(step)) ? "video" : "image"}
         onChange={(next) => onChange({ ...value, ...next })}
       />
     );

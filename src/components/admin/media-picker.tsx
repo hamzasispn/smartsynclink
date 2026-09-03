@@ -11,9 +11,9 @@ import { inputClass } from "./ui";
 
 export type ImageValue = { src: string; alt: string };
 
-// A Server Action body is capped at 1MB. Kept a little under 1024*1024 so the
-// multipart boundary and filename that ride along cannot tip it over.
-const MAX_UPLOAD = 1_000_000;
+// Matches serverActions.bodySizeLimit in next.config.ts, which is set to 6MB —
+// the slack is for the multipart boundary and filename riding along.
+const MAX_UPLOAD = 4 * 1024 * 1024;
 
 /**
  * Replaces the raw src/alt text pair everywhere an image is edited.
@@ -51,7 +51,7 @@ export function MediaPicker({
     // it reads as a message next to the field instead of losing the page.
     if (file.size > MAX_UPLOAD) {
       setError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)}MB. The limit is 1MB — compress it and try again.`,
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)}MB. The limit is 4MB — compress it and try again.`,
       );
       return;
     }
@@ -148,7 +148,7 @@ export function MediaPicker({
           <p className="mt-1.5 truncate text-[12px] text-muted">
             {value.src ||
               (isVideo
-                ? "Drop an MP4 here, or upload one (up to 64MB)."
+                ? "Drop an MP4 here, or upload one (up to 4MB)."
                 : "Drop a file here, or upload one.")}
           </p>
         </div>
@@ -165,6 +165,14 @@ export function MediaPicker({
           }}
         />
       </div>
+
+      {isVideo ? (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] leading-[1.5] text-amber-900">
+          Background should be <strong>white only</strong>, please — the hero
+          blends the clip with the page, so any other backdrop shows as a grey
+          block. Size <strong>16:9 only</strong>.
+        </p>
+      ) : null}
 
       <label className="block">
         <span className="mb-1.5 block text-[12px] text-muted">

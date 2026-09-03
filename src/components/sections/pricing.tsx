@@ -1,8 +1,6 @@
 import type { HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
-import { Button, CheckRing, Container, SectionHead } from "../ui";
-
-const GLOW = "linear-gradient(180deg, #292176 0%, #374AA8 58%, #6C31E9 100%)";
+import { Button, CheckRing, Container, GLOW, SectionHead } from "../ui";
 
 export function Pricing({ data }: { data: HomeContent["pricing"] }) {
   return (

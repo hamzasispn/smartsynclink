@@ -13,12 +13,9 @@ export const defaultHomeContent = {
     heading: "Never Lose Another Lead Again.",
     subheading:
       "AI answers calls, replies to messages, books appointments, follows up automatically and helps your business close more customers without hiring more staff.",
-    image: { src: "/images/hero-img.png", alt: "Business owner working on a laptop" } as Media,
-    // More than one turns the hero backdrop into a slow crossfade.
-    backgrounds: [
-      { src: "/images/hero-bg.png", alt: "" },
-    ] as Media[],
-    backgroundSeconds: 7,
+    // Clips crossfade one after another; each advances when it ends, so
+    // there is no timer to keep in sync with the footage.
+    videos: [{ src: "/video/video.mp4", alt: "Product walkthrough" }] as Media[],
     primary: { label: "Book Your Free Strategy Call", href: "#contact" } as Cta,
     secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
     stats: [

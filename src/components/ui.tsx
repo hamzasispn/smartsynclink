@@ -1,6 +1,10 @@
 import Image from "next/image";
 import type { Cta, Media as MediaSlot } from "@/content/home";
 
+/** The brand glow used behind pricing cards and in the hero corners. */
+export const GLOW =
+  "linear-gradient(180deg, #292176 0%, #374AA8 58%, #6C31E9 100%)";
+
 export function Container({
   className = "",
   children,
