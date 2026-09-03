@@ -5,6 +5,7 @@
 // Auth tables are NOT created here — Neon Auth provisions and owns the
 // better-auth schema under neon_auth.
 import { neon } from "@neondatabase/serverless";
+import { defaultIndustry } from "../src/content/industry.ts";
 import { defaultGlobal } from "../src/content/global.ts";
 import { defaultHomeContent } from "../src/content/home.ts";
 
@@ -47,6 +48,32 @@ await sql`
     updated_at timestamptz not null default now()
   )`;
 await sql`create index if not exists services_published_idx on services (published, position)`;
+
+/* ------------------------------------------------------------ industries -- */
+
+// One row per industry landing page. The three per-industry sections live in
+// `data`; everything below them on the page is read from the home document.
+await sql`
+  create table if not exists industries (
+    id         uuid primary key default gen_random_uuid(),
+    slug       text unique not null,
+    name       text not null,
+    excerpt    text not null default '',
+    position   int  not null default 0,
+    published  boolean not null default true,
+    data       jsonb not null default '{}'::jsonb,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+  )`;
+await sql`create index if not exists industries_published_idx on industries (published, position)`;
+
+// Seeds the template once. `do nothing` so re-running setup never wipes edits.
+await sql`
+  insert into industries (slug, name, excerpt, position, data)
+  values ('aesthetics', 'Aesthetics',
+          'Turn treatment interest into booked appointments.', 0,
+          ${JSON.stringify(defaultIndustry)}::jsonb)
+  on conflict (slug) do nothing`;
 
 /* ------------------------------------------------------------------ blog -- */
 
