@@ -220,6 +220,7 @@ export function Media({
   variant = "frame",
   tone = "light",
   priority = false,
+  fit = "cover",
 }: {
   image: MediaSlot;
   className?: string;
@@ -227,6 +228,15 @@ export function Media({
   variant?: "frame" | "plain";
   tone?: "light" | "dark";
   priority?: boolean;
+  /**
+   * How the image fills its box. `contain` keeps the whole picture visible
+   * and letterboxes it; `cover` crops to fill.
+   *
+   * It has to be a prop: className lands on the wrapper, and object-fit only
+   * means anything on the <img> inside it. Passing object-contain through
+   * className looks like it should work and silently does nothing.
+   */
+  fit?: "cover" | "contain";
 }) {
   if (!image.src) {
     return (
@@ -247,7 +257,7 @@ export function Media({
         fill
         sizes={sizes}
         priority={priority}
-        className="object-cover"
+        className={fit === "contain" ? "object-contain" : "object-cover"}
       />
     </div>
   );

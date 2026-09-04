@@ -10,9 +10,9 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           className="grid items-center gap-20 lg:grid-cols-2 lg:gap-40"
           stagger={0.14}
         >
-          <Badge>CONVERSION-FOCUSED FUNNELS</Badge>
-
           <div>
+            <Badge>CONVERSION-FOCUSED FUNNELS</Badge>
+
             <h2 className="text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[64px]">
               {data.heading}
             </h2>
@@ -44,7 +44,8 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <Media
             image={data.image}
             sizes="(max-width: 1024px) 100vw, 640px"
-            className="h-[768px] w-full rounded-3xl object-contain"
+            className="h-[768px] w-full rounded-3xl"
+            fit="contain"
           />
         </Reveal>
       </Container>
