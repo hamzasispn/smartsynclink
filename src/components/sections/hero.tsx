@@ -1,23 +1,10 @@
 import type { HomeContent } from "@/content/home";
-import { HeroFloaters } from "../hero-floaters";
 import { HeroVideos } from "../hero-videos";
 import { Button, Container, GLOW, Tick } from "../ui";
 
 export function Hero({ data }: { data: HomeContent["hero"] }) {
   return (
-    // This background is load bearing, not decoration: z-10 makes the section
-    // its own stacking context, so the clip mix-blend-multiplies against
-    // whatever this element paints. Left transparent it had no backdrop to
-    // blend with, and the clip pure white sat as a visible box on the page.
-    //
-    // The literal value matches body in globals.css rather than --color-page,
-    // which is two shades off; a token here would show as a faint band.
     <section className="relative z-10 overflow-hidden bg-[#fafaf9] pb-10 pt-28 sm:pt-32 lg:pt-46">
-      {/* Corner glow, the same recipe as the pricing cards. Sized and inset
-          so the blur stops short of the clip: the clip multiplies with
-          whatever is under it, and a tinted orb there would read as a smudge
-          rather than a glow. Not gated to xl like the floaters — a soft wash
-          in the corners has nothing to collide with. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-1 overflow-hidden"
@@ -31,7 +18,6 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
           style={{ background: GLOW }}
         />
       </div>
-      <HeroFloaters />
       <Container>
         <h1
           className="rise mx-auto text-balance text-center text-[38px] font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[64px]"
