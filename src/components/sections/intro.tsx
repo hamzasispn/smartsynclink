@@ -1,6 +1,6 @@
 import type { HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
-import { Button, Container, Media } from "../ui";
+import { Button, Container, Media, Badge } from "../ui";
 
 export function Intro({ data }: { data: HomeContent["intro"] }) {
   return (
@@ -10,6 +10,8 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           className="grid items-center gap-20 lg:grid-cols-2 lg:gap-40"
           stagger={0.14}
         >
+          <Badge>CONVERSION-FOCUSED FUNNELS</Badge>
+
           <div>
             <h2 className="text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[64px]">
               {data.heading}
