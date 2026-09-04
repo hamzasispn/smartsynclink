@@ -13,7 +13,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <div>
             <Badge>CONVERSION-FOCUSED FUNNELS</Badge>
 
-            <h2 className="text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[64px]">
+            <h2 className="mt-[40px] text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[64px]">
               {data.heading}
             </h2>
             <p className="mt-9 text-[16px] leading-[1.9] text-ink">
