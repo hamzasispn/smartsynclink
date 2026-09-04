@@ -11,7 +11,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           stagger={0.14}
         >
           <div>
-            <h2 className="text-[64px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[40px]">
+            <h2 className="text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[64px]">
               {data.heading}
             </h2>
             <p className="mt-9 text-[16px] leading-[1.9] text-ink">
@@ -42,7 +42,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <Media
             image={data.image}
             sizes="(max-width: 1024px) 100vw, 640px"
-            className="h-[768px] w-full rounded-3xl"
+            className="h-[768px] w-full rounded-3xl object-contain"
           />
         </Reveal>
       </Container>
