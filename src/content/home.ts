@@ -116,18 +116,29 @@ export const defaultHomeContent = {
         title: "Real Estate",
         body: "Automate lead follow-ups, schedule showings, and keep your pipeline full without lifting a finger.",
         image: { src: "/images/real-estate.png", alt: "Modern multi-storey home" } as Media,
+        frames: [] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Aesthetics & Medspas",
         body: "Fill your booking calendar, handle patient inquiries 24/7, and run automated reactivation campaigns.",
         image: { src: "/images/med-spa.png", alt: "Medspa client after treatment" } as Media,
+        // Plays on hover, one frame a second, twice. Frame one is what the
+        // card rests on.
+        frames: [
+          { src: "/images/industries/medspa/1.png", alt: "Med spa treatment, step 1" },
+          { src: "/images/industries/medspa/2.png", alt: "Med spa treatment, step 2" },
+          { src: "/images/industries/medspa/3.png", alt: "Med spa treatment, step 3" },
+          { src: "/images/industries/medspa/4.png", alt: "Med spa treatment, step 4" },
+          { src: "/images/industries/medspa/5.png", alt: "Med spa treatment, step 5" },
+        ] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Contractors",
         body: "Never miss an estimate request. Our AI answers calls from the job site and books appointments instantly.",
         image: { src: "/images/constrution.png", alt: "Contractor holding blueprints" } as Media,
+        frames: [] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
     ],

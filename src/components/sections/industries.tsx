@@ -1,4 +1,5 @@
 import type { HomeContent } from "@/content/home";
+import { Flipbook } from "../flipbook";
 import { Reveal } from "../reveal";
 import { Button, Container, Media, SectionHead } from "../ui";
 
@@ -24,12 +25,22 @@ export function Industries({ data }: { data: HomeContent["industries"] }) {
                   {card.body}
                 </p>
               </div>
-              <Media
-                image={card.image}
-                variant="plain"
-                sizes="(max-width: 768px) 100vw, 460px"
-                className="w-full flex-1"
-              />
+              {/* a frame sequence when the card has one, the single still
+                  otherwise — so a card without frames is unaffected */}
+              {card.frames?.length ? (
+                <Flipbook
+                  frames={card.frames}
+                  sizes="(max-width: 768px) 100vw, 460px"
+                  className="w-full flex-1"
+                />
+              ) : (
+                <Media
+                  image={card.image}
+                  variant="plain"
+                  sizes="(max-width: 768px) 100vw, 460px"
+                  className="w-full flex-1"
+                />
+              )}
               <Button
                 cta={card.cta}
                 className="absolute inset-x-5 bottom-5 w-auto justify-center"
