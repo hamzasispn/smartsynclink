@@ -11,10 +11,10 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           stagger={0.14}
         >
           <div>
-            <h2 className="text-[40px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[40px]">
+            <h2 className="text-[64px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[40px]">
               {data.heading}
             </h2>
-            <p className="mt-9 text-[16px] leading-[1.9] text-muted">
+            <p className="mt-9 text-[16px] leading-[1.9] text-ink">
               {data.body}
             </p>
 
@@ -29,7 +29,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
               ))}
             </ul>
 
-            <p className="mt-6 text-[16px] leading-[1.9] text-muted">
+            <p className="mt-6 text-[16px] leading-[1.9] text-ink">
               {data.body2}
             </p>
 
@@ -42,7 +42,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <Media
             image={data.image}
             sizes="(max-width: 1024px) 100vw, 640px"
-            className="h-full w-full rounded-3xl"
+            className="h-[768px] w-full rounded-3xl"
           />
         </Reveal>
       </Container>
