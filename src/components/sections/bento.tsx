@@ -31,6 +31,23 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
     <section id="solutions" className="py-24 lg:py-28">
       <Container>
         <Reveal className="grid gap-[16px] lg:grid-cols-12" stagger={0.14}>
+          {/* booking band — the whole row, so it reads as one invitation
+              rather than another feature tile */}
+          <article className="flex flex-col gap-6 rounded-[16px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] p-9 lg:col-span-12 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+            <div>
+              <span className="w-fit rounded-full bg-white/20 px-3.5 py-1.5 text-[16px] font-normal text-white">
+                {data.booking.eyebrow}
+              </span>
+              <h2 className="mt-4 max-w-[24ch] text-[26px] font-medium leading-[1.22] tracking-[-0.02em] text-white sm:text-[30px]">
+                {data.booking.heading}
+              </h2>
+              <p className="mt-3 max-w-[62ch] text-[16px] leading-[136%] text-white">
+                {data.booking.body}
+              </p>
+            </div>
+            <Button cta={data.booking.cta} className="shrink-0 px-8" variant="white" />
+          </article>
+
           {/* complete solution — gradient card */}
           <article className="flex flex-col overflow-hidden rounded-[16px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] px-5.5 pt-6 pb-0 text-white lg:col-span-4">
             <span className="w-fit rounded-full bg-white/20 px-3.5 py-1.5 text-[16px] font-normal">

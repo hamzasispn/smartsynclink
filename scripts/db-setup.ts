@@ -215,14 +215,6 @@ await sql`
         from jsonb_array_elements(data->'nav'->'items') item))
   where key = 'global' and data->'nav' ? 'items'`;
 
-// The hero backdrop moved from a hard-coded CSS url into editable content.
-await sql`
-  update site_content
-  set data = jsonb_set(
-        jsonb_set(data, '{hero,backgrounds}',
-          ${JSON.stringify(defaultHomeContent.hero.backgrounds)}::jsonb),
-        '{hero,backgroundSeconds}', to_jsonb(7))
-  where key = 'home' and not (data->'hero' ? 'backgrounds')`;
 
 /* ------------------------------------------------------------------ seed -- */
 

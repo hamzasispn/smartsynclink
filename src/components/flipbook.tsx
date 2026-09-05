@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Media } from "@/content/home";
 import { Placeholder } from "./ui";
 
-/** Five frames a second. Five frames, two passes: two seconds end to end. */
+/** Five frames a second, whatever the sequence length. */
 const FRAME_MS = 200;
 /** Two passes through the sequence, then it rests. */
 const PASSES = 2;

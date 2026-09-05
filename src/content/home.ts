@@ -1,7 +1,10 @@
 // Shape + seed data for the home page.
 // Live content lives in Postgres (site_content.home); this is the fallback the
 // page renders when the row is missing or the DB is unreachable.
-// No imports here on purpose — the seed script loads this file directly.
+// The only import is the generated frame lists, which the seed script
+// resolves the same way it resolves this file.
+
+import { industryFrames } from "./industry-frames.ts";
 
 export type Cta = { label: string; href: string };
 export type Bullet = { title: string; body?: string };
@@ -54,6 +57,14 @@ export const defaultHomeContent = {
   },
 
   bento: {
+    // full width band across the top of the section
+    booking: {
+      eyebrow: "Ready when you are",
+      heading: "Book an appointment and see it working on your own numbers",
+      body: "Twenty minutes, no slide deck. We look at where calls and messages are going today, then show you exactly what the AI would have caught.",
+      cta: { label: "Book An Appointment", href: "#contact" } as Cta,
+    },
+
     intro: {
       eyebrow: "The Complete Solution",
       heading: "Simple systems that actually work",
@@ -116,29 +127,22 @@ export const defaultHomeContent = {
         title: "Real Estate",
         body: "Automate lead follow-ups, schedule showings, and keep your pipeline full without lifting a finger.",
         image: { src: "/images/real-estate.png", alt: "Modern multi-storey home" } as Media,
-        frames: [] as Media[],
+        frames: industryFrames.realestates ?? [],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Aesthetics & Medspas",
         body: "Fill your booking calendar, handle patient inquiries 24/7, and run automated reactivation campaigns.",
         image: { src: "/images/med-spa.png", alt: "Medspa client after treatment" } as Media,
-        // Plays on hover, one frame a second, twice. Frame one is what the
-        // card rests on.
-        frames: [
-          { src: "/images/industries/medspa/1.png", alt: "Med spa treatment, step 1" },
-          { src: "/images/industries/medspa/2.png", alt: "Med spa treatment, step 2" },
-          { src: "/images/industries/medspa/3.png", alt: "Med spa treatment, step 3" },
-          { src: "/images/industries/medspa/4.png", alt: "Med spa treatment, step 4" },
-          { src: "/images/industries/medspa/5.png", alt: "Med spa treatment, step 5" },
-        ] as Media[],
+        // Hover sequence, generated from the folder — see scripts/sync-frames.ts
+        frames: industryFrames.medspa ?? [],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Contractors",
         body: "Never miss an estimate request. Our AI answers calls from the job site and books appointments instantly.",
         image: { src: "/images/constrution.png", alt: "Contractor holding blueprints" } as Media,
-        frames: [] as Media[],
+        frames: industryFrames.contractor ?? [],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
     ],
