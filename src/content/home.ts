@@ -1,10 +1,7 @@
 // Shape + seed data for the home page.
 // Live content lives in Postgres (site_content.home); this is the fallback the
 // page renders when the row is missing or the DB is unreachable.
-// The only import is the generated frame lists, which the seed script
-// resolves the same way it resolves this file.
-
-import { industryFrames } from "./industry-frames.ts";
+// No imports here on purpose — the seed script loads this file directly.
 
 export type Cta = { label: string; href: string };
 export type Bullet = { title: string; body?: string };
@@ -127,22 +124,24 @@ export const defaultHomeContent = {
         title: "Real Estate",
         body: "Automate lead follow-ups, schedule showings, and keep your pipeline full without lifting a finger.",
         image: { src: "/images/real-estate.png", alt: "Modern multi-storey home" } as Media,
-        frames: industryFrames.realestates ?? [],
+        // Hover sequence, uploaded from the dashboard. The single blank is
+        // the template the editor copies when you press Add — an empty array
+        // would leave it with nothing to clone.
+        frames: [{ src: "", alt: "" }] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Aesthetics & Medspas",
         body: "Fill your booking calendar, handle patient inquiries 24/7, and run automated reactivation campaigns.",
         image: { src: "/images/med-spa.png", alt: "Medspa client after treatment" } as Media,
-        // Hover sequence, generated from the folder — see scripts/sync-frames.ts
-        frames: industryFrames.medspa ?? [],
+        frames: [{ src: "", alt: "" }] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
       {
         title: "Contractors",
         body: "Never miss an estimate request. Our AI answers calls from the job site and books appointments instantly.",
         image: { src: "/images/constrution.png", alt: "Contractor holding blueprints" } as Media,
-        frames: industryFrames.contractor ?? [],
+        frames: [{ src: "", alt: "" }] as Media[],
         cta: { label: "Book Now", href: "#contact" } as Cta,
       },
     ],

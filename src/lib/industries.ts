@@ -1,4 +1,5 @@
 import { defaultIndustry, type IndustryContent } from "@/content/industry";
+import { fill } from "./content";
 import { sql } from "./db";
 import { slugify } from "./services";
 
@@ -16,19 +17,12 @@ export type Industry = {
 /**
  * Merges a stored row over the template.
  *
- * Shallow per section rather than a deep merge: a section the row has not been
- * saved with yet falls back whole, and one it has is used as written. That is
- * what lets a field added to the template appear on rows saved before it
- * existed, without silently resurrecting an item an editor deleted from a list.
+ * Shares the deep fill the page documents use. It was a hand written merge,
+ * one line per section, and adding `brand` to the template broke the build
+ * because that line was easy to forget — the shared helper cannot be.
  */
-function withDefaults(data: Partial<IndustryContent> | null): IndustryContent {
-  const d = data ?? {};
-  return {
-    hero: { ...defaultIndustry.hero, ...(d.hero ?? {}) },
-    problem: { ...defaultIndustry.problem, ...(d.problem ?? {}) },
-    journey: { ...defaultIndustry.journey, ...(d.journey ?? {}) },
-  };
-}
+const withDefaults = (data: Partial<IndustryContent> | null) =>
+  fill(data ?? {}, defaultIndustry);
 
 const shape = (row: Record<string, unknown>): Industry => ({
   ...(row as Omit<Industry, "data">),

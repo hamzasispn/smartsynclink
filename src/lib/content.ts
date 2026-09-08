@@ -23,7 +23,7 @@ import { sql } from "./db";
  * element — an editor who deletes the fourth card means it, and a positional
  * merge would quietly bring the default back.
  */
-function fill<T>(stored: unknown, fallback: T): T {
+export function fill<T>(stored: unknown, fallback: T): T {
   if (Array.isArray(fallback) || Array.isArray(stored)) {
     return (stored === undefined ? fallback : stored) as T;
   }

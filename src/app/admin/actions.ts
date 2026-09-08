@@ -12,6 +12,8 @@ import type { HomeContent } from "@/content/home";
 import { saveAiSettings, clearAiKey } from "@/lib/ai-settings";
 import { deleteMedia, listMedia, storeUpload } from "@/lib/media";
 import { deletePost, listPosts, upsertPost } from "@/lib/posts";
+import { deleteIndustry, upsertIndustry } from "@/lib/industries";
+import type { IndustryContent } from "@/content/industry";
 import { deleteService, upsertService } from "@/lib/services";
 
 /**
@@ -129,6 +131,42 @@ export async function deleteServiceAction(form: FormData) {
   await deleteService(str(form, "id"));
   revalidatePath("/services");
   revalidatePath("/admin/services");
+}
+
+/* ----------------------------------------------------------- industries -- */
+
+/**
+ * Saves one industry landing page.
+ *
+ * Takes a typed object rather than FormData: the three page sections are a
+ * nested document edited by <ContentEditor>, and flattening that into form
+ * fields and back would lose its shape for no gain.
+ */
+export async function saveIndustryAction(input: {
+  id?: string;
+  slug: string;
+  name: string;
+  excerpt: string;
+  position: number;
+  published: boolean;
+  data: IndustryContent;
+}) {
+  await requireAdmin();
+  const id = await upsertIndustry(input);
+
+  // A new row is a new page, so the whole route has to be reconsidered, not
+  // just this slug — /industries/[slug] builds its params from the list.
+  revalidatePath("/industries/[slug]", "page");
+  revalidatePath(`/industries/${input.slug}`);
+  revalidatePath("/admin/industries");
+  return { ok: true as const, id, at: new Date().toISOString() };
+}
+
+export async function deleteIndustryAction(form: FormData) {
+  await requireAdmin();
+  await deleteIndustry(str(form, "id"));
+  revalidatePath("/industries/[slug]", "page");
+  revalidatePath("/admin/industries");
 }
 
 /* ----------------------------------------------------------------- blog -- */

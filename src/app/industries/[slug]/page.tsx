@@ -60,11 +60,23 @@ export default async function IndustryPage({
   ]);
   if (!industry || !industry.published) notFound();
 
+  // An industry may carry its own mark; without one it inherits the site's.
+  // Only the logo is overridden — the name still feeds the alt text and the
+  // fallback wordmark, so the header never ends up nameless.
+  const mark = industry.data.brand?.logo;
+  const brand = mark?.src
+    ? {
+        ...global.brand,
+        logo: mark,
+        logoHeight: industry.data.brand.logoHeight || global.brand.logoHeight,
+      }
+    : global.brand;
+
   return (
     <>
       {/* header sits on the hero artwork, as it does on the home page */}
       <div className="blueprint relative overflow-hidden">
-        <Header brand={global.brand} nav={global.nav} />
+        <Header brand={brand} nav={global.nav} />
         <IndustryHero data={industry.data.hero} />
       </div>
 
@@ -78,7 +90,7 @@ export default async function IndustryPage({
         <FinalCta data={home.finalCta} />
       </main>
 
-      <Footer brand={global.brand} data={global.footer} />
+      <Footer brand={brand} data={global.footer} />
     </>
   );
 }

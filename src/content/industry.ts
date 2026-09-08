@@ -22,6 +22,16 @@ export type JourneyStep = {
 };
 
 export const defaultIndustry = {
+  /**
+   * The header mark for this industry only. Left empty, the page uses the
+   * site logo — so a new industry looks right before anyone uploads
+   * anything, and a contractor page can still carry a contractor mark.
+   */
+  brand: {
+    logo: { src: "", alt: "" } as Media,
+    logoHeight: 32,
+  },
+
   hero: {
     badge: "SMARTSYNCLINK FOR AESTHETICS",
     heading: "Turn Treatment Interest Into More Consultations & Booked Appointments.",
