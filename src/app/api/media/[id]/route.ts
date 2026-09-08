@@ -21,8 +21,10 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+  const { id: param } = await params;
+  // the extension is decoration for the caller; the row is keyed by the id
+  const id = param.match(/^([0-9a-f-]{36})(?:\.[a-z0-9]+)?$/i)?.[1];
+  if (!id) {
     return new Response("Not found", { status: 404 });
   }
 

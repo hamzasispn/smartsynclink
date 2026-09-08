@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { GlobalContent } from "@/content/global";
 import { SiteLogo } from "./site-logo";
 import { Bolt, Button, Chevron, Container, UserIcon } from "./ui";
@@ -18,15 +17,17 @@ export function Wordmark({
       className={`flex items-center gap-2.5 text-ink transition-opacity hover:opacity-80 ${className}`}
     >
       {brand.logo?.src ? (
-        // width is only a srcset hint; the rendered size comes from the style,
-        // so any logo aspect ratio works without being told about it
-        <Image
+        /* A plain <img>, not next/image. Logos are very often SVG, and the
+           optimiser refuses those outright — "image type is not allowed" —
+           so the header rendered nothing at all. It also wanted a width and
+           height it cannot know for a vector. At this size there is no
+           optimisation worth having, and this works for every format. */
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={brand.logo.src}
           alt={brand.logo.alt || brand.name}
-          width={240}
-          height={height}
           style={{ height, width: "auto" }}
-          priority
+          className="shrink-0"
         />
       ) : (
         // the lockup already contains the wordmark, so no separate name here

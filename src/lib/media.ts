@@ -16,6 +16,29 @@ const MAX_VIDEO = 4 * 1024 * 1024; // must stay under serverActions.bodySizeLimi
 const MAX_EDGE = 1920;
 
 /**
+ * Puts the file type in the URL.
+ *
+ * `/api/media/<uuid>` hid what it was serving, and a caller cannot tell an
+ * SVG from a photo by looking at it — which matters, because next/image
+ * refuses to optimise SVG and the request fails with "image type is not
+ * allowed". With the extension there, the component can pick the right
+ * element. The route still answers the bare id, so URLs already stored keep
+ * working.
+ */
+const EXT: Record<string, string> = {
+  "image/webp": "webp",
+  "image/svg+xml": "svg",
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/gif": "gif",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+};
+
+const mediaUrl = (id: string, mime: string) =>
+  `/api/media/${id}${EXT[mime] ? `.${EXT[mime]}` : ""}`;
+
+/**
  * Accepts a browser File, normalises it, and stores it.
  *
  * Everything becomes webp at most 1920px on its long edge — a phone photo
@@ -68,14 +91,25 @@ export async function storeUpload(file: File): Promise<MediaItem> {
     returning id`;
 
   const id = rows[0].id as string;
-  return { id, filename: name, mime, width, height, bytes: data.length, url: `/api/media/${id}` };
+  return {
+    id,
+    filename: name,
+    mime,
+    width,
+    height,
+    bytes: data.length,
+    url: mediaUrl(id, mime),
+  };
 }
 
 export async function listMedia(limit = 60): Promise<MediaItem[]> {
   const rows = await sql`
     select id, filename, mime, width, height, bytes
     from media order by created_at desc limit ${limit}`;
-  return rows.map((r) => ({ ...(r as Omit<MediaItem, "url">), url: `/api/media/${r.id}` }));
+  return rows.map((r) => {
+    const item = r as Omit<MediaItem, "url">;
+    return { ...item, url: mediaUrl(item.id, item.mime) };
+  });
 }
 
 /** base64 round-trip: the driver hands bytea back as a hex string otherwise. */

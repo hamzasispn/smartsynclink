@@ -249,6 +249,23 @@ export function Media({
     );
   }
 
+  // The optimiser rejects SVG, so a vector goes out as it is. The extension
+  // is in the URL for exactly this — see mediaUrl in lib/media.ts.
+  if (/\.svg(\?|$)/i.test(image.src)) {
+    return (
+      <div className={`relative overflow-hidden ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={image.src}
+          alt={image.alt}
+          className={`absolute inset-0 h-full w-full ${
+            fit === "contain" ? "object-contain" : "object-cover"
+          }`}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <Image
