@@ -13,6 +13,14 @@ const pages = [
     description: "Hero, features, industries, steps, pricing, testimonials, FAQ.",
     live: true,
   },
+  {
+    href: "/admin/pages/blog",
+    title: "Blog page",
+    path: "/blog",
+    description:
+      "The heading, category row, newsletter and labels around the posts.",
+    live: true,
+  },
 ];
 
 export default function PagesIndex() {
@@ -45,7 +53,7 @@ export default function PagesIndex() {
       </Card>
 
       <p className="mt-5 text-[14px] leading-[1.7] text-muted">
-        Services and blog posts have their own sections — they are lists of
+        Services and the posts themselves have their own sections — they are lists of
         records rather than single pages.
       </p>
     </>

@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { generatePost } from "@/lib/ai";
 import { getAutopilot, recordRun, saveAutopilot } from "@/lib/autopilot";
-import { saveGlobalContent, saveHomeContent } from "@/lib/content";
+import { saveBlogContent, saveGlobalContent, saveHomeContent } from "@/lib/content";
+import type { BlogContent } from "@/content/blog";
 import type { GlobalContent } from "@/content/global";
 import type { HomeContent } from "@/content/home";
 import { saveAiSettings, clearAiKey } from "@/lib/ai-settings";
@@ -41,6 +42,18 @@ export async function saveHomeAction(data: HomeContent) {
   await saveHomeContent(data);
   revalidatePath("/");
   revalidatePath("/admin/pages/home");
+  return { ok: true as const, at: new Date().toISOString() };
+}
+
+/* ------------------------------------------------------------ blog page -- */
+
+/** The headings and labels around the posts — not the posts themselves. */
+export async function saveBlogPageAction(data: BlogContent) {
+  await requireAdmin();
+  await saveBlogContent(data);
+  revalidatePath("/blog");
+  revalidatePath("/blog/[slug]", "page");
+  revalidatePath("/admin/pages/blog");
   return { ok: true as const, at: new Date().toISOString() };
 }
 
