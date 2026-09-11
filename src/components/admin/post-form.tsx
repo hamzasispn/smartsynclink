@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Post } from "@/lib/posts";
 import { savePostAction } from "@/app/admin/actions";
 import { AiBtn, AiChoices, AiError, useAssist } from "./ai";
 import { Btn, Card, Field, inputClass } from "./ui";
 import { MediaPicker } from "./media-picker";
+import { MdToolbar } from "./md-toolbar";
 
 export function PostForm({ post }: { post: Post | null }) {
   const [title, setTitle] = useState(post?.title ?? "");
@@ -15,6 +16,7 @@ export function PostForm({ post }: { post: Post | null }) {
   const [tags, setTags] = useState(post?.tags.join(", ") ?? "");
   const [body, setBody] = useState(post?.body ?? "");
   const [published, setPublished] = useState(post?.status === "published");
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   const [titleOptions, setTitleOptions] = useState<string[]>([]);
   const [instruction, setInstruction] = useState("");
@@ -147,7 +149,9 @@ export function PostForm({ post }: { post: Post | null }) {
 
         <div>
           <Field label="Body">
+            <MdToolbar textarea={bodyRef} value={body} onChange={setBody} />
             <textarea
+              ref={bodyRef}
               name="body"
               rows={22}
               value={body}

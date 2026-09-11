@@ -16,7 +16,7 @@ export const defaultHomeContent = {
     // Clips crossfade one after another; each advances when it ends, so
     // there is no timer to keep in sync with the footage.
     videos: [{ src: "/video/video.mp4", alt: "Product walkthrough" }] as Media[],
-    primary: { label: "Book Your Free Strategy Call", href: "#contact" } as Cta,
+    primary: { label: "Book Your Free Strategy Call", href: "#call" } as Cta,
     secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
     stats: [
       "Trusted By 3,000+ Businesses",
@@ -48,7 +48,7 @@ export const defaultHomeContent = {
     ],
     body2:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1968, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets.",
-    primary: { label: "Book Your Free Strategy Call", href: "#contact" } as Cta,
+    primary: { label: "Book Your Free Strategy Call", href: "#call" } as Cta,
     secondary: { label: "Learn more about funnel", href: "#funnel" } as Cta,
     image: { src: "", alt: "Websites built with Smart Sync Link" } as Media,
   },
@@ -197,7 +197,7 @@ export const defaultHomeContent = {
           "AI Web Widget",
           "Smart Website",
         ],
-        cta: { label: "Book A Call Now", href: "#contact" } as Cta,
+        cta: { label: "Book A Call Now", href: "#call" } as Cta,
       },
       {
         name: "Smart Site Link",
@@ -217,7 +217,7 @@ export const defaultHomeContent = {
           "Custom Website / Update Current Site",
           "Fully Hosted Ecosystem",
         ],
-        cta: { label: "Book A Call Now", href: "#contact" } as Cta,
+        cta: { label: "Book A Call Now", href: "#call" } as Cta,
       },
       {
         name: "Elite Link",
@@ -240,7 +240,7 @@ export const defaultHomeContent = {
           "Expert AI Assistant",
           "Advanced Workflow Automations",
         ],
-        cta: { label: "Book A Call Now", href: "#contact" } as Cta,
+        cta: { label: "Book A Call Now", href: "#call" } as Cta,
       },
     ],
   },
@@ -321,7 +321,7 @@ export const defaultHomeContent = {
   finalCta: {
     heading: "Every Day You Wait Is Another Day of Missed Leads and Lost Revenue.",
     body: "Stop relying on manual processes. Let Smart Sync Link automate your customer journey, capture every opportunity, and help your business grow with confidence.",
-    cta: { label: "Book A Call Now", href: "#contact" } as Cta,
+    cta: { label: "Book A Call Now", href: "#call" } as Cta,
     orbLabel: "Smart AI Assistant",
     // #demo is the handle the popup listens for — see DemoModal
     pill: { label: "Try Now", href: "#demo" } as Cta,
@@ -357,6 +357,8 @@ export const defaultHomeContent = {
       "Twenty minutes, no slide deck. We look at where your calls and messages go today, then show you what the AI would have caught.",
     /** Paste the booking widget URL here. Empty hides the section. */
     embedUrl: "https://link.smartsynclink.com/widget/booking/CiZVGpWY8IwKehDSPPHZ",
+    /** The "Book a call" buttons open this one instead. Empty falls back above. */
+    callEmbedUrl: "https://link.smartsynclink.com/widget/booking/MVbnzZUSVYjA4pVXK9b2",
   },
 };
 

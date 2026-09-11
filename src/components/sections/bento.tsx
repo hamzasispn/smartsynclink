@@ -1,7 +1,6 @@
 import type { Bullet, HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
-import { InboxMockup } from "../inbox-mockup";
 import { Button, CheckSolid, Container, Media } from "../ui";
 
 function FeatureList({ bullets }: { bullets: Bullet[] }) {
@@ -88,7 +87,13 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
 
           {/* smart inbox — ui shot on brand */}
           <div className="rounded-[16px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] lg:col-span-6 pb-0 flex items-end justify-center">
-            <InboxMockup />
+            {/* eslint-disable-next-line @next/next/no-img-element -- a flat
+                screenshot, not a responsive source set */}
+            <img
+              src="/images/inbox-image.png"
+              alt={data.inbox.heading}
+              className="block w-full max-w-[560px] object-contain"
+            />
           </div>
 
           {/* campaigns */}

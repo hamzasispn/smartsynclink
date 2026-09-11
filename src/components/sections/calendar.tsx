@@ -18,22 +18,27 @@ import type { HomeContent } from "@/content/home";
  * The suffix is fixed, not Date.now(), so server and client agree.
  */
 export function Calendar({ data }: { data: HomeContent["calendar"] }) {
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  // which of the two bookings is showing — #contact is the appointment
+  // calendar, #call the strategy call. null means the popup is closed.
+  const [kind, setKind] = useState<"appointment" | "call" | null>(null);
+  const close = useCallback(() => setKind(null), []);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.button !== 0) return;
-      if (!(event.target as Element | null)?.closest?.('a[href="#contact"], a[href$="/#contact"]')) return;
+      const link = (event.target as Element | null)?.closest?.(
+        'a[href="#contact"], a[href$="/#contact"], a[href="#call"], a[href$="/#call"]',
+      );
+      if (!link) return;
       event.preventDefault();
-      setOpen(true);
+      setKind(link.getAttribute("href")!.endsWith("#call") ? "call" : "appointment");
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
   }, []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!kind) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -42,11 +47,13 @@ export function Calendar({ data }: { data: HomeContent["calendar"] }) {
       document.body.style.overflow = previous;
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, close]);
+  }, [kind, close]);
 
-  if (!data?.embedUrl || !open) return null;
+  const embedUrl =
+    kind === "call" ? data?.callEmbedUrl || data?.embedUrl : data?.embedUrl;
+  if (!kind || !embedUrl) return null;
 
-  const bookingId = data.embedUrl.split("?")[0].split("/").filter(Boolean).pop() ?? "booking";
+  const bookingId = embedUrl.split("?")[0].split("/").filter(Boolean).pop() ?? "booking";
 
   return (
     <div
@@ -84,7 +91,7 @@ export function Calendar({ data }: { data: HomeContent["calendar"] }) {
             whether or not that script ever runs */}
         <iframe
           id={`${bookingId}_1`}
-          src={data.embedUrl}
+          src={embedUrl}
           title={data.heading}
           allow="payment"
           className="booking-frame block w-full shrink border-0"

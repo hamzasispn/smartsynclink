@@ -489,3 +489,42 @@ summary::-webkit-details-marker {
   height: 520px !important;
   max-height: calc(100dvh - 12rem) !important;
 }
+
+/* The blog follows the reference's typography, which sets its headings at 700.
+   The global h1–h6 rule above is unlayered and would otherwise beat Tailwind's
+   font-bold utility, so the override has to be a class, not a utility. */
+.blog-heading {
+  font-weight: 700;
+}
+
+
+
+/* Markdown tables. GFM gives editors a table with a pipe row, and without
+   these it renders as unstyled rows that read as run-on text. The wrapper
+   scrolls on narrow screens so a wide table never widens the page. */
+.prose-site table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+.prose-site th,
+.prose-site td {
+  border: 1px solid var(--color-line);
+  padding: 10px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.prose-site th {
+  background: var(--color-surface);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.prose-site h2,
+.prose-site h3 {
+  scroll-margin-top: 120px;
+}
+
+
+

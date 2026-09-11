@@ -210,3 +210,103 @@ export function Newsletter({ blog }: { blog: BlogContent }) {
     </div>
   );
 }
+
+/* ---------------------------------------------------------------------------
+   The /blog index tiles.
+
+   Measured off the reference: a 560×315 cover (16:9) with no radius of its
+   own, the card clipping it, then 12/20/20 of padding around a 20/28 bold
+   title and the date. The whole card is one link — the design gives it no
+   separate "read more", so anything less than the full surface would be a
+   smaller hit area than it looks.
+--------------------------------------------------------------------------- */
+
+export function PostTile({ post }: { post: Post }) {
+  return (
+    <article className="overflow-hidden rounded-[10px] bg-surface">
+      <Link href={`/blog/${post.slug}`} className="group block">
+        <Media
+          image={{ src: post.cover, alt: post.title }}
+          variant="plain"
+          sizes="(max-width: 900px) 100vw, 560px"
+          className="aspect-16/9 w-full rounded-none"
+        />
+        <div className="px-5 pt-3 pb-5">
+          <h2 className="blog-heading text-[20px] leading-[28px] text-ink transition-colors group-hover:text-brand">
+            {post.title}
+          </h2>
+          {post.published_at ? (
+            <time
+              dateTime={post.published_at}
+              className="mt-3 block text-[16px] leading-[24px] text-muted"
+            >
+              {formatDate(post.published_at)}
+            </time>
+          ) : null}
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+/**
+ * The band that splits the grid in half.
+ *
+ * Full bleed colour, 1160 of content inside it — the copy and form sit left,
+ * the artwork right. With no artwork uploaded the text simply keeps its
+ * column rather than stretching across the band, so the band still reads as
+ * designed instead of as a wide empty stripe.
+ */
+export function NewsletterBand({ blog }: { blog: BlogContent }) {
+  const n = blog.newsletter;
+  return (
+    <section className="mt-16 bg-brand-soft">
+      <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 py-12 md:grid-cols-2">
+        <div>
+          <h2 className="blog-heading text-[32px] leading-[40px] text-ink">
+            {n.heading}
+          </h2>
+          <p className="mt-2 max-w-[38ch] text-[16px] leading-[24px] text-muted">
+            {n.body}
+          </p>
+
+          <form className="relative mt-6 w-full max-w-[360px]">
+            <label className="sr-only" htmlFor="blog-newsletter">
+              {n.label}
+            </label>
+            <input
+              id="blog-newsletter"
+              type="email"
+              name="email"
+              required
+              placeholder={n.placeholder}
+              className="h-[52px] w-full rounded-full border border-line bg-white pr-[104px] pl-6 text-[16px] text-ink outline-none placeholder:text-muted focus-visible:border-brand"
+            />
+            <button
+              type="submit"
+              className="absolute top-1.5 right-1.5 h-10 rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] px-5 text-[16px] font-bold text-white transition-opacity hover:opacity-90"
+            >
+              {n.cta}
+            </button>
+          </form>
+
+          <p className="mt-3 text-[16px] leading-[24px] text-muted">
+            {n.note}{" "}
+            <a href={n.noteLink.href} className="text-brand underline">
+              {n.noteLink.label}
+            </a>
+          </p>
+        </div>
+
+        {n.image?.src ? (
+          <Media
+            image={n.image}
+            variant="plain"
+            sizes="(max-width: 768px) 100vw, 560px"
+            className="aspect-16/10 w-full rounded-none"
+          />
+        ) : null}
+      </div>
+    </section>
+  );
+}

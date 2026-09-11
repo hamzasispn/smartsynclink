@@ -2,15 +2,9 @@ import type { Metadata } from "next";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { FinalCta } from "@/components/sections";
-import {
-  ColumnHead,
-  FeaturedRow,
-  Newsletter,
-  PostCard,
-  RecentRow,
-} from "@/components/blog/parts";
-import { Pagination, TagFilter } from "@/components/blog/filters";
-import { Badge, Container } from "@/components/ui";
+import { NewsletterBand, PostTile } from "@/components/blog/parts";
+import { Badge } from "@/components/ui";
+import { CirclePagination, TabRow } from "@/components/blog/filters";
 import { getBlogContent, getGlobalContent, getHomeContent } from "@/lib/content";
 import { listPosts } from "@/lib/posts";
 
@@ -22,6 +16,13 @@ export const metadata: Metadata = {
     "Practical insights on AI, automation, lead generation and follow-up for service businesses.",
 };
 
+/**
+ * The blog index.
+ *
+ * A dark title band, a tab bar of categories with search, then one grid of
+ * cards split by the newsletter band. 1200 of container with 20 of padding
+ * makes 1160 of content, which is two 560 cards and the 40 between them.
+ */
 export default async function BlogIndex({
   searchParams,
 }: {
@@ -47,15 +48,14 @@ export default async function BlogIndex({
     return `${post.title} ${post.excerpt}`.toLowerCase().includes(needle);
   });
 
-  const perPage = Math.max(1, blog.perPage || 4);
+  const perPage = Math.max(1, blog.perPage || 10);
   const totalPages = Math.max(1, Math.ceil(matching.length / perPage));
   const page = Math.min(Math.max(1, Number(pageParam) || 1), totalPages);
-  const featured = matching.slice((page - 1) * perPage, page * perPage);
+  const shown = matching.slice((page - 1) * perPage, page * perPage);
 
-  // The sidebar always shows the newest posts, whatever the filter says — it
-  // is a way out of an empty result, not a second view of the same list.
-  const recent = posts.slice(0, 3);
-  const spotlight = posts[3] ?? posts[0] ?? null;
+  const split = Math.max(0, blog.beforeNewsletter ?? 4);
+  const above = shown.slice(0, split);
+  const below = shown.slice(split);
 
   const hrefFor = (n: number) => {
     const params = new URLSearchParams();
@@ -66,74 +66,62 @@ export default async function BlogIndex({
     return query ? `/blog?${query}` : "/blog";
   };
 
+  const grid = "grid gap-x-10 gap-y-13 md:grid-cols-2";
+
   return (
     <>
       <Header brand={global.brand} nav={global.nav} />
 
       <main className="pb-24">
-        <Container>
-          <div className="flex flex-col items-center pt-40 text-center">
-            <Badge>{blog.badge}</Badge>
-            <h1 className="mt-5 max-w-[760px] text-balance text-[34px] font-medium leading-[1.15] tracking-[-0.02em] text-ink sm:text-[42px]">
-              {blog.heading}
-            </h1>
-            <p className="mt-5 max-w-[68ch] text-[15px] leading-[1.7] text-[#1E1E1E]">
-              {blog.subheading}
-            </p>
-          </div>
+        {/* page title — the same badge + heading the sections use, left aligned
+            rather than centred, on the page's own background */}
+        <section className="mx-auto w-full max-w-[1200px] px-5 pt-[168px] pb-4">
+          <Badge>{blog.badge}</Badge>
+          <h1 className="mt-6 max-w-[18ch] text-[40px] font-medium leading-[1.1] tracking-[-0.03em] text-ink sm:text-[52px] lg:text-[60px]">
+            {blog.heading}
+          </h1>
+          <p className="mt-5 max-w-[70ch] text-[16px] leading-[1.7] text-[#1E1E1E]">
+            {blog.subheading}
+          </p>
+        </section>
 
-          {tags.length ? (
-            <div className="mt-14">
-              <TagFilter tags={tags} active={tag ?? null} allLabel={blog.allLabel} />
+        <TabRow
+          tags={tags}
+          active={tag ?? null}
+          allLabel={blog.allLabel}
+          placeholder={blog.search.placeholder}
+          query={q ?? ""}
+        />
+
+        <div className="mx-auto w-full max-w-[1200px] px-5 pt-12">
+          {above.length ? (
+            <div className={grid}>
+              {above.map((post) => (
+                <PostTile key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-[10px] border border-dashed border-line px-6 py-16 text-center text-[16px] text-muted">
+              {posts.length
+                ? "Nothing matches that filter yet."
+                : "No posts published yet."}
+            </p>
+          )}
+        </div>
+
+        {above.length ? <NewsletterBand blog={blog} /> : null}
+
+        <div className="mx-auto w-full max-w-[1200px] px-5">
+          {below.length ? (
+            <div className={`${grid} pt-16`}>
+              {below.map((post) => (
+                <PostTile key={post.id} post={post} />
+              ))}
             </div>
           ) : null}
 
-          <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-12">
-            {/* featured column */}
-            <div className="lg:col-span-8">
-              <ColumnHead>{blog.featuredLabel}</ColumnHead>
-
-              {featured.length ? (
-                <div className="mt-7 flex flex-col gap-9">
-                  {featured.map((post) => (
-                    <FeaturedRow key={post.id} post={post} blog={blog} />
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-7 rounded-2xl border border-dashed border-line px-6 py-14 text-center text-[15px] text-muted">
-                  {posts.length
-                    ? "Nothing matches that filter yet."
-                    : "No posts published yet."}
-                </p>
-              )}
-
-              <Pagination page={page} total={totalPages} hrefFor={hrefFor} />
-            </div>
-
-            {/* sidebar */}
-            <aside className="flex flex-col gap-9 lg:col-span-4">
-              {recent.length ? (
-                <section>
-                  <ColumnHead>{blog.recentLabel}</ColumnHead>
-                  <div className="mt-5 flex flex-col gap-4">
-                    {recent.map((post) => (
-                      <RecentRow key={post.id} post={post} byline={blog.byline} />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {spotlight ? <PostCard post={spotlight} blog={blog} /> : null}
-
-              <section>
-                <ColumnHead rule={false}>{blog.newsletter.label}</ColumnHead>
-                <div className="mt-5">
-                  <Newsletter blog={blog} />
-                </div>
-              </section>
-            </aside>
-          </div>
-        </Container>
+          <CirclePagination page={page} total={totalPages} hrefFor={hrefFor} />
+        </div>
 
         <div className="mt-24">
           <FinalCta data={home.finalCta} />
