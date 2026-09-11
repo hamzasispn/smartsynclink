@@ -6,9 +6,15 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { generatePost } from "@/lib/ai";
 import { getAutopilot, recordRun, saveAutopilot } from "@/lib/autopilot";
-import { saveBlogContent, saveGlobalContent, saveHomeContent } from "@/lib/content";
+import {
+  saveBlogContent,
+  saveGlobalContent,
+  saveHomeContent,
+  saveSolutionsContent,
+} from "@/lib/content";
 import type { BlogContent } from "@/content/blog";
 import type { GlobalContent } from "@/content/global";
+import type { SolutionsContent } from "@/content/solutions";
 import type { HomeContent } from "@/content/home";
 import { saveAiSettings, clearAiKey } from "@/lib/ai-settings";
 import { deleteMedia, listMedia, storeUpload } from "@/lib/media";
@@ -54,6 +60,16 @@ export async function saveBlogPageAction(data: BlogContent) {
   revalidatePath("/blog");
   revalidatePath("/blog/[slug]", "page");
   revalidatePath("/admin/pages/blog");
+  return { ok: true as const, at: new Date().toISOString() };
+}
+
+/* ------------------------------------------------------- solutions page -- */
+
+export async function saveSolutionsAction(data: SolutionsContent) {
+  await requireAdmin();
+  await saveSolutionsContent(data);
+  revalidatePath("/solutions");
+  revalidatePath("/admin/pages/solutions");
   return { ok: true as const, at: new Date().toISOString() };
 }
 

@@ -21,6 +21,13 @@ const pages = [
       "The heading, category row, newsletter and labels around the posts.",
     live: true,
   },
+  {
+    href: "/admin/pages/solutions",
+    title: "Solutions page",
+    path: "/solutions",
+    description: "The intro and every card in the solutions grid.",
+    live: true,
+  },
 ];
 
 export default function PagesIndex() {

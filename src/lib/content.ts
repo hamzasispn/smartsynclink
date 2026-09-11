@@ -1,5 +1,6 @@
 import { defaultBlog, type BlogContent } from "@/content/blog";
 import { defaultGlobal, type GlobalContent } from "@/content/global";
+import { defaultSolutions, type SolutionsContent } from "@/content/solutions";
 import { defaultHomeContent, type HomeContent } from "@/content/home";
 import { sql } from "./db";
 
@@ -9,6 +10,7 @@ import { sql } from "./db";
  *   global — brand, nav, footer: everything every page renders
  *   home   — the home page's own sections
  *   blog   — the headings and labels around the posts themselves
+ *   solutions — the /solutions grid
  *
  * ponytail: one row per document, no per-section tables. Split further only if
  * two editors ever need to save different sections at the same time.
@@ -66,6 +68,11 @@ export const saveHomeContent = (data: HomeContent) => write("home", data);
 
 export const getBlogContent = () => read<BlogContent>("blog", defaultBlog);
 export const saveBlogContent = (data: BlogContent) => write("blog", data);
+
+export const getSolutionsContent = () =>
+  read<SolutionsContent>("solutions", defaultSolutions);
+export const saveSolutionsContent = (data: SolutionsContent) =>
+  write("solutions", data);
 
 export const getGlobalContent = () => read<GlobalContent>("global", defaultGlobal);
 export const saveGlobalContent = (data: GlobalContent) => write("global", data);

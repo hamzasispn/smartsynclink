@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { DemoModal } from "@/components/demo-modal";
+import { Calendar } from "@/components/sections/calendar";
 import { Loader } from "@/components/loader";
 import { PointerFill } from "@/components/pointer-fill";
+import { getHomeContent } from "@/lib/content";
 
 // Inter variable: opsz 14→32, wght 100→900 (verified from the fvar table).
 // opsz 32 IS the Display cut. globals.css pins the axis there for every
@@ -21,9 +24,12 @@ export const metadata: Metadata = {
     "AI answers calls, replies to messages, books appointments, and follows up automatically so your business closes more customers without hiring more staff.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // mounted here rather than per page, so a #demo link works from anywhere
+  const { demo, calendar } = await getHomeContent();
+
   return (
     <html lang="en">
       <body>
@@ -33,6 +39,8 @@ export default function RootLayout({
         </noscript>
         <Loader />
         {children}
+        <DemoModal data={demo} />
+        <Calendar data={calendar} />
         <PointerFill />
       </body>
     </html>

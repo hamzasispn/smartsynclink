@@ -127,7 +127,7 @@ export const defaultGlobal = {
       { label: "Blog", href: "/blog", mega: false, children: [] },
     ] as NavItem[],
     login: { label: "Login", href: "/login" } as Cta,
-    cta: { label: "Start Free Trial", href: "#pricing" } as Cta,
+    cta: { label: "Start Free Trial", href: "#contact" } as Cta,
   },
 
   footer: {

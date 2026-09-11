@@ -12,7 +12,7 @@ const chipSpots = [
 
 export function FinalCta({ data }: { data: HomeContent["finalCta"] }) {
   return (
-    <section id="contact" className="pb-24 lg:pb-28">
+    <section id="get-started" className="pb-24 lg:pb-28">
       <Container>
         <Reveal className="relative grid items-center gap-12 overflow-hidden rounded-[30px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] p-10 text-white lg:grid-cols-2 lg:p-16">
           <div>

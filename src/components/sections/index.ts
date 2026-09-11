@@ -1,5 +1,6 @@
 // Barrel so page.tsx keeps a single import.
 export { Bento } from "./bento";
+export { Calendar } from "./calendar";
 export { Faq } from "./faq";
 export { FinalCta } from "./final-cta";
 export { Hero } from "./hero";
@@ -11,5 +12,6 @@ export { IndustryProblem } from "./industry-problem";
 export { Intro } from "./intro";
 export { Pricing } from "./pricing";
 export { ShowcaseVideo } from "./showcase-video";
+export { Solutions } from "./solutions";
 export { Steps } from "./steps";
 export { Testimonials } from "./testimonials";

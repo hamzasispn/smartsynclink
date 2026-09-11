@@ -323,13 +323,40 @@ export const defaultHomeContent = {
     body: "Stop relying on manual processes. Let Smart Sync Link automate your customer journey, capture every opportunity, and help your business grow with confidence.",
     cta: { label: "Book A Call Now", href: "#contact" } as Cta,
     orbLabel: "Smart AI Assistant",
-    pill: { label: "Try Now", href: "#contact" } as Cta,
+    // #demo is the handle the popup listens for — see DemoModal
+    pill: { label: "Try Now", href: "#demo" } as Cta,
     chips: [
       "AI answers calls",
       "AI replies to messages",
       "AI books appointments",
       "AI follows up automatically",
     ],
+  },
+
+  // Opens over the page whenever a link points at #demo — the hero's
+  // "Watch 3-Minute Demo", the Try Now pill, and anything else pointed there.
+  demo: {
+    headerTitle: "Talk to us!",
+    agentName: "Sofia",
+    agentBadge: "AI",
+    role: "Support Agent",
+    avatar: { src: "", alt: "Sofia, AI support agent" } as Media,
+    reply: "Sure! I can book a consultation for next Tuesday.",
+    bookedTitle: "Appointment Booked",
+    bookedSub: "Just now",
+    syncedTitle: "Calendar Synced",
+    syncedSub: "Automated",
+    /** The LeadConnector voice widget. Empty hides the embed. */
+    widgetId: "69e0ba00663add6222d0a27d",
+  },
+
+  calendar: {
+    badge: "BOOK A TIME",
+    heading: "Pick a slot that suits you",
+    subheading:
+      "Twenty minutes, no slide deck. We look at where your calls and messages go today, then show you what the AI would have caught.",
+    /** Paste the booking widget URL here. Empty hides the section. */
+    embedUrl: "https://link.smartsynclink.com/widget/booking/CiZVGpWY8IwKehDSPPHZ",
   },
 };
 
