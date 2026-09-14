@@ -39,9 +39,13 @@ export function Reveal({
     const targets = stagger ? Array.from(el.children) : [el];
     if (!targets.length) return;
 
-    gsap.from(targets, {
-      autoAlpha: 0,
-      y: y ?? (phone ? 18 : 32),
+    // fromTo, not from: from() reads the end state off the computed style,
+    // and on a button with transition-all that value is caught mid-fade after
+    // a remount (dev double-effects, HMR) — the button then tweens from 0 to 0
+    // and never shows. Stating the end state explicitly removes the guess.
+    gsap.fromTo(targets, { autoAlpha: 0, y: y ?? (phone ? 18 : 32) }, {
+      autoAlpha: 1,
+      y: 0,
       duration: phone ? 0.5 : 0.7,
       ease: "power3.out",
       delay,

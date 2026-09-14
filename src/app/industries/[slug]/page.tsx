@@ -4,11 +4,13 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import {
   FinalCta,
+  Funnel,
   IndustryHero,
   IndustryJourney,
   IndustryProblem,
   Pricing,
   Steps,
+  Suite,
 } from "@/components/sections";
 import { getGlobalContent, getHomeContent } from "@/lib/content";
 import { getIndustry, listIndustries } from "@/lib/industries";
@@ -83,6 +85,9 @@ export default async function IndustryPage({
       <main>
         <IndustryProblem data={industry.data.problem} />
         <IndustryJourney data={industry.data.journey} />
+
+        {industry.data.showcase.suite ? <Suite data={home.suite} /> : null}
+        {industry.data.showcase.funnel ? <Funnel data={home.funnel} /> : null}
 
         {/* shared below the fold */}
         <Steps data={home.steps} />

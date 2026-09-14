@@ -56,10 +56,13 @@ export const defaultHomeContent = {
   bento: {
     // full width band across the top of the section
     booking: {
-      eyebrow: "Ready when you are",
-      heading: "Book an appointment and see it working on your own numbers",
+      eyebrow: "Did You Know?",
+      heading: "Businesses that reply in under a minute book 57% more appointments. Here's how SmartSyncLink gets you there.",
+      /** Painted in the accent colour wherever it appears in the heading. */
+      highlight: "57%",
       body: "Twenty minutes, no slide deck. We look at where calls and messages are going today, then show you exactly what the AI would have caught.",
       cta: { label: "Book An Appointment", href: "#contact" } as Cta,
+      secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
     },
 
     intro: {
@@ -318,6 +321,46 @@ export const defaultHomeContent = {
     ],
   },
 
+  suite: {
+    heading: "One Inbox For Every Conversation, On Desktop And Mobile.",
+    body: "Calls, texts, Facebook, Instagram, Google and website chat land in one team inbox. Answer from the dashboard at your desk, or pick up the very same thread in the SmartSync mobile app. Nothing to sync, nothing missed.",
+    cta: { label: "Book A Call Now", href: "#call" } as Cta,
+    points: [
+      {
+        title: "Unified Team Inbox",
+        body: "Every channel in a single list, with owners, stars and unread counts.",
+      },
+      {
+        title: "Mobile Connect",
+        body: "The same inbox on your phone, so replies go out wherever you are.",
+      },
+      {
+        title: "Full Contact Context",
+        body: "Owner, followers, tags and every field right beside the thread.",
+      },
+    ] as Bullet[],
+  },
+  funnel: {
+    heading: "Funnels That Turn Clicks Into Booked Appointments.",
+    body: "Build a guided, quiz-style funnel in minutes, publish it to your ads and socials, and watch every step convert in real time. Visits, drop-off and bookings, all on one screen.",
+    cta: { label: "Book A Call Now", href: "#call" } as Cta,
+    /** One per screen, in the order the showcase cycles through them. */
+    tabs: ["All Funnels", "Funnel Editor", "Metrics"],
+    points: [
+      {
+        title: "Guided Quiz Funnels",
+        body: "A few quick questions qualify every lead before they reach your calendar.",
+      },
+      {
+        title: "Page-By-Page Metrics",
+        body: "See exactly where visitors drop off and fix that step, not the whole funnel.",
+      },
+      {
+        title: "Launch In Minutes",
+        body: "Start from a proven template, refine it with AI, and publish in one click.",
+      },
+    ] as Bullet[],
+  },
   finalCta: {
     heading: "Every Day You Wait Is Another Day of Missed Leads and Lost Revenue.",
     body: "Stop relying on manual processes. Let Smart Sync Link automate your customer journey, capture every opportunity, and help your business grow with confidence.",

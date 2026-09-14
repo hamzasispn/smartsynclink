@@ -528,3 +528,24 @@ summary::-webkit-details-marker {
 
 
 
+
+/* SmartSync Suite stage. The mockups are drawn on a fixed pixel grid and scaled
+   as one piece so nothing reflows. tan(atan2(a, b)) is a / b as a plain number,
+   which is what scale() needs and what calc() cannot produce from two lengths.
+   The plain scale before it is for browsers without trig functions. */
+.suite-stage {
+  container-type: inline-size;
+}
+.suite-board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transform: scale(0.74);
+  transform: scale(tan(atan2(100cqw, var(--stage-w))));
+}
+
+
+
+
+

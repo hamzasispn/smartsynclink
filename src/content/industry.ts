@@ -32,6 +32,12 @@ export const defaultIndustry = {
     logoHeight: 32,
   },
 
+  /** The shared product showcases under the journey. Off hides one on this industry only. */
+  showcase: {
+    suite: true,
+    funnel: true,
+  },
+
   hero: {
     badge: "SMARTSYNCLINK FOR AESTHETICS",
     heading: "Turn Treatment Interest Into More Consultations & Booked Appointments.",

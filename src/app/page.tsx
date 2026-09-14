@@ -4,6 +4,7 @@ import {
   Bento,
   Faq,
   FinalCta,
+  Funnel,
   Hero,
   HeroVideo,
   Industries,
@@ -11,6 +12,7 @@ import {
   Pricing,
   ShowcaseVideo,
   Steps,
+  Suite,
   Testimonials,
 } from "@/components/sections";
 import { getGlobalContent, getHomeContent } from "@/lib/content";
@@ -33,6 +35,8 @@ export default async function Home() {
       <main>
         <Intro data={c.intro} />
         <Bento data={c.bento} />
+        <Suite data={c.suite} />
+        <Funnel data={c.funnel} />
         <Industries data={c.industries} />
         <Steps data={c.steps} />
         <Pricing data={c.pricing} />
