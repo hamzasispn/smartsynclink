@@ -54,7 +54,7 @@ export function IndustryJourney({
                 variant="plain"
                 tone={step.highlight ? "dark" : "light"}
                 sizes="(max-width: 768px) 100vw, 380px"
-                className="mt-auto h-[180px] w-full"
+                className="h-[180px] w-full"
                 fit="contain"
               />
             </article>
