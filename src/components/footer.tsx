@@ -20,17 +20,27 @@ export default function Footer({
             </p>
 
             <ul className="mt-6 flex items-center gap-4">
-              {data.socials.map((social) => (
-                <li key={social}>
-                  <a
-                    href="#"
-                    aria-label={social}
-                    className="block text-ink transition-colors hover:text-brand"
-                  >
-                    <SocialIcon name={social} className="size-[18px]" />
-                  </a>
-                </li>
-              ))}
+              {data.socials.map((social) => {
+                const socialLinks = {
+                  facebook:
+                    "https://www.facebook.com/people/Smart-SyncLink/61588999561627/",
+                  instagram: "https://www.instagram.com/smartsynclink/",
+                };
+
+                return (
+                  <li key={social}>
+                    <a
+                      href={socialLinks[social.toLowerCase()] || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social}
+                      className="block text-ink transition-colors hover:text-brand"
+                    >
+                      <SocialIcon name={social} className="size-[18px]" />
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
 
             {/* ponytail: presentational only — wire to an endpoint when the admin panel lands */}
