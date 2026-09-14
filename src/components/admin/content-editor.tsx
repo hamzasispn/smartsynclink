@@ -436,6 +436,8 @@ function Node({
         // just the last segment: inside a list the segment is an index, and
         // "videos" only appears one level up.
         accept={path.some((step) => /video/i.test(step)) ? "video" : "image"}
+        // reels are vertical clips on their own backdrop, not the hero's white 16:9
+        whiteBackground={!path.some((step) => /reel/i.test(step))}
         onChange={(next) => onChange({ ...value, ...next })}
       />
     );

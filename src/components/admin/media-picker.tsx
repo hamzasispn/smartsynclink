@@ -15,6 +15,13 @@ export type ImageValue = { src: string; alt: string };
 // the slack is for the multipart boundary and filename riding along.
 const MAX_UPLOAD = 4 * 1024 * 1024;
 
+// Pages that show a video, not video files — a <video> element can't play them.
+const PAGE_HOSTS =
+  /(^|\.)(instagram\.com|facebook\.com|fb\.watch|youtube\.com|youtu\.be|tiktok\.com|vimeo\.com|drive\.google\.com)$/i;
+
+// How long a pasted link gets to prove it is a playable video.
+const LINK_CHECK_MS = 12000;
+
 /**
  * Replaces the raw src/alt text pair everywhere an image is edited.
  *
@@ -22,11 +29,16 @@ const MAX_UPLOAD = 4 * 1024 * 1024;
  * meant knowing where a file lived before you could use it. Anything already
  * uploaded is one click away in the library, so the same logo or photo does
  * not get uploaded five times.
+ *
+ * Video slots also take a pasted link. A clip hosted elsewhere (Cloudinary,
+ * Bunny, S3) never touches our server — no upload, no 4MB cap, no storage —
+ * and the browser streams it straight from that host.
  */
 export function MediaPicker({
   value,
   label,
   accept = "image",
+  whiteBackground = true,
   onChange,
 }: {
   value: ImageValue;
@@ -34,6 +46,9 @@ export function MediaPicker({
   /** Which kind of file this slot takes. Drives the picker, the file dialog
    *  and what the library offers — a video slot never lists images. */
   accept?: "image" | "video";
+  /** The hero's white-background, 16:9 note. Off for slots like reels, which
+   *  are vertical and sit on their own background. */
+  whiteBackground?: boolean;
   onChange: (next: ImageValue) => void;
 }) {
   const isVideo = accept === "video";
@@ -42,6 +57,8 @@ export function MediaPicker({
   const [error, setError] = useState<string | null>(null);
   const [library, setLibrary] = useState<MediaItem[] | null>(null);
   const [dropping, setDropping] = useState(false);
+  const [link, setLink] = useState("");
+  const [checking, setChecking] = useState(false);
 
   function upload(file: File) {
     setError(null);
@@ -51,7 +68,7 @@ export function MediaPicker({
     // it reads as a message next to the field instead of losing the page.
     if (file.size > MAX_UPLOAD) {
       setError(
-        `That file is ${(file.size / 1024 / 1024).toFixed(1)}MB. The limit is 4MB — compress it and try again.`,
+        `That file is ${(file.size / 1024 / 1024).toFixed(1)}MB. The limit is 4MB — compress it, or host it elsewhere and paste the link below.`,
       );
       return;
     }
@@ -63,6 +80,60 @@ export function MediaPicker({
       if (!result.ok) setError(result.error);
       else onChange({ ...value, src: result.item.url, alt: value.alt || result.item.filename });
     });
+  }
+
+  /**
+   * Accepts a pasted video link once the browser has actually read the file's
+   * metadata. Checked here rather than on the server so a large clip costs
+   * nothing but a few kilobytes of the viewer's own connection.
+   */
+  function applyLink() {
+    setError(null);
+
+    let url: URL;
+    try {
+      url = new URL(link.trim());
+    } catch {
+      setError("That doesn't look like a link. Paste the full address, starting with https://");
+      return;
+    }
+    if (url.protocol !== "https:") {
+      setError("Use an https:// link — browsers block plain http videos on a secure site.");
+      return;
+    }
+    if (PAGE_HOSTS.test(url.hostname)) {
+      setError(
+        `That's a page on ${url.hostname.replace(/^www\./, "")}, not the video file itself. Use a direct link to an .mp4 or .webm file — from Cloudinary, Bunny, S3 or your own hosting.`,
+      );
+      return;
+    }
+
+    setChecking(true);
+    const probe = document.createElement("video");
+    probe.preload = "metadata";
+    probe.muted = true;
+
+    let settled = false;
+    const finish = (ok: boolean) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timer);
+      probe.removeAttribute("src");
+      probe.load(); // stops the download
+      setChecking(false);
+      if (ok) {
+        onChange({ ...value, src: url.href });
+        setLink("");
+      } else {
+        setError(
+          "That link didn't load as a video. Check it opens as a plain video file in a new tab, and that it's public.",
+        );
+      }
+    };
+    const timer = window.setTimeout(() => finish(false), LINK_CHECK_MS);
+    probe.onloadedmetadata = () => finish(true);
+    probe.onerror = () => finish(false);
+    probe.src = url.href;
   }
 
   function openLibrary() {
@@ -104,8 +175,7 @@ export function MediaPicker({
             className="size-16 shrink-0 rounded-lg bg-black object-cover"
           />
         ) : value.src ? (
-          // eslint-disable-next-line @next/next/no-img-element -- uploads have
-          // no known dimensions here and next/image would need them
+          // eslint-disable-next-line @next/next/no-img-element -- uploads have no known dimensions for next/image
           <img
             src={value.src}
             alt=""
@@ -121,7 +191,7 @@ export function MediaPicker({
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              disabled={pending}
+              disabled={pending || checking}
               onClick={() => fileInput.current?.click()}
               className="rounded-full bg-brand px-4 py-1.5 text-[13px] text-white disabled:opacity-50"
             >
@@ -129,7 +199,7 @@ export function MediaPicker({
             </button>
             <button
               type="button"
-              disabled={pending}
+              disabled={pending || checking}
               onClick={openLibrary}
               className="rounded-full border border-line bg-white px-4 py-1.5 text-[13px] text-[#1e1e1e] disabled:opacity-50"
             >
@@ -148,7 +218,7 @@ export function MediaPicker({
           <p className="mt-1.5 truncate text-[12px] text-muted">
             {value.src ||
               (isVideo
-                ? "Drop an MP4 here, or upload one (up to 4MB)."
+                ? "Drop an MP4 here, upload one (up to 4MB), or paste a link below."
                 : "Drop a file here, or upload one.")}
           </p>
         </div>
@@ -167,6 +237,38 @@ export function MediaPicker({
       </div>
 
       {isVideo ? (
+        <div>
+          <span className="mb-1.5 block text-[12px] text-muted">
+            Or use a video link — plays straight from where it&apos;s hosted, nothing is uploaded here
+          </span>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              inputMode="url"
+              value={link}
+              placeholder="https://…/reel.mp4"
+              onChange={(e) => setLink(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (link.trim() && !checking) applyLink();
+                }
+              }}
+              className={`${inputClass} min-w-0 flex-1`}
+            />
+            <button
+              type="button"
+              disabled={!link.trim() || checking || pending}
+              onClick={applyLink}
+              className="shrink-0 rounded-full bg-brand px-4 text-[13px] text-white disabled:opacity-50"
+            >
+              {checking ? "Checking…" : "Use link"}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {isVideo && whiteBackground ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-[12px] leading-[1.5] text-amber-900">
           Background should be <strong>white only</strong>, please — the hero
           blends the clip with the page, so any other backdrop shows as a grey

@@ -44,7 +44,8 @@ export const defaultIndustry = {
     facebook: "",
   },
 
-  /** Vertical 9:16 clips. Empty slots show a placeholder until a video is uploaded. */
+  /** Vertical 9:16 clips — upload one, or paste a direct .mp4/.webm link so the file never touches our server.
+   *  Empty slots show a placeholder. */
   reels: {
     badge: "REELS",
     heading: "See The Treatments Clients Are Booking",
