@@ -21,7 +21,7 @@ export default function Footer({
 
             <ul className="mt-6 flex items-center gap-4">
               {data.socials.map((social) => {
-                const socialLinks = {
+                const socialLinks: Record<string, string> = {
                   facebook:
                     "https://www.facebook.com/people/Smart-SyncLink/61588999561627/",
                   instagram: "https://www.instagram.com/smartsynclink/",
