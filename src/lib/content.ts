@@ -2,6 +2,13 @@ import { defaultBlog, type BlogContent } from "@/content/blog";
 import { defaultGlobal, type GlobalContent } from "@/content/global";
 import { defaultSolutions, type SolutionsContent } from "@/content/solutions";
 import { defaultHomeContent, type HomeContent } from "@/content/home";
+import { defaultPrivacy, defaultTerms, type LegalDoc } from "@/content/legal";
+import {
+  defaultPricingTable,
+  defaultUsagePricing,
+  type PricingTableContent,
+  type UsagePricingContent,
+} from "@/content/pricing-pages";
 import { sql } from "./db";
 
 /**
@@ -73,6 +80,22 @@ export const getSolutionsContent = () =>
   read<SolutionsContent>("solutions", defaultSolutions);
 export const saveSolutionsContent = (data: SolutionsContent) =>
   write("solutions", data);
+
+export const getPrivacyContent = () => read<LegalDoc>("privacy", defaultPrivacy);
+export const savePrivacyContent = (data: LegalDoc) => write("privacy", data);
+
+export const getTermsContent = () => read<LegalDoc>("terms", defaultTerms);
+export const saveTermsContent = (data: LegalDoc) => write("terms", data);
+
+export const getUsagePricingContent = () =>
+  read<UsagePricingContent>("usage-pricing", defaultUsagePricing);
+export const saveUsagePricingContent = (data: UsagePricingContent) =>
+  write("usage-pricing", data);
+
+export const getPricingTableContent = () =>
+  read<PricingTableContent>("pricing-table", defaultPricingTable);
+export const savePricingTableContent = (data: PricingTableContent) =>
+  write("pricing-table", data);
 
 export const getGlobalContent = () => read<GlobalContent>("global", defaultGlobal);
 export const saveGlobalContent = (data: GlobalContent) => write("global", data);

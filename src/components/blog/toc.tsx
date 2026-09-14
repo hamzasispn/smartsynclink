@@ -9,7 +9,7 @@ import type { TocItem } from "@/lib/toc";
  * <ol> cannot do across two levels, and counting during render is a reassign
  * the linter rightly objects to.
  */
-function numbered(items: TocItem[]) {
+function withNumbers(items: TocItem[]) {
   let major = 0;
   let minor = 0;
   return items.map((item) => {
@@ -23,7 +23,16 @@ function numbered(items: TocItem[]) {
   });
 }
 
-export function TableOfContents({ items, label }: { items: TocItem[]; label: string }) {
+export function TableOfContents({
+  items,
+  label,
+  numbered = true,
+}: {
+  items: TocItem[];
+  label: string;
+  /** Off for documents whose headings are already numbered ("1. Introduction"). */
+  numbered?: boolean;
+}) {
   if (items.length < 2) return null;
 
   return (
@@ -35,14 +44,14 @@ export function TableOfContents({ items, label }: { items: TocItem[]; label: str
         {label}
       </p>
       <ul className="max-h-[420px] overflow-y-auto overscroll-contain px-5 py-4">
-        {numbered(items).map((item) => (
+        {withNumbers(items).map((item) => (
           <li
             key={item.id}
             className={`flex gap-3 text-[16px] leading-[24px] ${
               item.level === 3 ? "mt-2 pl-6" : "mt-3 first:mt-0"
             }`}
           >
-            <span className="shrink-0 text-muted">{item.number}</span>
+            {numbered ? <span className="shrink-0 text-muted">{item.number}</span> : null}
             <a href={`#${item.id}`} className="text-brand-blue hover:underline">
               {item.text}
             </a>
