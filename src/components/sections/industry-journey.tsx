@@ -26,7 +26,7 @@ export function IndustryJourney({
           {data.steps.map((step) => (
             <article
               key={step.step}
-              className={`flex overflow-hidden rounded-[16px] ${
+              className={`flex overflow-hidden items-center rounded-[16px] ${
                 step.wide ? "lg:col-span-6 flex-row" : "lg:col-span-3 flex-col"
               } ${
                 step.highlight
