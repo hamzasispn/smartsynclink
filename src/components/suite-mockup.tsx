@@ -384,6 +384,25 @@ const THREADS: Thread[] = [
   { name: "Clara Hoffmann", time: "Jan 24", preview: "✅ Your account and Page are now ...", count: 2, channel: "ig", face: {} },
 ];
 
+/** What the AI sends back in the live demo, in THREADS order. The demo cycles through these threads. */
+export const REPLIES = [
+  "No problem! Want me to hold a spot for next week instead?",
+  "Sorry we missed you — calling you back in 2 minutes.",
+  "You're unsubscribed. Reply START anytime to rejoin.",
+  "Yes! Friday at 2:30 PM is open. Shall I book it?",
+  "Hi Bella, just tried you. When is a good time to call?",
+];
+export const LIVE_COUNT = REPLIES.length;
+
+/** Where the scripted demo is: the open thread, how far its reply has got, and which threads are answered. */
+export type ChatState = {
+  active: number;
+  phase: "incoming" | "typing" | "sent";
+  typed: string;
+  read: number[];
+};
+export const STATIC_CHAT: ChatState = { active: 0, phase: "incoming", typed: "", read: [] };
+
 const CHANNEL: Record<Channel, { icon: IconName; color: string }> = {
   fb: { icon: "fb", color: "#1877F2" },
   ig: { icon: "ig", color: "#E1306C" },
@@ -581,8 +600,11 @@ const FIELDS: [string, string, boolean][] = [
 /** Row pitch of the thread list: 105.17px in the 2x screenshot. */
 const PITCH = 89.87;
 
-export function SuiteDashboard() {
-  const top = THREADS[0];
+export function SuiteDashboard({ chat = STATIC_CHAT }: { chat?: ChatState }) {
+  const top = THREADS[chat.active] ?? THREADS[0];
+  // handles like "nadia2209" have no surname to split off
+  const [first, ...rest] = top.name.replace(/\.\.\.$/, "").split(" ");
+  const surname = rest.length && !/\d/.test(top.name) ? rest.join(" ") : "--";
 
   return (
     <div
@@ -714,6 +736,19 @@ export function SuiteDashboard() {
       </T>
 
       <Box x={283} y={212} w={329} h={619} style={{ overflow: "hidden" }}>
+        {/* the open thread's outline slides to whichever row is live */}
+        <Box
+          x={0}
+          y={chat.active * PITCH}
+          w={329}
+          h={PITCH}
+          style={{
+            border: `1.5px solid ${BLUE}`,
+            borderRadius: 5,
+            zIndex: 1,
+            transition: "top .45s cubic-bezier(.22,1,.36,1)",
+          }}
+        />
         {THREADS.map((t, i) => (
           <Box
             key={t.name}
@@ -722,11 +757,7 @@ export function SuiteDashboard() {
             y={i * PITCH}
             w={329}
             h={PITCH}
-            style={
-              i === 0
-                ? { border: `1.5px solid ${BLUE}`, borderRadius: 5 }
-                : { borderBottom: i < THREADS.length - 1 ? `1px solid ${LINE}` : undefined }
-            }
+            style={{ borderBottom: i < THREADS.length - 1 ? `1px solid ${LINE}` : undefined }}
           >
             <Check x={23} y={32} />
             <Avatar face={t.face} channel={t.channel} x={50} y={32} d={24} badge={12} />
@@ -736,9 +767,9 @@ export function SuiteDashboard() {
             <T x={283} y={32} s={12.5} c={MUTED} align="right">
               {t.time}
             </T>
-            <Count x={295} y={18} w={17} h={19} n={t.count} />
-            <T x={40} y={61} s={14} c={MUTED}>
-              {t.preview}
+            {chat.read.includes(i) ? null : <Count x={295} y={18} w={17} h={19} n={t.count} />}
+            <T x={40} y={61} s={14} c={MUTED} style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }}>
+              {chat.read.includes(i) ? `You: ${REPLIES[i]}` : t.preview}
             </T>
             <Ico n="star" x={305} y={61} s={14} c="#9CA3AF" />
           </Box>
@@ -770,15 +801,77 @@ export function SuiteDashboard() {
       </T>
       <Box x={694} y={195} w={620} h={1} style={{ background: "#93C5FD" }} />
 
-      <Avatar face={top.face} channel="fb" x={661} y={237} d={30} badge={14} />
-      <Box x={688} y={220} w={76} h={41} style={{ background: "#F3F4F6", borderRadius: 8 }} />
-      <T x={700} y={240.5} s={15}>
+      <Avatar face={top.face} channel={top.channel} x={661} y={237} d={30} badge={14} />
+      <div
+        key={`in-${chat.active}`}
+        className="suite-pop"
+        style={{
+          position: "absolute",
+          left: 688,
+          top: 220,
+          height: 41,
+          padding: "0 12px",
+          display: "flex",
+          alignItems: "center",
+          background: "#F3F4F6",
+          borderRadius: 8,
+          fontSize: 15,
+          whiteSpace: "nowrap",
+          color: INK,
+        }}
+      >
         {top.preview}
-      </T>
+      </div>
       <T x={693} y={272} s={12.5} c={MUTED}>
         03:37 PM
       </T>
       <Ico n="dots" x={757} y={272} s={13} c={MUTED} sw={2.5} />
+
+      {chat.phase === "sent" ? (
+        <div
+          key={`out-${chat.active}`}
+          className="suite-pop"
+          style={{ position: "absolute", right: BOARD.w - 1314, top: 300, textAlign: "right" }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              height: 41,
+              padding: "0 14px",
+              background: BLUE,
+              color: "#fff",
+              borderRadius: "12px 12px 4px 12px",
+              fontSize: 15,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {REPLIES[chat.active]}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 12.5, color: MUTED }}>Sent by AI · just now</div>
+        </div>
+      ) : null}
+      {chat.phase === "typing" ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 648,
+            top: 752,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 12.5,
+            color: MUTED,
+          }}
+        >
+          <span className="suite-dots">
+            <i />
+            <i />
+            <i />
+          </span>
+          AI is typing…
+        </div>
+      ) : null}
 
       {/* composer */}
       <Box
@@ -791,10 +884,23 @@ export function SuiteDashboard() {
       <Ico n="fb" x={664} y={802.5} s={16} c="#1877F2" sw={2} />
       <Ico n="chevD" x={681} y={802.5} s={10} sw={2.5} />
       <Box x={699} y={782} w={1} h={41} style={{ background: "#D1D5DB" }} />
-      <T x={705} y={802.5} s={15} c={MUTED}>
-        Type a message
+      <T x={705} y={802.5} s={15} c={chat.phase === "typing" ? INK : MUTED}>
+        {chat.phase === "typing" ? (
+          <>
+            {chat.typed}
+            <span className="suite-caret" />
+          </>
+        ) : (
+          "Type a message"
+        )}
       </T>
-      <Box x={1277} y={790} w={29} h={25} style={{ background: "#93B4FB", borderRadius: 4 }} />
+      <Box
+        x={1277}
+        y={790}
+        w={29}
+        h={25}
+        style={{ background: chat.typed ? BLUE : "#93B4FB", borderRadius: 4, transition: "background .2s" }}
+      />
       <Ico n="send" x={1291.5} y={802.5} s={14} c="#fff" sw={2} />
 
       <Box x={836} y={830} w={37} h={6} style={{ background: "#6B7280", borderRadius: 3 }} />
@@ -892,7 +998,7 @@ export function SuiteDashboard() {
               />
             ) : null}
             <T x={32} y={387 + i * 63.2} s={15}>
-              {value}
+              {i === 0 ? first : i === 1 ? surname : value}
             </T>
           </span>
         ))}
@@ -971,7 +1077,7 @@ function StatusIcons({ x, y }: { x: number; y: number }) {
  * app, so this follows the desktop screen's data, colours and type, re-flowed
  * into a phone's single column.
  */
-export function SuitePhone({ idPrefix }: { idPrefix: string }) {
+export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string; chat?: ChatState }) {
   const ROW = 74;
   return (
     <div
@@ -1037,6 +1143,13 @@ export function SuitePhone({ idPrefix }: { idPrefix: string }) {
 
         {/* threads */}
         <Box x={0} y={198} w={308} h={376} style={{ overflow: "hidden" }}>
+          <Box
+            x={0}
+            y={chat.active * ROW}
+            w={308}
+            h={ROW}
+            style={{ background: "#EFF6FF", transition: "top .45s cubic-bezier(.22,1,.36,1)" }}
+          />
           {THREADS.map((t, i) => (
             <Box
               key={t.name}
@@ -1045,7 +1158,6 @@ export function SuitePhone({ idPrefix }: { idPrefix: string }) {
               y={i * ROW}
               w={308}
               h={ROW}
-              style={{ background: i === 0 ? "#EFF6FF" : undefined }}
             >
               <Avatar face={t.face} channel={t.channel} x={36} y={37} d={40} badge={16} />
               <T
@@ -1064,12 +1176,16 @@ export function SuitePhone({ idPrefix }: { idPrefix: string }) {
                 x={66}
                 y={50}
                 s={13.5}
-                c={MUTED}
+                c={chat.active === i && chat.phase === "typing" ? BLUE : MUTED}
                 style={{ maxWidth: 196, overflow: "hidden", textOverflow: "ellipsis" }}
               >
-                {t.preview}
+                {chat.active === i && chat.phase === "typing"
+                  ? "typing…"
+                  : chat.read.includes(i)
+                    ? `You: ${REPLIES[i]}`
+                    : t.preview}
               </T>
-              <Count x={274} y={41} w={18} h={18} n={t.count} r={9} />
+              {chat.read.includes(i) ? null : <Count x={274} y={41} w={18} h={18} n={t.count} r={9} />}
               <Box x={66} y={ROW - 1} w={242} h={1} style={{ background: "#F1F2F4" }} />
             </Box>
           ))}

@@ -2,7 +2,8 @@ import type { HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
 import { StageMotion } from "../stage-motion";
 import { SuiteLockup } from "../suite-logo";
-import { BOARD, PHONE, SuiteDashboard, SuitePhone } from "../suite-mockup";
+import { ChatCycle, LiveDashboard, LivePhone } from "../live-suite";
+import { BOARD, PHONE } from "../suite-mockup";
 import { Button, Container } from "../ui";
 
 /**
@@ -51,11 +52,11 @@ export function SuiteStage({
           className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
           style={{ left: STAGE.board.x, top: STAGE.board.y, width: BOARD.w, height: BOARD.h }}
         >
-          <SuiteDashboard />
+          <LiveDashboard />
         </div>
         <div data-sa="phone" className="absolute" style={{ left: STAGE.phone.x, top: STAGE.phone.y }}>
           <div data-sa="float">
-            <SuitePhone idPrefix={idPrefix} />
+            <LivePhone idPrefix={idPrefix} />
           </div>
         </div>
       </div>
@@ -98,7 +99,9 @@ export function Suite({ data }: { data: HomeContent["suite"] }) {
           />
           <SuiteStage idPrefix="suite-stage" className="hidden w-full md:block" />
           <div className="relative flex justify-center md:hidden">
-            <SuitePhone idPrefix="suite-solo" />
+            <ChatCycle>
+              <LivePhone idPrefix="suite-solo" />
+            </ChatCycle>
           </div>
         </div>
       </Container>

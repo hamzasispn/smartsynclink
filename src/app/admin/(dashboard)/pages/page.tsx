@@ -28,6 +28,34 @@ const pages = [
     description: "The intro and every card in the solutions grid.",
     live: true,
   },
+  {
+    href: "/admin/pages/usage-pricing",
+    title: "Transparent pricing",
+    path: "/transparent-pricing",
+    description: "Usage rates: numbers, SMS & MMS, calls, AI, A2P and add-ons.",
+    live: true,
+  },
+  {
+    href: "/admin/pages/pricing-table",
+    title: "Pricing table",
+    path: "/pricing-table",
+    description: "Quick-start, platform and SEO packages, add-ons and standard features.",
+    live: true,
+  },
+  {
+    href: "/admin/pages/privacy",
+    title: "Privacy Policy",
+    path: "/privacy-policy",
+    description: "The full policy, as Markdown.",
+    live: true,
+  },
+  {
+    href: "/admin/pages/terms",
+    title: "Terms & Conditions",
+    path: "/terms-and-conditions",
+    description: "The full terms, as Markdown.",
+    live: true,
+  },
 ];
 
 export default function PagesIndex() {

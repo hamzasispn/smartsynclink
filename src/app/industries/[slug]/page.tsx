@@ -8,10 +8,12 @@ import {
   IndustryHero,
   IndustryJourney,
   IndustryProblem,
+  IndustryReels,
   Pricing,
   Steps,
   Suite,
 } from "@/components/sections";
+import { FloatingSocial } from "@/components/floating-social";
 import { getGlobalContent, getHomeContent } from "@/lib/content";
 import { getIndustry, listIndustries } from "@/lib/industries";
 
@@ -85,6 +87,7 @@ export default async function IndustryPage({
       <main>
         <IndustryProblem data={industry.data.problem} />
         <IndustryJourney data={industry.data.journey} />
+        <IndustryReels data={industry.data.reels} />
 
         {industry.data.showcase.suite ? <Suite data={home.suite} /> : null}
         {industry.data.showcase.funnel ? <Funnel data={home.funnel} /> : null}
@@ -96,6 +99,7 @@ export default async function IndustryPage({
       </main>
 
       <Footer brand={brand} data={global.footer} />
+      <FloatingSocial instagram={industry.data.social.instagram} facebook={industry.data.social.facebook} />
     </>
   );
 }

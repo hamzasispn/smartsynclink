@@ -10,6 +10,7 @@ export { Industries } from "./industries";
 export { IndustryHero } from "./industry-hero";
 export { IndustryJourney } from "./industry-journey";
 export { IndustryProblem } from "./industry-problem";
+export { IndustryReels } from "./industry-reels";
 export { Intro } from "./intro";
 export { Pricing } from "./pricing";
 export { ShowcaseVideo } from "./showcase-video";

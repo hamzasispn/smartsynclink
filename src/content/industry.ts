@@ -38,6 +38,26 @@ export const defaultIndustry = {
     funnel: true,
   },
 
+  /** Social profiles for this industry. A filled URL shows a floating button; empty hides it. */
+  social: {
+    instagram: "",
+    facebook: "",
+  },
+
+  /** Vertical 9:16 clips. Empty slots show a placeholder until a video is uploaded. */
+  reels: {
+    badge: "REELS",
+    heading: "See The Treatments Clients Are Booking",
+    subheading: "Short vertical clips from treatments, results and the client journey. Tap a reel to unmute.",
+    videos: [
+      { src: "", alt: "HydraFacial glow" },
+      { src: "", alt: "Botox consultation" },
+      { src: "", alt: "Body contouring results" },
+      { src: "", alt: "Skin analysis walkthrough" },
+      { src: "", alt: "Behind the scenes" },
+    ] as Media[],
+  },
+
   hero: {
     badge: "SMARTSYNCLINK FOR AESTHETICS",
     heading: "Turn Treatment Interest Into More Consultations & Booked Appointments.",

@@ -2,6 +2,7 @@
 
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import { useGsap } from "@/lib/use-gsap";
+import { ChatContext, useChatCycle } from "./live-suite";
 
 /**
  * Entrance and idle motion for the SmartSync Suite stage.
@@ -23,6 +24,7 @@ export function StageMotion({
   label: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const chat = useChatCycle(ref);
 
   useGsap(ref, (gsap, el) => {
     const q = gsap.utils.selector(el);
@@ -52,7 +54,7 @@ export function StageMotion({
 
   return (
     <div ref={ref} role="img" aria-label={label} className={className} style={style}>
-      {children}
+      <ChatContext.Provider value={chat}>{children}</ChatContext.Provider>
     </div>
   );
 }

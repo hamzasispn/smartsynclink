@@ -11,6 +11,10 @@ import {
   saveGlobalContent,
   saveHomeContent,
   saveSolutionsContent,
+  savePricingTableContent,
+  savePrivacyContent,
+  saveTermsContent,
+  saveUsagePricingContent,
 } from "@/lib/content";
 import type { BlogContent } from "@/content/blog";
 import type { GlobalContent } from "@/content/global";
@@ -70,6 +74,28 @@ export async function saveSolutionsAction(data: SolutionsContent) {
   await saveSolutionsContent(data);
   revalidatePath("/solutions");
   revalidatePath("/admin/pages/solutions");
+  return { ok: true as const, at: new Date().toISOString() };
+}
+
+/* ---------------------------------------------------- standalone documents -- */
+
+export type DocKey = "privacy" | "terms" | "usage-pricing" | "pricing-table";
+
+// not exported: a "use server" module may only export async functions
+const DOC_TARGETS: Record<DocKey, { save: (data: never) => Promise<unknown>; path: string }> = {
+  privacy: { save: savePrivacyContent, path: "/privacy-policy" },
+  terms: { save: saveTermsContent, path: "/terms-and-conditions" },
+  "usage-pricing": { save: saveUsagePricingContent, path: "/transparent-pricing" },
+  "pricing-table": { save: savePricingTableContent, path: "/pricing-table" },
+};
+
+export async function saveDocAction(key: DocKey, data: object) {
+  await requireAdmin();
+  const target = DOC_TARGETS[key];
+  if (!target) throw new Error("Unknown document");
+  await target.save(data as never);
+  revalidatePath(target.path);
+  revalidatePath(`/admin/pages/${key}`);
   return { ok: true as const, at: new Date().toISOString() };
 }
 

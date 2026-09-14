@@ -3,7 +3,7 @@ import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
 import { BookingArt } from "../booking-art";
 import { SuiteLockup } from "../suite-logo";
-import { SuitePhone } from "../suite-mockup";
+import { ChatCycle, LivePhone } from "../live-suite";
 import { Button, CheckSolid, Container } from "../ui";
 import { SuiteStage } from "./suite";
 
@@ -130,7 +130,9 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
             <div className="mt-auto pt-8">
               <SuiteStage idPrefix="bento-stage" layout="tile" className="hidden w-[150%] max-w-none md:block" />
               <div className="flex justify-center [zoom:0.8] md:hidden">
-                <SuitePhone idPrefix="bento-solo" />
+                <ChatCycle>
+                  <LivePhone idPrefix="bento-solo" />
+                </ChatCycle>
               </div>
             </div>
           </div>
