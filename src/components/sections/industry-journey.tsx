@@ -26,8 +26,8 @@ export function IndustryJourney({
           {data.steps.map((step) => (
             <article
               key={step.step}
-              className={`flex flex-col overflow-hidden rounded-[16px] ${
-                step.wide ? "lg:col-span-6" : "lg:col-span-3"
+              className={`flex overflow-hidden rounded-[16px] ${
+                step.wide ? "lg:col-span-6 flex-row" : "lg:col-span-3 flex-col"
               } ${
                 step.highlight
                   ? "bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white"
@@ -55,6 +55,7 @@ export function IndustryJourney({
                 tone={step.highlight ? "dark" : "light"}
                 sizes="(max-width: 768px) 100vw, 380px"
                 className="mt-auto h-[180px] w-full"
+                fit="contain"
               />
             </article>
           ))}
