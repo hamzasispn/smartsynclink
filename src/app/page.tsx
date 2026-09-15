@@ -1,52 +1,16 @@
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-import {
-  Bento,
-  Faq,
-  FinalCta,
-  Funnel,
-  Hero,
-  HeroVideo,
-  Industries,
-  Intro,
-  Pricing,
-  ShowcaseVideo,
-  Steps,
-  Suite,
-  Testimonials,
-} from "@/components/sections";
-import { getGlobalContent, getHomeContent } from "@/lib/content";
+import { PageShell } from "@/components/builder/render";
+import { getBlocks, getGlobal, getLayout } from "@/lib/builder/store";
 
 // Admin panel can call revalidatePath("/") for instant updates.
 export const revalidate = 60;
 
+/** Sections, their order and their content come from the page builder. */
 export default async function Home() {
-  const [c, global] = await Promise.all([getHomeContent(), getGlobalContent()]);
+  const [layout, blocks, global] = await Promise.all([
+    getLayout("home", "published"),
+    getBlocks("published"),
+    getGlobal("published"),
+  ]);
 
-  return (
-    <>
-      {/* header sits on the hero backdrop, as in the design */}
-      <div className="blueprint relative overflow-hidden">
-        <Header brand={global.brand} nav={global.nav} />
-        <Hero data={c.hero} />
-        <HeroVideo data={c.heroVideo} />
-      </div>
-
-      <main>
-        <Intro data={c.intro} />
-        <Bento data={c.bento} />
-        <Suite data={c.suite} />
-        <Funnel data={c.funnel} />
-        <Industries data={c.industries} />
-        <Steps data={c.steps} />
-        <Pricing data={c.pricing} />
-        <ShowcaseVideo data={c.showcaseVideo} />
-        <Testimonials data={c.testimonials} />
-        <Faq data={c.faq} />
-        <FinalCta data={c.finalCta} />
-      </main>
-
-      <Footer brand={global.brand} data={global.footer} />
-    </>
-  );
+  return <PageShell layout={layout} blocks={blocks} global={global} ctx={{ pageKey: "home" }} />;
 }

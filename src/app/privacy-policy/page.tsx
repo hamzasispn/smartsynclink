@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-import { LegalPage } from "@/components/legal-page";
-import { FinalCta } from "@/components/sections";
-import { getGlobalContent, getHomeContent, getPrivacyContent } from "@/lib/content";
+import { PageShell } from "@/components/builder/render";
+import { getBlocks, getGlobal, getLayout } from "@/lib/builder/store";
 
 export const revalidate = 60;
 
@@ -14,18 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PrivacyPolicyPage() {
-  const [global, home, doc] = await Promise.all([
-    getGlobalContent(),
-    getHomeContent(),
-    getPrivacyContent(),
+  const [layout, blocks, global] = await Promise.all([
+    getLayout("privacy", "published"),
+    getBlocks("published"),
+    getGlobal("published"),
   ]);
 
-  return (
-    <>
-      <Header brand={global.brand} nav={global.nav} />
-      <LegalPage doc={doc} />
-      <FinalCta data={home.finalCta} />
-      <Footer brand={global.brand} data={global.footer} />
-    </>
-  );
+  return <PageShell layout={layout} blocks={blocks} global={global} ctx={{ pageKey: "privacy" }} />;
 }

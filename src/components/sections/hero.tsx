@@ -37,7 +37,7 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         className="rise relative mt-10 flex justify-center lg:mt-14"
         style={{ "--i": 2 } as React.CSSProperties}
       >
-        <div className="relative h-[300px] w-[240px] lg:h-[500px] lg:w-[700px]">
+        <div className="relative h-[300px] w-full lg:h-[500px] lg:w-[700px]">
           <HeroVideos videos={data.videos ?? []} />
         </div>
       </div>

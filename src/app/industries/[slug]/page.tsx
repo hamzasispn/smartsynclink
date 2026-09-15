@@ -1,20 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-import {
-  FinalCta,
-  Funnel,
-  IndustryHero,
-  IndustryJourney,
-  IndustryProblem,
-  IndustryReels,
-  Pricing,
-  Steps,
-  Suite,
-} from "@/components/sections";
-import { FloatingSocial } from "@/components/floating-social";
-import { getGlobalContent, getHomeContent } from "@/lib/content";
+import { industryChrome } from "@/components/builder/industry-chrome";
+import { PageShell } from "@/components/builder/render";
+import { industryKey } from "@/lib/builder/pages";
+import { getBlocks, getGlobal, getLayout } from "@/lib/builder/store";
 import { getIndustry, listIndustries } from "@/lib/industries";
 
 export const revalidate = 60;
@@ -44,12 +33,9 @@ export async function generateMetadata({
 }
 
 /**
- * One template, one row per industry.
- *
- * Only the top three sections are per-industry; everything below is the same
- * offer on every page, so it reads straight from the home document instead of
- * being copied into each row — change the pricing once and every industry page
- * follows.
+ * One layout per industry, built in the page builder. Until an industry is
+ * opened there, its layout is its own hero, problem, journey and reels
+ * followed by the shared blocks — the order these pages have always had.
  */
 export default async function IndustryPage({
   params,
@@ -57,49 +43,21 @@ export default async function IndustryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [global, home, industry] = await Promise.all([
-    getGlobalContent(),
-    getHomeContent(),
-    getIndustry(slug),
-  ]);
+  const [global, industry] = await Promise.all([getGlobal("published"), getIndustry(slug)]);
   if (!industry || !industry.published) notFound();
 
-  // An industry may carry its own mark; without one it inherits the site's.
-  // Only the logo is overridden — the name still feeds the alt text and the
-  // fallback wordmark, so the header never ends up nameless.
-  const mark = industry.data.brand?.logo;
-  const brand = mark?.src
-    ? {
-        ...global.brand,
-        logo: mark,
-        logoHeight: industry.data.brand.logoHeight || global.brand.logoHeight,
-      }
-    : global.brand;
+  const key = industryKey(slug);
+  const [layout, blocks] = await Promise.all([getLayout(key, "published"), getBlocks("published")]);
+  const { brand, after } = industryChrome(industry, global.brand);
 
   return (
-    <>
-      {/* header sits on the hero artwork, as it does on the home page */}
-      <div className="blueprint relative overflow-hidden">
-        <Header brand={brand} nav={global.nav} />
-        <IndustryHero data={industry.data.hero} />
-      </div>
-
-      <main>
-        <IndustryProblem data={industry.data.problem} />
-        <IndustryJourney data={industry.data.journey} />
-        <IndustryReels data={industry.data.reels} />
-
-        {industry.data.showcase.suite ? <Suite data={home.suite} /> : null}
-        {industry.data.showcase.funnel ? <Funnel data={home.funnel} /> : null}
-
-        {/* shared below the fold */}
-        <Steps data={home.steps} />
-        <Pricing data={home.pricing} />
-        <FinalCta data={home.finalCta} />
-      </main>
-
-      <Footer brand={brand} data={global.footer} />
-      <FloatingSocial instagram={industry.data.social.instagram} facebook={industry.data.social.facebook} />
-    </>
+    <PageShell
+      layout={layout}
+      blocks={blocks}
+      global={global}
+      ctx={{ pageKey: key }}
+      brand={brand}
+      after={after}
+    />
   );
 }
