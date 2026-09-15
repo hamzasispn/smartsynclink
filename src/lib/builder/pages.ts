@@ -12,6 +12,7 @@ export const STATIC_PAGES: BuilderPage[] = [
   { key: "home", label: "Home", path: "/", group: "Pages" },
   { key: "solutions", label: "Solutions", path: "/solutions", group: "Pages" },
   { key: "blog", label: "Blog", path: "/blog", group: "Pages" },
+  { key: "post", label: "Blog post (template)", path: "/blog", group: "Pages" },
   { key: "usage-pricing", label: "Transparent pricing", path: "/transparent-pricing", group: "Pages" },
   { key: "pricing-table", label: "Pricing table", path: "/pricing-table", group: "Pages" },
   { key: "privacy", label: "Privacy Policy", path: "/privacy-policy", group: "Legal" },

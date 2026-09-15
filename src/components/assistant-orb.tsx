@@ -20,6 +20,10 @@ import { useGsap } from "@/lib/use-gsap";
  * Each badge is wrapped in <g data-orbit="n"> in the markup rather than being
  * paired up at runtime — one node per badge, visible in devtools, and it
  * carries the transform.
+ *
+ * The export also put a glass blur behind each badge (backdrop-filter in a
+ * foreignObject). Five backdrop blurs moving every frame were a third of the
+ * section's frame cost, so they are dropped; the badges keep their 20% white fill.
  */
 const ORBIT = { x: 187.423, y: 175.544 };
 const DEG = Math.PI / 180;
@@ -132,16 +136,6 @@ export function AssistantOrb() {
         fill="black"
       />
       <g data-orbit="0">
-        <foreignObject x="275.576" y="26.9614" width="117.478" height="117.478">
-          <div
-            style={{
-              backdropFilter: "blur(19.61px)",
-              clipPath: "url(#bgblur_0_6671_6490_clip_path)",
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        </foreignObject>
         <g data-figma-bg-blur-radius="39.223">
           <path
             d="M314.799 85.7002C314.799 74.9219 323.537 66.1843 334.315 66.1843C345.093 66.1843 353.831 74.9219 353.831 85.7002C353.831 96.4785 345.093 105.216 334.315 105.216C323.537 105.216 314.799 96.4785 314.799 85.7002Z"
@@ -155,16 +149,6 @@ export function AssistantOrb() {
         </g>
       </g>
       <g data-orbit="1">
-        <foreignObject x="-14.616" y="26.9614" width="117.478" height="117.478">
-          <div
-            style={{
-              backdropFilter: "blur(19.61px)",
-              clipPath: "url(#bgblur_1_6671_6490_clip_path)",
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        </foreignObject>
         <g data-figma-bg-blur-radius="39.223">
           <path
             d="M24.6069 85.7002C24.6069 74.9219 33.3445 66.1843 44.1228 66.1843C54.9011 66.1843 63.6387 74.9219 63.6387 85.7002C63.6387 96.4785 54.9011 105.216 44.1228 105.216C33.3445 105.216 24.6069 96.4785 24.6069 85.7002Z"
@@ -178,16 +162,6 @@ export function AssistantOrb() {
         </g>
       </g>
       <g data-orbit="2">
-        <foreignObject x="-39.223" y="128.783" width="117.478" height="117.478">
-          <div
-            style={{
-              backdropFilter: "blur(19.61px)",
-              clipPath: "url(#bgblur_2_6671_6490_clip_path)",
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        </foreignObject>
         <g data-figma-bg-blur-radius="39.223">
           <rect
             y="168.006"
@@ -204,16 +178,6 @@ export function AssistantOrb() {
         </g>
       </g>
       <g data-orbit="3">
-        <foreignObject x="63.4472" y="-39.223" width="117.478" height="117.478">
-          <div
-            style={{
-              backdropFilter: "blur(19.61px)",
-              clipPath: "url(#bgblur_3_6671_6490_clip_path)",
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        </foreignObject>
         <g data-figma-bg-blur-radius="39.223">
           <path
             d="M102.67 19.5159C102.67 8.73755 111.408 0 122.186 0C132.964 0 141.702 8.73755 141.702 19.5159C141.702 30.2942 132.964 39.0317 122.186 39.0317C111.408 39.0317 102.67 30.2942 102.67 19.5159Z"
@@ -231,16 +195,6 @@ export function AssistantOrb() {
         </g>
       </g>
       <g data-orbit="4">
-        <foreignObject x="207.695" y="-39.223" width="117.478" height="117.478">
-          <div
-            style={{
-              backdropFilter: "blur(19.61px)",
-              clipPath: "url(#bgblur_4_6671_6490_clip_path)",
-              height: "100%",
-              width: "100%",
-            }}
-          ></div>
-        </foreignObject>
         <g data-figma-bg-blur-radius="39.223">
           <path
             d="M246.918 19.5159C246.918 8.73755 255.656 0 266.434 0C277.212 0 285.95 8.73755 285.95 19.5159C285.95 30.2942 277.212 39.0317 266.434 39.0317C255.656 39.0317 246.918 30.2942 246.918 19.5159Z"
@@ -254,36 +208,6 @@ export function AssistantOrb() {
         </g>
       </g>
       <defs>
-        <clipPath
-          id="bgblur_0_6671_6490_clip_path"
-          transform="translate(-275.576 -26.9614)"
-        >
-          <path d="M314.799 85.7002C314.799 74.9219 323.537 66.1843 334.315 66.1843C345.093 66.1843 353.831 74.9219 353.831 85.7002C353.831 96.4785 345.093 105.216 334.315 105.216C323.537 105.216 314.799 96.4785 314.799 85.7002Z" />
-        </clipPath>
-        <clipPath
-          id="bgblur_1_6671_6490_clip_path"
-          transform="translate(14.616 -26.9614)"
-        >
-          <path d="M24.6069 85.7002C24.6069 74.9219 33.3445 66.1843 44.1228 66.1843C54.9011 66.1843 63.6387 74.9219 63.6387 85.7002C63.6387 96.4785 54.9011 105.216 44.1228 105.216C33.3445 105.216 24.6069 96.4785 24.6069 85.7002Z" />
-        </clipPath>
-        <clipPath
-          id="bgblur_2_6671_6490_clip_path"
-          transform="translate(39.223 -128.783)"
-        >
-          <rect y="168.006" width="39.0317" height="39.0317" rx="19.5159" />
-        </clipPath>
-        <clipPath
-          id="bgblur_3_6671_6490_clip_path"
-          transform="translate(-63.4472 39.223)"
-        >
-          <path d="M102.67 19.5159C102.67 8.73755 111.408 0 122.186 0C132.964 0 141.702 8.73755 141.702 19.5159C141.702 30.2942 132.964 39.0317 122.186 39.0317C111.408 39.0317 102.67 30.2942 102.67 19.5159Z" />
-        </clipPath>
-        <clipPath
-          id="bgblur_4_6671_6490_clip_path"
-          transform="translate(-207.695 39.223)"
-        >
-          <path d="M246.918 19.5159C246.918 8.73755 255.656 0 266.434 0C277.212 0 285.95 8.73755 285.95 19.5159C285.95 30.2942 277.212 39.0317 266.434 39.0317C255.656 39.0317 246.918 30.2942 246.918 19.5159Z" />
-        </clipPath>
         <radialGradient
           id="paint0_radial_6671_6490"
           cx="0"

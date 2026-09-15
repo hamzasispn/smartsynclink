@@ -600,7 +600,7 @@ const FIELDS: [string, string, boolean][] = [
 /** Row pitch of the thread list: 105.17px in the 2x screenshot. */
 const PITCH = 89.87;
 
-export function SuiteDashboard({ chat = STATIC_CHAT }: { chat?: ChatState }) {
+export function SuiteDashboard({ chat = STATIC_CHAT, typedSlot }: { chat?: ChatState; typedSlot?: ReactNode }) {
   const top = THREADS[chat.active] ?? THREADS[0];
   // handles like "nadia2209" have no surname to split off
   const [first, ...rest] = top.name.replace(/\.\.\.$/, "").split(" ");
@@ -887,7 +887,7 @@ export function SuiteDashboard({ chat = STATIC_CHAT }: { chat?: ChatState }) {
       <T x={705} y={802.5} s={15} c={chat.phase === "typing" ? INK : MUTED}>
         {chat.phase === "typing" ? (
           <>
-            {chat.typed}
+            {typedSlot ?? chat.typed}
             <span className="suite-caret" />
           </>
         ) : (
@@ -899,7 +899,7 @@ export function SuiteDashboard({ chat = STATIC_CHAT }: { chat?: ChatState }) {
         y={790}
         w={29}
         h={25}
-        style={{ background: chat.typed ? BLUE : "#93B4FB", borderRadius: 4, transition: "background .2s" }}
+        style={{ background: chat.phase === "typing" ? BLUE : "#93B4FB", borderRadius: 4, transition: "background .2s" }}
       />
       <Ico n="send" x={1291.5} y={802.5} s={14} c="#fff" sw={2} />
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { BlogContent } from "@/content/blog";
 import type { GlobalContent } from "@/content/global";
 import type { HomeContent } from "@/content/home";
@@ -6,6 +6,7 @@ import type { IndustryContent } from "@/content/industry";
 import type { LegalDoc } from "@/content/legal";
 import type { PricingTableContent, UsagePricingContent } from "@/content/pricing-pages";
 import type { SolutionsContent } from "@/content/solutions";
+import type { CustomProps } from "@/lib/builder/widgets";
 import { SECTIONS } from "@/lib/builder/sections";
 import type { Blocks, Device, Layout, SectionInstance } from "@/lib/builder/types";
 import type { Post } from "@/lib/posts";
@@ -33,8 +34,10 @@ import {
   Testimonials,
 } from "../sections";
 import { BlogIndex } from "../sections/blog-index";
+import { PostArticle } from "../sections/post-article";
 import { PricingPackages } from "../sections/pricing-packages";
 import { UsagePricing } from "../sections/usage-pricing";
+import { CustomSection } from "./custom-section";
 import { PreviewBridge } from "./preview-bridge";
 
 /**
@@ -53,11 +56,17 @@ export type BlogData = {
 export type RenderContext = {
   pageKey: string;
   blog?: BlogData;
+  /** Set by PageShell in the builder preview. */
+  preview?: boolean;
+  /** The post a blog post template renders, and every post for its related list. */
+  post?: { post: Post; all: Post[] };
 };
 
 type Render = (data: never, ctx: RenderContext) => ReactNode;
 
 const RENDER: Record<string, Render> = {
+  custom: (d: CustomProps, ctx) => <CustomSection data={d} preview={ctx.preview} />,
+
   hero: (d: HomeContent["hero"]) => <Hero data={d} />,
   heroVideo: (d: HomeContent["heroVideo"]) => <HeroVideo data={d} />,
   industryHero: (d: IndustryContent["hero"]) => <IndustryHero data={d} />,
@@ -86,6 +95,14 @@ const RENDER: Record<string, Render> = {
   usagePricing: (d: UsagePricingContent) => <UsagePricing data={d} />,
   pricingTable: (d: PricingTableContent) => <PricingPackages data={d} />,
   legal: (d: LegalDoc) => <LegalPage doc={d} />,
+  postArticle: (d: BlogContent, ctx) =>
+    ctx.post ? (
+      <PostArticle data={d} post={ctx.post.post} all={ctx.post.all} />
+    ) : (
+      <section className="px-6 pt-44 pb-24 text-center text-[15px] text-muted">
+        No published posts yet — publish one to see this template filled in.
+      </section>
+    ),
 };
 
 /** Tailwind's md and lg split mobile / tablet / desktop, matching the builder's device preview. */
@@ -99,12 +116,40 @@ function deviceClasses(devices: Record<Device, boolean>) {
     .join(" ");
 }
 
+/** Whether a set of display conditions lets something show on this page. */
+export function conditionsShow(conditions: { mode: string; pages: string[] } | undefined, pageKey: string) {
+  if (!conditions || conditions.mode === "all") return true;
+  if (conditions.mode === "include") return conditions.pages.includes(pageKey);
+  return !conditions.pages.includes(pageKey);
+}
+
 export function sectionShows(section: SectionInstance, pageKey: string) {
-  if (section.hidden) return false;
-  const { mode, pages } = section.conditions;
-  if (mode === "include") return pages.includes(pageKey);
-  if (mode === "exclude") return !pages.includes(pageKey);
-  return true;
+  return !section.hidden && conditionsShow(section.conditions, pageKey);
+}
+
+export type SectionBlockProps = {
+  section: SectionInstance;
+  data: unknown;
+  ctx: RenderContext;
+  preview: boolean;
+};
+
+/**
+ * One placed section: its device classes, its builder hooks, its markup.
+ * A component of its own so the live preview can memoise it per section.
+ */
+export function SectionBlock({ section: s, data, ctx, preview }: SectionBlockProps) {
+  const render = RENDER[s.type];
+  if (!render) return null;
+  return (
+    <div
+      className={deviceClasses(s.devices) || undefined}
+      data-builder-id={preview ? s.id : undefined}
+      data-builder-label={preview ? s.label || SECTIONS[s.type]?.label : undefined}
+    >
+      {render(data as never, { ...ctx, preview })}
+    </div>
+  );
 }
 
 export function PageShell({
@@ -115,6 +160,7 @@ export function PageShell({
   brand,
   preview = false,
   after,
+  Block = SectionBlock,
 }: {
   layout: Layout;
   blocks: Blocks;
@@ -126,24 +172,15 @@ export function PageShell({
   preview?: boolean;
   /** Anything that sits after the footer, like floating buttons. */
   after?: ReactNode;
+  /** The live preview swaps in a memoised block so unchanged sections skip re-rendering. */
+  Block?: ComponentType<SectionBlockProps>;
 }) {
   const visible = layout.sections.filter((s) => sectionShows(s, ctx.pageKey));
 
-  const renderSection = (s: SectionInstance) => {
-    const render = RENDER[s.type];
-    if (!render) return null;
-    const data = s.linked ? blocks[s.type] : s.props;
-    return (
-      <div
-        key={s.id}
-        className={deviceClasses(s.devices) || undefined}
-        data-builder-id={preview ? s.id : undefined}
-        data-builder-label={preview ? s.label || SECTIONS[s.type]?.label : undefined}
-      >
-        {render(data as never, ctx)}
-      </div>
-    );
-  };
+  // ctx is passed through untouched so a memoised Block can compare it by identity
+  const renderSection = (s: SectionInstance) => (
+    <Block key={s.id} section={s} data={s.linked ? blocks[s.type] : s.props} ctx={ctx} preview={preview} />
+  );
 
   // The header floats over the blueprint artwork, and that artwork belongs to
   // the hero — so leading backdrop sections share one wrapper with the header.
@@ -151,6 +188,9 @@ export function PageShell({
   while (lead < visible.length && SECTIONS[visible[lead].type]?.backdrop) lead++;
   const heroes = visible.slice(0, lead);
   const rest = visible.slice(lead);
+
+  const showHeader = conditionsShow(global.visibility?.header, ctx.pageKey);
+  const showFooter = conditionsShow(global.visibility?.footer, ctx.pageKey);
 
   const header = (
     <div data-builder-id={preview ? "__header" : undefined} data-builder-label={preview ? "Header" : undefined}>
@@ -162,18 +202,20 @@ export function PageShell({
     <>
       {heroes.length ? (
         <div className="blueprint relative overflow-hidden">
-          {header}
+          {showHeader ? header : null}
           {heroes.map(renderSection)}
         </div>
-      ) : (
+      ) : showHeader ? (
         header
-      )}
+      ) : null}
 
       <main>{rest.map(renderSection)}</main>
 
-      <div data-builder-id={preview ? "__footer" : undefined} data-builder-label={preview ? "Footer" : undefined}>
-        <Footer brand={brand ?? global.brand} data={global.footer} />
-      </div>
+      {showFooter ? (
+        <div data-builder-id={preview ? "__footer" : undefined} data-builder-label={preview ? "Footer" : undefined}>
+          <Footer brand={brand ?? global.brand} data={global.footer} />
+        </div>
+      ) : null}
 
       {after}
       {preview ? <PreviewBridge /> : null}

@@ -260,9 +260,9 @@ summary::-webkit-details-marker {
 }
 
 /* --- logo mark spin ------------------------------------------------------
- * transform-box: view-box makes transform-origin resolve in viewBox units, so
- * 21px 21px lands on the centre of the circle rather than on the bounding box
- * of whatever the group happens to paint.
+ * The mark is its own square <svg> inside an HTML span, the circle filling it,
+ * so its centre is the box centre. The span spins, not an SVG element: Chrome
+ * only hands animations on HTML boxes to the compositor.
  */
 @keyframes logoSpin {
   to {
@@ -271,8 +271,7 @@ summary::-webkit-details-marker {
 }
 
 .logo-spin {
-  transform-box: view-box;
-  transform-origin: 21px 21px;
+  transform-origin: 50% 50%;
   animation: logoSpin 12s linear infinite;
 }
 
@@ -284,6 +283,13 @@ summary::-webkit-details-marker {
  */
 .site-loader .logo-spin {
   animation: none;
+}
+
+/* useGsap marks its element while it is off screen: keyframe loops inside it
+ * (orb, chips, floaters, typing dots) stop costing a style pass every frame */
+[data-offscreen],
+[data-offscreen] * {
+  animation-play-state: paused !important;
 }
 
 /* --- hero floaters --------------------------------------------------------
@@ -615,6 +621,8 @@ summary::-webkit-details-marker {
     animation: none;
   }
 }
+
+
 
 
 

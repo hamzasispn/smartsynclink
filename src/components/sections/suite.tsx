@@ -55,7 +55,7 @@ export function SuiteStage({
           <LiveDashboard />
         </div>
         <div data-sa="phone" className="absolute" style={{ left: STAGE.phone.x, top: STAGE.phone.y }}>
-          <div data-sa="float">
+          <div data-sa="float" className="will-change-transform">
             <LivePhone idPrefix={idPrefix} />
           </div>
         </div>

@@ -36,10 +36,13 @@ const svg = (d: string) => (
 
 export function Builder({ initialPage }: { initialPage: string }) {
   const b = useBuilder(initialPage);
+  const { edit } = b;
   const [selected, setSelected] = useState<string | null>(null);
   const [device, setDevice] = useState<DeviceView>("desktop");
   const [notice, setNotice] = useState<string | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  // the newest document, for a preview that (re)loads after edits were made
+  const latestDoc = useRef(b.doc);
 
   const post = useCallback((message: object) => {
     frame.current?.contentWindow?.postMessage(message, window.location.origin);
@@ -57,18 +60,42 @@ export function Builder({ initialPage }: { initialPage: string }) {
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow) return;
-      const data = event.data as { type?: string; id?: string };
+      const data = event.data as { type?: string; id?: string; path?: string; value?: string };
       if (data?.type === "builder:select") setSelected(data.id ?? null);
-      if (data?.type === "builder:ready" && selected) post({ type: "builder:select", id: selected });
+      if (data?.type === "builder:ready") {
+        if (latestDoc.current) post({ type: "builder:doc", doc: latestDoc.current });
+        if (selected) post({ type: "builder:select", id: selected });
+      }
+      // text edited in place in the preview: write it to that field of the section
+      if (data?.type === "builder:field" && data.id && data.path && typeof data.value === "string") {
+        const { id, path, value } = data;
+        edit((d) => {
+          const section = d.layout.sections.find((s) => s.id === id);
+          if (!section || section.linked) return;
+          const keys = path.split(".");
+          let node = section.props as Record<string, unknown>;
+          for (const key of keys.slice(0, -1)) {
+            node = node?.[key] as Record<string, unknown>;
+            if (!node || typeof node !== "object") return;
+          }
+          node[keys[keys.length - 1]] = value;
+        });
+      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [post, selected]);
+  }, [post, selected, edit]);
 
-  // a saved draft is the preview's cue to re-render
+  // every change goes to the preview straight away — it renders the document
+  // itself, so typing shows as it happens instead of after a save; one post
+  // per frame at most, however fast the edits come
   useEffect(() => {
-    if (b.revision) post({ type: "builder:refresh" });
-  }, [b.revision, post]);
+    latestDoc.current = b.doc;
+    if (!b.doc) return;
+    const doc = b.doc;
+    const raf = requestAnimationFrame(() => post({ type: "builder:doc", doc }));
+    return () => cancelAnimationFrame(raf);
+  }, [b.doc, post]);
 
   // undo / redo from the keyboard, unless the cursor is in a field
   useEffect(() => {
@@ -125,8 +152,8 @@ export function Builder({ initialPage }: { initialPage: string }) {
     if (selected === id) setSelected(null);
   };
 
-  const add = (type: string) => {
-    const section = newSection(type);
+  const add = (type: string, props?: Record<string, unknown>) => {
+    const section = newSection(type, props);
     b.edit((d) => {
       const at = d.layout.sections.findIndex((x) => x.id === selected);
       d.layout.sections.splice(at >= 0 ? at + 1 : d.layout.sections.length, 0, section);

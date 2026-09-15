@@ -132,6 +132,8 @@ export async function defaultLayout(pageKey: string): Promise<Layout> {
       return seeded([["solutions", await getSolutionsContent()], ["steps"], ["pricing"], ["finalCta"]]);
     case "blog":
       return seeded([["blogIndex", await getBlogContent()], ["finalCta"]]);
+    case "post":
+      return seeded([["postArticle", await getBlogContent()], ["finalCta"]]);
     case "usage-pricing":
       return seeded([["usagePricing", await getUsagePricingContent()], ["finalCta"]]);
     case "pricing-table":

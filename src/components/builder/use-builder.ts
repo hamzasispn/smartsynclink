@@ -28,8 +28,7 @@ const HISTORY_LIMIT = 60;
  * The current document lives in a ref as well as state, so edits compose
  * without stale closures and history is pushed exactly once per edit (a state
  * updater with side effects would double-push under React's dev double-invoke).
- * Every change saves the draft after a short pause; `revision` bumps when a
- * save lands, which is the preview's cue to re-render.
+ * Every change saves the draft after a short pause.
  */
 export function useBuilder(initialPage: string) {
   const [pageKey, setPageKeyState] = useState(initialPage);
@@ -37,7 +36,6 @@ export function useBuilder(initialPage: string) {
   const [doc, setDoc] = useState<BuilderDoc | null>(null);
   const [status, setStatus] = useState<SaveStatus>("loading");
   const [unpublished, setUnpublished] = useState(false);
-  const [revision, setRevision] = useState(0);
   const [historySize, setHistorySize] = useState({ past: 0, future: 0 });
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +60,6 @@ export function useBuilder(initialPage: string) {
       await saveDraftAction(pageRef.current, current);
       setStatus("saved");
       setUnpublished(true);
-      setRevision((r) => r + 1);
     } catch (e) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Saving failed");
@@ -193,7 +190,6 @@ export function useBuilder(initialPage: string) {
       future.current = [];
       syncHistory();
       setUnpublished(state.dirty);
-      setRevision((r) => r + 1);
       setStatus("saved");
     },
     [replace],
@@ -227,7 +223,6 @@ export function useBuilder(initialPage: string) {
     status,
     error,
     unpublished,
-    revision,
     publish,
     discard,
     restore,

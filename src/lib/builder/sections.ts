@@ -4,6 +4,7 @@ import { defaultIndustry as industry } from "@/content/industry";
 import { defaultPrivacy } from "@/content/legal";
 import { defaultPricingTable, defaultUsagePricing } from "@/content/pricing-pages";
 import { defaultSolutions } from "@/content/solutions";
+import { CUSTOM_PRESETS } from "./widgets";
 
 /**
  * The catalogue of section types the builder can place.
@@ -19,7 +20,7 @@ import { defaultSolutions } from "@/content/solutions";
  */
 export type SectionMeta = {
   label: string;
-  group: "Hero" | "Home" | "Shared" | "Industry" | "Page";
+  group: "Custom" | "Hero" | "Home" | "Shared" | "Industry" | "Page";
   description: string;
   defaults: object;
   linked: boolean;
@@ -33,6 +34,8 @@ const meta = (m: Omit<SectionMeta, "linked" | "backdrop"> & Partial<Pick<Section
 });
 
 export const SECTIONS: Record<string, SectionMeta> = {
+  custom: meta({ label: "Custom section", group: "Custom", description: "Columns of widgets you arrange yourself.", defaults: CUSTOM_PRESETS[0].build() }),
+
   hero: meta({ label: "Hero", group: "Hero", description: "Heading, buttons and trust line on the blueprint backdrop.", defaults: home.hero, backdrop: true }),
   heroVideo: meta({ label: "Hero video", group: "Hero", description: "The blended hero clip playlist.", defaults: home.heroVideo, backdrop: true }),
   industryHero: meta({ label: "Industry hero", group: "Hero", description: "Industry heading, copy, buttons and artwork.", defaults: industry.hero, backdrop: true }),
@@ -59,6 +62,7 @@ export const SECTIONS: Record<string, SectionMeta> = {
   usagePricing: meta({ label: "Usage pricing tables", group: "Page", description: "Transparent pay-as-you-go rate tables.", defaults: defaultUsagePricing }),
   pricingTable: meta({ label: "Pricing packages", group: "Page", description: "Quick-start, platform and SEO packages.", defaults: defaultPricingTable }),
   legal: meta({ label: "Legal document", group: "Page", description: "A policy with its contents list.", defaults: defaultPrivacy }),
+  postArticle: meta({ label: "Blog post", group: "Page", description: "The post itself: article, contents, newsletter and related posts.", defaults: defaultBlog }),
 };
 
-export const GROUP_ORDER: SectionMeta["group"][] = ["Hero", "Home", "Shared", "Industry", "Page"];
+export const GROUP_ORDER: SectionMeta["group"][] = ["Custom", "Hero", "Home", "Shared", "Industry", "Page"];

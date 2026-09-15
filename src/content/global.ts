@@ -26,6 +26,12 @@ export type NavItem = {
 export type Media = { src: string; alt: string };
 
 export const defaultGlobal = {
+  /** Where the header and footer show. all = every page; include/exclude list page keys. */
+  visibility: {
+    header: { mode: "all", pages: [] } as { mode: "all" | "include" | "exclude"; pages: string[] },
+    footer: { mode: "all", pages: [] } as { mode: "all" | "include" | "exclude"; pages: string[] },
+  },
+
   brand: {
     name: "SmartSyncLink",
     // Leave src empty to fall back to the built-in mark.

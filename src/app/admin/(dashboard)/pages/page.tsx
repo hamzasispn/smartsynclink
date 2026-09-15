@@ -63,6 +63,17 @@ export default function PagesIndex() {
     <>
       <PageHeader title="Pages" subtitle="Content for each page of the site." />
 
+      <Link
+        href="/admin/builder"
+        className="mb-5 flex items-center justify-between gap-4 rounded-2xl border border-brand/30 bg-brand-soft px-5 py-4 text-[14px] leading-relaxed text-brand"
+      >
+        <span>
+          <strong>Page builder.</strong> Arrange sections, edit them on a live preview and publish. Once a page has been
+          saved in the builder, edit it there — these forms no longer change that page.
+        </span>
+        <span className="shrink-0 font-medium">Open builder →</span>
+      </Link>
+
       <Card className="p-0">
         <ul className="divide-y divide-line">
           {pages.map((page) => (

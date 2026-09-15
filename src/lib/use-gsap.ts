@@ -23,7 +23,31 @@ export function useGsap<T extends Element>(
     if (!el) return;
 
     const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => setup(gsap, el));
+    mm.add("(prefers-reduced-motion: no-preference)", (context) => {
+      setup(gsap, el);
+
+      // Endless idle loops (repeat: -1) change something every frame, and on a
+      // page this long every frame re-layerizes all of it — even when the loop
+      // is off screen. Hold them while their element is out of view; the
+      // attribute does the same for CSS keyframe loops inside it (globals.css).
+      const held: gsap.core.Animation[] = [];
+      const io = new IntersectionObserver(([entry]) => {
+        el.toggleAttribute("data-offscreen", !entry.isIntersecting);
+        if (entry.isIntersecting) {
+          held.splice(0).forEach((a) => a.resume());
+          return;
+        }
+        for (const a of context.data as gsap.core.Animation[]) {
+          // repeat: -1 is stored as a 1e10 total duration, and it propagates to a parent timeline
+          if (typeof a.totalDuration === "function" && a.totalDuration() >= 1e10 && !a.paused()) held.push(a.pause());
+        }
+      });
+      io.observe(el);
+      return () => {
+        io.disconnect();
+        el.removeAttribute("data-offscreen");
+      };
+    });
 
     // Fonts and images land after layout, which moves every trigger point.
     ScrollTrigger.refresh();

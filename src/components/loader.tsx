@@ -58,7 +58,7 @@ export function Loader() {
           scale: 0,
           rotation: -270,
           autoAlpha: 0,
-          transformOrigin: "21px 21px",
+          transformOrigin: "50% 50%",
           duration: 0.9,
           ease: "back.out(1.5)",
         })
@@ -88,7 +88,7 @@ export function Loader() {
       // looks like a frozen screen
       gsap.to(mark, {
         rotation: "+=360",
-        transformOrigin: "21px 21px",
+        transformOrigin: "50% 50%",
         duration: 4,
         ease: "none",
         repeat: -1,
@@ -110,6 +110,9 @@ export function Loader() {
 
       const finish = () => {
         document.body.style.overflow = previousOverflow;
+        // the loader stays mounted (it renders null), so without this the endless
+        // spin keeps GSAP's ticker awake on every page for the whole visit
+        ctx.revert();
         setGone(true);
       };
 

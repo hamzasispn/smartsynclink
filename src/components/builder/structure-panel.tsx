@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GROUP_ORDER, SECTIONS } from "@/lib/builder/sections";
+import { CUSTOM_PRESETS } from "@/lib/builder/widgets";
 import type { Layout, SectionInstance } from "@/lib/builder/types";
 
 /**
@@ -20,7 +21,7 @@ type Props = {
   onToggleHidden: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
-  onAdd: (type: string) => void;
+  onAdd: (type: string, props?: Record<string, unknown>) => void;
 };
 
 const icon = (d: string) => (
@@ -181,8 +182,25 @@ export function StructurePanel(props: Props) {
             <div key={group} className="mb-4">
               <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">{group}</p>
               <ul className="space-y-2">
+                {group === "Custom"
+                  ? CUSTOM_PRESETS.map((preset) => (
+                      <li key={preset.key}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onAdd("custom", preset.build() as unknown as Record<string, unknown>);
+                            setLibrary(false);
+                          }}
+                          className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-left transition-colors hover:border-brand"
+                        >
+                          <span className="block text-[13.5px] font-medium text-ink">{preset.label}</span>
+                          <span className="mt-0.5 block text-[12px] leading-snug text-muted">{preset.description}</span>
+                        </button>
+                      </li>
+                    ))
+                  : null}
                 {Object.entries(SECTIONS)
-                  .filter(([, m]) => m.group === group)
+                  .filter(([, m]) => m.group === group && group !== "Custom")
                   .map(([type, m]) => (
                     <li key={type}>
                       <button

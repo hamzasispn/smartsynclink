@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import {
   LIVE_COUNT,
   REPLIES,
@@ -17,11 +26,42 @@ import {
  *
  * One cycle drives both the dashboard and the phone through context, so the
  * two screens always show the same conversation. It only runs while the stage
- * is on screen, and not at all under prefers-reduced-motion — the mockups then
- * stay on their static first thread.
+ * is on screen, and not at all under prefers-reduced-motion.
+ *
+ * The typed characters deliberately bypass React state. Pushing each letter
+ * through state re-rendered the whole ~700-element dashboard some thirty times
+ * a second (measured: ~300ms of script per second, long tasks up to 236ms).
+ * Letters now go to a tiny store that only the composer text subscribes to, so
+ * the dashboard renders when the phase changes — three times per reply.
  */
 
 export const ChatContext = createContext<ChatState>(STATIC_CHAT);
+
+type TypedStore = {
+  get: () => string;
+  set: (value: string) => void;
+  subscribe: (listener: () => void) => () => void;
+};
+
+function createTypedStore(): TypedStore {
+  let value = "";
+  const listeners = new Set<() => void>();
+  return {
+    get: () => value,
+    set: (next) => {
+      value = next;
+      listeners.forEach((listener) => listener());
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
+}
+
+export const TypedContext = createContext<TypedStore>(createTypedStore());
 
 const HOLD_INCOMING = 1500;
 const PER_CHARACTER = 34;
@@ -30,6 +70,7 @@ const HOLD_SENT = 2800;
 
 export function useChatCycle(ref: RefObject<HTMLElement | null>) {
   const [chat, setChat] = useState<ChatState>(STATIC_CHAT);
+  const [typed] = useState(createTypedStore);
   const [inView, setInView] = useState(false);
   // the thread to resume from when the stage scrolls back into view
   const index = useRef(0);
@@ -61,7 +102,8 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>) {
         const i = index.current;
         const reply = REPLIES[i];
 
-        setChat((c) => ({ ...c, active: i, phase: "incoming", typed: "" }));
+        typed.set("");
+        setChat((c) => ({ ...c, active: i, phase: "incoming" }));
         await wait(HOLD_INCOMING);
         if (cancelled) return;
 
@@ -69,15 +111,15 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>) {
         for (let n = 1; n <= reply.length; n++) {
           await wait(PER_CHARACTER);
           if (cancelled) return;
-          setChat((c) => ({ ...c, typed: reply.slice(0, n) }));
+          typed.set(reply.slice(0, n));
         }
         await wait(BEFORE_SEND);
         if (cancelled) return;
 
+        typed.set("");
         setChat((c) => ({
           ...c,
           phase: "sent",
-          typed: "",
           read: c.read.includes(i) ? c.read : [...c.read, i],
         }));
         await wait(HOLD_SENT);
@@ -93,24 +135,32 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>) {
       cancelled = true;
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [inView]);
+  }, [inView, typed]);
 
-  return chat;
+  return { chat, typed };
 }
 
 /** A standalone running cycle, for a phone shown on its own (mobile layouts). */
 export function ChatCycle({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const chat = useChatCycle(ref);
+  const { chat, typed } = useChatCycle(ref);
   return (
     <div ref={ref} className={className}>
-      <ChatContext.Provider value={chat}>{children}</ChatContext.Provider>
+      <ChatContext.Provider value={chat}>
+        <TypedContext.Provider value={typed}>{children}</TypedContext.Provider>
+      </ChatContext.Provider>
     </div>
   );
 }
 
+/** Just the characters typed so far — the only thing that re-renders per letter. */
+function TypedText() {
+  const store = useContext(TypedContext);
+  return <>{useSyncExternalStore(store.subscribe, store.get, () => "")}</>;
+}
+
 export function LiveDashboard() {
-  return <SuiteDashboard chat={useContext(ChatContext)} />;
+  return <SuiteDashboard chat={useContext(ChatContext)} typedSlot={<TypedText />} />;
 }
 
 export function LivePhone({ idPrefix }: { idPrefix: string }) {

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 /**
@@ -8,8 +7,12 @@ import { useEffect } from "react";
  *
  * Hover outlines each section with its name; a click selects it and tells the
  * builder which one. Clicks are swallowed here, so links, popups and sliders in
- * the preview don't navigate away mid-edit. The builder talks back to ask for a
- * refresh after an autosave, or to highlight the section picked in its list.
+ * the preview don't navigate away mid-edit.
+ *
+ * Text a custom section marks with data-builder-field edits in place: double
+ * click, type, Enter (or click away) saves, Escape cancels. The new text goes
+ * to the builder, which writes it into the section like any other edit — so it
+ * lands in undo history and autosaves.
  */
 
 const STYLE = `
@@ -19,11 +22,12 @@ const STYLE = `
 [data-builder-id]:hover::after,[data-builder-id].builder-selected::after{
   content:attr(data-builder-label);position:absolute;top:10px;left:10px;z-index:2147483000;
   background:#3300ea;color:#fff;font:500 12px/1 Inter,system-ui,sans-serif;padding:6px 9px;border-radius:7px;pointer-events:none}
+.builder-selected [data-builder-field]{cursor:text}
+.builder-selected [data-builder-field]:hover{outline:1px dashed #16a34a;outline-offset:3px}
+[data-builder-editing]{outline:2px solid #16a34a!important;outline-offset:3px;cursor:text;caret-color:#16a34a}
 `;
 
 export function PreviewBridge() {
-  const router = useRouter();
-
   useEffect(() => {
     if (window.parent === window) return;
 
@@ -44,7 +48,10 @@ export function PreviewBridge() {
     };
 
     const onClick = (event: MouseEvent) => {
-      const el = (event.target as Element | null)?.closest?.<HTMLElement>("[data-builder-id]");
+      const target = event.target as Element | null;
+      // a click inside text being edited just moves the caret
+      if (target?.closest?.("[data-builder-editing]")) return;
+      const el = target?.closest?.<HTMLElement>("[data-builder-id]");
       event.preventDefault();
       event.stopImmediatePropagation();
       if (!el) return;
@@ -53,10 +60,64 @@ export function PreviewBridge() {
       send({ type: "builder:select", id: selected });
     };
 
+    const startEditing = (event: MouseEvent) => {
+      const field = (event.target as Element | null)?.closest?.<HTMLElement>("[data-builder-field]");
+      const section = field?.closest<HTMLElement>("[data-builder-id]");
+      if (!field || !section) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const original = field.textContent ?? "";
+      let cancelled = false;
+
+      field.setAttribute("contenteditable", "plaintext-only");
+      field.setAttribute("data-builder-editing", "");
+      field.focus();
+      const range = document.createRange();
+      range.selectNodeContents(field);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          field.blur();
+        } else if (e.key === "Escape") {
+          cancelled = true;
+          field.textContent = original;
+          field.blur();
+        }
+      };
+
+      const finish = () => {
+        field.removeEventListener("keydown", onKey);
+        field.removeAttribute("contenteditable");
+        field.removeAttribute("data-builder-editing");
+        const value = (field.textContent ?? "").trim();
+        const changed = !cancelled && value !== original.trim();
+        // typing replaced text nodes React still points at; the preview remounts
+        // this section (with the new document, if one is coming) to own them again
+        window.postMessage(
+          { type: "builder:stale", id: section.dataset.builderId, pending: changed },
+          window.location.origin,
+        );
+        if (!changed) return;
+        send({
+          type: "builder:field",
+          id: section.dataset.builderId,
+          path: field.dataset.builderField,
+          value,
+        });
+      };
+
+      field.addEventListener("keydown", onKey);
+      field.addEventListener("blur", finish, { once: true });
+    };
+
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const data = event.data as { type?: string; id?: string | null };
-      if (data?.type === "builder:refresh") router.refresh();
       if (data?.type === "builder:select") {
         selected = data.id ?? null;
         mark(true);
@@ -70,16 +131,18 @@ export function PreviewBridge() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener("click", onClick, true);
+    document.addEventListener("dblclick", startEditing, true);
     window.addEventListener("message", onMessage);
     send({ type: "builder:ready" });
 
     return () => {
       document.removeEventListener("click", onClick, true);
+      document.removeEventListener("dblclick", startEditing, true);
       window.removeEventListener("message", onMessage);
       observer.disconnect();
       style.remove();
     };
-  }, [router]);
+  }, []);
 
   return null;
 }

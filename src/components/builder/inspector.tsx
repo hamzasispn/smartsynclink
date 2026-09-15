@@ -6,7 +6,9 @@ import { defaultGlobal } from "@/content/global";
 import type { BuilderPage } from "@/lib/builder/pages";
 import { SECTIONS } from "@/lib/builder/sections";
 import type { Device } from "@/lib/builder/types";
+import type { CustomProps } from "@/lib/builder/widgets";
 import { ContentEditor } from "../admin/content-editor";
+import { CustomEditor } from "./custom-editor";
 import type { BuilderDoc } from "./use-builder";
 
 /**
@@ -43,6 +45,60 @@ function Heading({ title, sub, onClose }: { title: string; sub?: string; onClose
       <button type="button" onClick={onClose} aria-label="Close" className="grid size-7 shrink-0 place-items-center rounded-lg text-muted hover:bg-surface hover:text-ink">
         ✕
       </button>
+    </div>
+  );
+}
+
+/** Page conditions for the header and footer. */
+function ConditionsPicker({
+  title,
+  value,
+  pages,
+  onChange,
+}: {
+  title: string;
+  value: { mode: "all" | "include" | "exclude"; pages: string[] };
+  pages: BuilderPage[];
+  onChange: (next: { mode: "all" | "include" | "exclude"; pages: string[] }) => void;
+}) {
+  return (
+    <div className="rounded-2xl border border-line bg-white p-4">
+      <p className="mb-2 text-[12px] font-semibold tracking-[0.06em] text-muted uppercase">{title}</p>
+      <select
+        value={value.mode}
+        onChange={(e) => onChange({ ...value, mode: e.target.value as typeof value.mode })}
+        className="w-full rounded-lg border border-line bg-white px-3 py-2 text-[13.5px] outline-none focus:border-brand"
+      >
+        <option value="all">Every page</option>
+        <option value="include">Only the pages ticked below</option>
+        <option value="exclude">Every page except those ticked below</option>
+      </select>
+      {value.mode !== "all" ? (
+        <ul className="mt-3 max-h-56 space-y-1 overflow-y-auto">
+          {pages.map((page) => {
+            const ticked = value.pages.includes(page.key);
+            return (
+              <li key={page.key}>
+                <label className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] hover:bg-surface">
+                  <input
+                    type="checkbox"
+                    checked={ticked}
+                    onChange={() =>
+                      onChange({
+                        ...value,
+                        pages: ticked ? value.pages.filter((k) => k !== page.key) : [...value.pages, page.key],
+                      })
+                    }
+                    className="size-4 accent-[#3300ea]"
+                  />
+                  <span className="text-ink">{page.label}</span>
+                  <span className="ml-auto truncate text-[11.5px] text-muted">{page.path}</span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }
@@ -92,6 +148,18 @@ export function Inspector({
               }, true)
             }
           />
+          <div className="mt-4">
+            <ConditionsPicker
+              title="Show the header on"
+              value={doc.global.visibility.header}
+              pages={pages}
+              onChange={(next) =>
+                edit((d) => {
+                  d.global.visibility = { ...d.global.visibility, header: next };
+                })
+              }
+            />
+          </div>
         </div>
       </div>
     );
@@ -113,6 +181,18 @@ export function Inspector({
               }, true)
             }
           />
+          <div className="mt-4">
+            <ConditionsPicker
+              title="Show the footer on"
+              value={doc.global.visibility.footer}
+              pages={pages}
+              onChange={(next) =>
+                edit((d) => {
+                  d.global.visibility = { ...d.global.visibility, footer: next };
+                })
+              }
+            />
+          </div>
         </div>
       </div>
     );
@@ -200,7 +280,18 @@ export function Inspector({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        {tab === "content" ? (
+        {tab === "content" && section.type === "custom" ? (
+          <CustomEditor
+            key={section.id}
+            value={section.props as unknown as CustomProps}
+            onChange={(next, coalesce) =>
+              edit((d) => {
+                const target = d.layout.sections.find((s) => s.id === selected);
+                if (target) target.props = next as unknown as Record<string, unknown>;
+              }, coalesce)
+            }
+          />
+        ) : tab === "content" ? (
           <ContentEditor
             key={`${section.id}-${section.linked}`}
             value={{ [section.type]: content } as never}

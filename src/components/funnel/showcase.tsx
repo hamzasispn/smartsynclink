@@ -181,7 +181,7 @@ export function FunnelShowcase({
                   <span
                     data-progress={i}
                     aria-hidden="true"
-                    className="absolute inset-0 origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA]"
+                    className="absolute inset-0 origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] will-change-transform"
                   />
                 ) : null}
               </button>
