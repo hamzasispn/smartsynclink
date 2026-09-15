@@ -1,4 +1,5 @@
 import type { IndustryContent } from "@/content/industry";
+import { BookingBand } from "../booking-band";
 import { Reveal } from "../reveal";
 import { Button, Container, Media } from "../ui";
 
@@ -10,6 +11,12 @@ export function IndustryProblem({
   return (
     <section className="py-20 lg:py-24">
       <Container>
+        {data.notice?.heading ? (
+          <Reveal className="mb-16 lg:mb-20">
+            <BookingBand booking={data.notice} />
+          </Reveal>
+        ) : null}
+
         <div className="grid gap-10 lg:grid-cols-[45fr_55fr] lg:gap-x-14">
           {/* left: the story, told in short lines the way the design has it */}
           <Reveal>

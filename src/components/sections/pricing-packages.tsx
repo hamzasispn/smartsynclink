@@ -1,5 +1,6 @@
 import type { PricingTableContent } from "@/content/pricing-pages";
 import { Reveal } from "../reveal";
+import { SuiteLockup } from "../suite-logo";
 import { GradientText, Rich } from "../rich";
 import { Badge, Container, SectionHead } from "../ui";
 import { PlanCards } from "./pricing";
@@ -41,7 +42,8 @@ export function PricingPackages({ data }: { data: PricingTableContent }) {
 
         {/* quick start */}
         <div className="pt-24">
-          <Reveal>
+          <Reveal className="flex flex-col items-center">
+            <SuiteLockup id="pt-quick-suite" size={36} className="mb-7" />
             <SectionHead heading={data.quickStart.heading} subheading={data.quickStart.subheading} />
           </Reveal>
           <PlanCards plans={data.quickStart.plans} className="mt-16" />
@@ -101,7 +103,8 @@ export function PricingPackages({ data }: { data: PricingTableContent }) {
 
         {/* local seo packages */}
         <div className="pt-24">
-          <Reveal>
+          <Reveal className="flex flex-col items-center">
+            <SuiteLockup id="pt-seo-funnel" product="funnel" size={36} className="mb-7" />
             <SectionHead heading={data.seo.heading} subheading={data.seo.subheading} />
           </Reveal>
           <PlanCards plans={data.seo.plans} className="mt-16" />

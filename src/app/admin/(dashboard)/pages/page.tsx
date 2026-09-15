@@ -56,6 +56,13 @@ const pages = [
     description: "The full terms, as Markdown.",
     live: true,
   },
+  {
+    href: "/admin/pages/cookies",
+    title: "Cookie Policy",
+    path: "/cookie-policy",
+    description: "The cookie policy, as Markdown.",
+    live: true,
+  },
 ];
 
 export default function PagesIndex() {

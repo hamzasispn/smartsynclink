@@ -90,6 +90,14 @@ export const defaultIndustry = {
       "Without the right experience and follow-up, that interested prospect can disappear before they ever book.",
     ],
     cta: { label: "Get More Booking", href: "#contact" } as Cta,
+    /** The "Did You Know?" band shown above this section. Empty heading hides it. */
+    notice: {
+      eyebrow: "Did You Know?",
+      heading: "Businesses that reply in under a minute book 57% more appointments. Here's how SmartSyncLink gets you there.",
+      highlight: "57%",
+      cta: { label: "Book An Appointment", href: "#contact" } as Cta,
+      secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+    },
     cards: [
       {
         icon: { src: "", alt: "" } as Media,

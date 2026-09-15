@@ -2,6 +2,7 @@ import type { GlobalContent } from "@/content/global";
 import {
   fill,
   getBlogContent,
+  getCookieContent,
   getGlobalContent,
   getHomeContent,
   getPricingTableContent,
@@ -142,6 +143,8 @@ export async function defaultLayout(pageKey: string): Promise<Layout> {
       return seeded([["legal", await getPrivacyContent()], ["finalCta"]]);
     case "terms":
       return seeded([["legal", await getTermsContent()], ["finalCta"]]);
+    case "cookies":
+      return seeded([["legal", await getCookieContent()], ["finalCta"]]);
     default:
       return { sections: [] };
   }

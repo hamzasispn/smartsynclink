@@ -17,6 +17,7 @@ export const STATIC_PAGES: BuilderPage[] = [
   { key: "pricing-table", label: "Pricing table", path: "/pricing-table", group: "Pages" },
   { key: "privacy", label: "Privacy Policy", path: "/privacy-policy", group: "Legal" },
   { key: "terms", label: "Terms & Conditions", path: "/terms-and-conditions", group: "Legal" },
+  { key: "cookies", label: "Cookie Policy", path: "/cookie-policy", group: "Legal" },
 ];
 
 export const industryKey = (slug: string) => `industry:${slug}`;

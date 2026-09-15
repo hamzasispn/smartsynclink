@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import { BtnLink, PageHeader } from "@/components/admin/ui";
 import { DocForm } from "@/components/admin/doc-form";
 import type { DocKey } from "@/app/admin/actions";
-import { defaultPrivacy, defaultTerms } from "@/content/legal";
+import { defaultCookies, defaultPrivacy, defaultTerms } from "@/content/legal";
 import { defaultPricingTable, defaultUsagePricing } from "@/content/pricing-pages";
 import {
+  getCookieContent,
   getPricingTableContent,
   getPrivacyContent,
   getTermsContent,
@@ -30,6 +31,12 @@ const DOCS: Record<DocKey, { title: string; subtitle: string; load: () => Promis
     subtitle: "The terms text is Markdown: ## for a numbered section, ### for a lettered sub-section. Headings feed the contents list automatically.",
     load: getTermsContent,
     shape: defaultTerms,
+  },
+  cookies: {
+    title: "Cookie Policy",
+    subtitle: "The policy text is Markdown: ## for a numbered section, ### for a lettered sub-section. Headings feed the contents list automatically.",
+    load: getCookieContent,
+    shape: defaultCookies,
   },
   "usage-pricing": {
     title: "Transparent pricing",

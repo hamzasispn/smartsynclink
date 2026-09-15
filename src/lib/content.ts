@@ -2,7 +2,7 @@ import { defaultBlog, type BlogContent } from "@/content/blog";
 import { defaultGlobal, type GlobalContent } from "@/content/global";
 import { defaultSolutions, type SolutionsContent } from "@/content/solutions";
 import { defaultHomeContent, type HomeContent } from "@/content/home";
-import { defaultPrivacy, defaultTerms, type LegalDoc } from "@/content/legal";
+import { defaultCookies, defaultPrivacy, defaultTerms, type LegalDoc } from "@/content/legal";
 import {
   defaultPricingTable,
   defaultUsagePricing,
@@ -86,6 +86,8 @@ export const savePrivacyContent = (data: LegalDoc) => write("privacy", data);
 
 export const getTermsContent = () => read<LegalDoc>("terms", defaultTerms);
 export const saveTermsContent = (data: LegalDoc) => write("terms", data);
+export const getCookieContent = () => read<LegalDoc>("cookies", defaultCookies);
+export const saveCookieContent = (data: LegalDoc) => write("cookies", data);
 
 export const getUsagePricingContent = () =>
   read<UsagePricingContent>("usage-pricing", defaultUsagePricing);

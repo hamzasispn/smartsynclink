@@ -1,4 +1,5 @@
 import type { HomeContent } from "@/content/home";
+import { PaymentMarks } from "../payment-marks";
 import { Reveal } from "../reveal";
 import { Button, CheckRing, Container, GLOW, SectionHead } from "../ui";
 
@@ -110,6 +111,8 @@ export function PlanCards({
               variant={hot ? "white" : "outline"}
               className="relative mt-auto w-full"
             />
+
+            <PaymentMarks className="relative mt-4" />
 
             {plan.footnote ? (
               <p

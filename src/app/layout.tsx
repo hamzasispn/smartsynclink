@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ChatWidget } from "@/components/chat-widget";
 import { DemoModal } from "@/components/demo-modal";
 import { Calendar } from "@/components/sections/calendar";
 import { Loader } from "@/components/loader";
@@ -42,6 +43,7 @@ export default async function RootLayout({
         <DemoModal data={demo} />
         <Calendar data={calendar} />
         <PointerFill />
+        <ChatWidget />
       </body>
     </html>
   );

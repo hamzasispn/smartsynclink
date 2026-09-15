@@ -185,7 +185,7 @@ export const defaultGlobal = {
         links: [
           { label: "Privacy Policy", href: "/privacy-policy" },
           { label: "Terms of Service", href: "/terms-and-conditions" },
-          { label: "Cookie Policy", href: "/cookies" },
+          { label: "Cookie Policy", href: "/cookie-policy" },
           { label: "Security", href: "/security" },
           { label: "Compliance", href: "/compliance" },
           { label: "Data Processing Agreement", href: "/dpa" },

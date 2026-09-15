@@ -1072,13 +1072,8 @@ function StatusIcons({ x, y }: { x: number; y: number }) {
   );
 }
 
-/**
- * The same inbox on the SmartSync mobile app. There is no screenshot of the
- * app, so this follows the desktop screen's data, colours and type, re-flowed
- * into a phone's single column.
- */
-export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string; chat?: ChatState }) {
-  const ROW = 74;
+/** The handset: bezel, screen, island, status bar and home indicator. Content draws on the 308 × 658 screen. */
+function PhoneFrame({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -1103,7 +1098,22 @@ export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string;
           9:41
         </T>
         <StatusIcons x={222} y={26} />
+        {children}
+        <Box x={94} y={646} w={120} h={5} style={{ background: INK, borderRadius: 3 }} />
+      </Box>
+    </div>
+  );
+}
 
+/**
+ * The same inbox on the SmartSync mobile app. There is no screenshot of the
+ * app, so this follows the desktop screen's data, colours and type, re-flowed
+ * into a phone's single column.
+ */
+export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string; chat?: ChatState }) {
+  const ROW = 74;
+  return (
+    <PhoneFrame>
         {/* app header */}
         <div style={{ position: "absolute", left: 16, top: 56 }}>
           <SuiteMark id={`${idPrefix}-mark`} size={28} />
@@ -1211,8 +1221,161 @@ export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string;
           );
         })}
         <Count x={100} y={584} w={20} h={14} n={23} r={7} />
-        <Box x={94} y={646} w={120} h={5} style={{ background: INK, borderRadius: 3 }} />
-      </Box>
-    </div>
+    </PhoneFrame>
+  );
+}
+
+/**
+ * The mobile app with one conversation open: the customer's message, the AI's
+ * reply typing into the message box, then landing in the thread. It runs on the
+ * same script and state as the desktop board, so both tell the same story.
+ */
+export function SuitePhoneChat({ chat = STATIC_CHAT, typedSlot }: { chat?: ChatState; typedSlot?: ReactNode }) {
+  const top = THREADS[chat.active] ?? THREADS[0];
+  const typing = chat.phase === "typing";
+
+  return (
+    <PhoneFrame>
+      {/* conversation header */}
+      <svg
+        viewBox="0 0 24 24"
+        width={22}
+        height={22}
+        fill="none"
+        stroke={INK}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        style={{ position: "absolute", left: 10, top: 65 }}
+      >
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+      <Avatar face={top.face} channel={top.channel} x={56} y={76} d={36} badge={15} />
+      <T x={84} y={67} s={16} w={600} style={{ maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis" }}>
+        {top.name.replace(/\.\.\.$/, "")}
+      </T>
+      <T x={84} y={87} s={12} c={MUTED}>
+        Active now
+      </T>
+      <Ico n="phone" x={246} y={76} s={19} c={INK} sw={2} />
+      <Ico n="dots" x={282} y={76} s={18} c={INK} sw={2.5} />
+      <Box x={0} y={104} w={308} h={1} style={{ background: LINE }} />
+
+      <Box x={124} y={120} w={60} h={22} style={{ background: "#F3F4F6", borderRadius: 11 }} />
+      <T x={154} y={131} s={11.5} c={TEXT} align="center">
+        Today
+      </T>
+
+      {/* the customer */}
+      <Avatar face={top.face} x={28} y={184} d={26} />
+      <div
+        key={`pin-${chat.active}`}
+        className="suite-pop"
+        style={{
+          position: "absolute",
+          left: 48,
+          top: 160,
+          maxWidth: 210,
+          padding: "9px 13px",
+          background: "#F3F4F6",
+          borderRadius: "16px 16px 16px 4px",
+          fontSize: 14,
+          lineHeight: 1.35,
+          color: INK,
+        }}
+      >
+        {top.preview}
+      </div>
+      <T x={52} y={216} s={11} c={MUTED}>
+        {top.time}
+      </T>
+
+      {/* the AI's reply, once sent */}
+      {chat.phase === "sent" ? (
+        <div
+          key={`pout-${chat.active}`}
+          className="suite-pop"
+          style={{ position: "absolute", right: 14, top: 236, maxWidth: 220, textAlign: "right" }}
+        >
+          <div
+            style={{
+              display: "inline-block",
+              textAlign: "left",
+              padding: "9px 13px",
+              background: BLUE,
+              color: "#fff",
+              borderRadius: "16px 16px 4px 16px",
+              fontSize: 14,
+              lineHeight: 1.35,
+            }}
+          >
+            {REPLIES[chat.active]}
+          </div>
+          <div style={{ marginTop: 6, fontSize: 11, color: MUTED }}>Sent by AI · just now</div>
+        </div>
+      ) : null}
+
+      {typing ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 16,
+            top: 530,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 11.5,
+            color: MUTED,
+          }}
+        >
+          <span className="suite-dots">
+            <i />
+            <i />
+            <i />
+          </span>
+          AI is typing…
+        </div>
+      ) : null}
+
+      {/* message box: long replies keep their newest words in view */}
+      <Box x={12} y={560} w={284} h={46} style={{ border: "1px solid #D1D5DB", borderRadius: 23, background: "#fff" }} />
+      <Ico n="plus" x={34} y={583} s={16} c={MUTED} sw={2} />
+      <div
+        style={{
+          position: "absolute",
+          left: 50,
+          top: 571,
+          width: 192,
+          height: 24,
+          lineHeight: "24px",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          direction: "rtl",
+          textAlign: "left",
+          fontSize: 14,
+          color: typing ? INK : MUTED,
+        }}
+      >
+        <span style={{ direction: "ltr", unicodeBidi: "isolate" }}>
+          {typing ? (
+            <>
+              {typedSlot ?? chat.typed}
+              <span className="suite-caret" />
+            </>
+          ) : (
+            "Type a message"
+          )}
+        </span>
+      </div>
+      <Box
+        x={252}
+        y={566}
+        w={34}
+        h={34}
+        style={{ background: typing ? BLUE : "#93B4FB", borderRadius: 17, transition: "background .2s" }}
+      />
+      <Ico n="send" x={269} y={583} s={15} c="#fff" sw={2} />
+    </PhoneFrame>
   );
 }

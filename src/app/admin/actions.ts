@@ -14,6 +14,7 @@ import {
   savePricingTableContent,
   savePrivacyContent,
   saveTermsContent,
+  saveCookieContent,
   saveUsagePricingContent,
 } from "@/lib/content";
 import type { BlogContent } from "@/content/blog";
@@ -79,12 +80,13 @@ export async function saveSolutionsAction(data: SolutionsContent) {
 
 /* ---------------------------------------------------- standalone documents -- */
 
-export type DocKey = "privacy" | "terms" | "usage-pricing" | "pricing-table";
+export type DocKey = "privacy" | "terms" | "cookies" | "usage-pricing" | "pricing-table";
 
 // not exported: a "use server" module may only export async functions
 const DOC_TARGETS: Record<DocKey, { save: (data: never) => Promise<unknown>; path: string }> = {
   privacy: { save: savePrivacyContent, path: "/privacy-policy" },
   terms: { save: saveTermsContent, path: "/terms-and-conditions" },
+  cookies: { save: saveCookieContent, path: "/cookie-policy" },
   "usage-pricing": { save: saveUsagePricingContent, path: "/transparent-pricing" },
   "pricing-table": { save: savePricingTableContent, path: "/pricing-table" },
 };

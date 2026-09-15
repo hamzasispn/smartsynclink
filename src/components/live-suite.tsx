@@ -16,6 +16,7 @@ import {
   STATIC_CHAT,
   SuiteDashboard,
   SuitePhone,
+  SuitePhoneChat,
   type ChatState,
 } from "./suite-mockup";
 
@@ -165,4 +166,9 @@ export function LiveDashboard() {
 
 export function LivePhone({ idPrefix }: { idPrefix: string }) {
   return <SuitePhone idPrefix={idPrefix} chat={useContext(ChatContext)} />;
+}
+
+/** The phone with the conversation open, its reply typing into the message box. */
+export function LivePhoneChat() {
+  return <SuitePhoneChat chat={useContext(ChatContext)} typedSlot={<TypedText />} />;
 }

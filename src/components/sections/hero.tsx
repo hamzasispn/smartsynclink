@@ -1,6 +1,64 @@
+import type { ReactNode } from "react";
 import type { HomeContent } from "@/content/home";
-import { HeroVideos } from "../hero-videos";
+import { FUNNEL_BOARD, FunnelListScreen } from "../funnel/list-screen";
+import { HeroVideos, type HeroScreen } from "../hero-videos";
+import { ChatCycle, LiveDashboard, LivePhoneChat } from "../live-suite";
+import { BOARD, PHONE } from "../suite-mockup";
 import { Button, Container, GLOW, Tick } from "../ui";
+
+/**
+ * A fixed-size artboard scaled down to fit the hero box whole — by width or by
+ * height, whichever runs out first — so a screen is small on a phone, never
+ * cropped and never a sideways scroll. The outer box is a size container; the
+ * stage is as wide as both limits allow and scales its board to that width.
+ */
+function Fit({ w, h, framed = false, children }: { w: number; h: number; framed?: boolean; children: ReactNode }) {
+  return (
+    <div className={`grid h-full w-full place-items-center [container-type:size] ${framed ? "py-3" : ""}`}>
+      <div
+        className={`suite-stage relative ${framed ? "overflow-hidden rounded-[10px] shadow-[0_20px_50px_-24px_rgba(14,14,20,0.35)] ring-1 ring-black/5" : ""}`}
+        style={{ aspectRatio: `${w} / ${h}`, width: `min(100cqw, calc(100cqh * ${w / h}))` }}
+      >
+        <div className="suite-board" style={{ width: w, height: h, ["--stage-w" as string]: `${w}px` }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** What plays between the clips: the Suite inbox, the same chat on the phone, then a funnel workspace. */
+const SCREENS: HeroScreen[] = [
+  {
+    hold: 7000,
+    node: (
+      <ChatCycle className="h-full w-full">
+        <Fit w={BOARD.w} h={BOARD.h} framed>
+          <LiveDashboard />
+        </Fit>
+      </ChatCycle>
+    ),
+  },
+  {
+    // long enough for a message to arrive, the reply to type and send
+    hold: 8500,
+    node: (
+      <ChatCycle className="h-full w-full py-2">
+        <Fit w={PHONE.w} h={PHONE.h}>
+          <LivePhoneChat />
+        </Fit>
+      </ChatCycle>
+    ),
+  },
+  {
+    hold: 6500,
+    node: (
+      <Fit w={FUNNEL_BOARD.w} h={FUNNEL_BOARD.h} framed>
+        <FunnelListScreen idPrefix="hero-funnel" />
+      </Fit>
+    ),
+  },
+];
 
 export function Hero({ data }: { data: HomeContent["hero"] }) {
   return (
@@ -37,8 +95,9 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         className="rise relative mt-10 flex justify-center lg:mt-14"
         style={{ "--i": 2 } as React.CSSProperties}
       >
-        <div className="relative h-[300px] w-full lg:h-[500px] lg:w-[700px]">
-          <HeroVideos videos={data.videos ?? []} />
+        {/* wider than the clip on desktop: the clips stay 700px, the product screens get the room */}
+        <div className="relative h-[300px] w-full px-3 md:h-[420px] lg:h-[500px] lg:max-w-[1100px] lg:px-6">
+          <HeroVideos videos={data.videos ?? []} screens={SCREENS} />
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-// Shape + seed copy for /privacy-policy and /terms-and-conditions.
+// Shape + seed copy for /privacy-policy, /terms-and-conditions and /cookie-policy.
 // Live content lives in Postgres (site_content.privacy / site_content.terms);
 // this is the fallback when the row is missing or the DB is unreachable.
 // Text is the published policy word for word — edit the wording in the admin,
@@ -291,6 +291,54 @@ Continued use of our services constitutes acceptance of the updated Terms.
 If you have any questions regarding these Terms, please contact:
 
 **Smart SyncLink**
+
+Address: 8911 N Capital of Texas Hwy, Suite 4200-349, Austin, Texas, United States, 78759
+
+Phone: [+1 737-252-4262](tel:+17372524262)
+
+Email: [info@smartsynclink.com](mailto:info@smartsynclink.com)
+`,
+};
+
+export const defaultCookies: LegalDoc = {
+  badge: "LEGAL",
+  title: "Cookie Policy",
+  updated: "Last Updated: September 15, 2026",
+  intro: "",
+  tocLabel: "On this page",
+  body: `## 1. What Are Cookies
+
+Cookies are small text files a website stores in your browser. They help a site work properly, keep you signed in, and remember choices you make. Similar technologies, such as local storage, work the same way and are covered by this policy too.
+
+## 2. How We Use Cookies
+
+Smart SyncLink keeps cookie use to a minimum. We do not currently use cookies for advertising, analytics, or tracking you across other websites.
+
+### a. Strictly Necessary Cookies
+
+Some parts of our website need a small cookie to work — for example, keeping an authorized account securely signed in. These cookies are essential, contain no advertising data, and cannot be switched off in our systems.
+
+### b. Third-Party Services
+
+Some features on our website are provided by trusted partners and load inside our pages, such as our appointment booking calendar and forms, or embedded videos. When you use these features, the provider may set its own cookies to run the service, remember your selections, and prevent spam. Those cookies are governed by the provider's own privacy and cookie policies.
+
+## 3. Cookies We Do Not Use
+
+We do not use advertising or retargeting cookies, and we do not sell or share cookie information with advertisers.
+
+## 4. Managing Cookies
+
+You can control and delete cookies at any time through your browser settings, including blocking all cookies or only third-party cookies. Please note that blocking strictly necessary cookies may stop some features, such as the booking calendar, from working correctly.
+
+## 5. Changes to This Policy
+
+If we begin using additional cookies — such as analytics to improve our website — we will update this page with a revised “Last Updated” date and, where required by law, ask for your consent first.
+
+## 6. Contact Information
+
+If you have any questions about this Cookie Policy, please contact:
+
+Smart SyncLink
 
 Address: 8911 N Capital of Texas Hwy, Suite 4200-349, Austin, Texas, United States, 78759
 
