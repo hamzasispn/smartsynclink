@@ -133,7 +133,9 @@ export const defaultGlobal = {
       { label: "Blog", href: "/blog", mega: false, children: [] },
     ] as NavItem[],
     login: { label: "Login", href: "/login" } as Cta,
-    cta: { label: "Start Free Trial", href: "#contact" } as Cta,
+    /** The header call button: a small label over the number it dials. */
+    call: { label: "Call Now", number: "+1 737 252-4262", href: "tel:+17372524262" },
+    cta: { label: "Book An Appointment", href: "#contact" } as Cta,
   },
 
   footer: {

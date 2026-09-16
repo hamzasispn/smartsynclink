@@ -17,7 +17,7 @@ export const defaultHomeContent = {
     // there is no timer to keep in sync with the footage.
     videos: [{ src: "/video/video.mp4", alt: "Product walkthrough" }] as Media[],
     primary: { label: "Book Your Free Strategy Call", href: "#call" } as Cta,
-    secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+    secondary: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
     stats: [
       "Trusted By 3,000+ Businesses",
       "250,000+ Leads Managed",
@@ -62,7 +62,7 @@ export const defaultHomeContent = {
       highlight: "57%",
       body: "Twenty minutes, no slide deck. We look at where calls and messages are going today, then show you exactly what the AI would have caught.",
       cta: { label: "Book An Appointment", href: "#contact" } as Cta,
-      secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+      secondary: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
     },
 
     intro: {
@@ -88,7 +88,7 @@ export const defaultHomeContent = {
           body: "Missed a call after hours? No worries, we'll make sure everyone gets helped while you sleep.",
         },
       ] as Bullet[],
-      cta: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
     },
     inbox: {
       heading: "All-In-One Smart Inbox",
@@ -107,13 +107,13 @@ export const defaultHomeContent = {
           body: "Use templates and AI-suggested replies to handle common questions instantly.",
         },
       ] as Bullet[],
-      cta: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
       image: { src: "", alt: "Smart inbox interface" } as Media,
     },
     campaigns: {
       heading: "One-Click Marketing Campaigns",
       body: "You know it, and we know it... Referrals and repeat customers are the best. Let's get you both!",
-      cta: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
       image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
     },
   },
@@ -131,21 +131,21 @@ export const defaultHomeContent = {
         // the template the editor copies when you press Add — an empty array
         // would leave it with nothing to clone.
         frames: [{ src: "", alt: "" }] as Media[],
-        cta: { label: "Book Now", href: "#contact" } as Cta,
+        cta: { label: "Get More Booking", href: "#contact" } as Cta,
       },
       {
         title: "Aesthetics & Medspas",
         body: "Fill your booking calendar, handle patient inquiries 24/7, and run automated reactivation campaigns.",
         image: { src: "/images/med-spa.png", alt: "Medspa client after treatment" } as Media,
         frames: [{ src: "", alt: "" }] as Media[],
-        cta: { label: "Book Now", href: "#contact" } as Cta,
+        cta: { label: "Get More Booking", href: "#contact" } as Cta,
       },
       {
         title: "Contractors",
         body: "Never miss an estimate request. Our AI answers calls from the job site and books appointments instantly.",
         image: { src: "/images/constrution.png", alt: "Contractor holding blueprints" } as Media,
         frames: [{ src: "", alt: "" }] as Media[],
-        cta: { label: "Book Now", href: "#contact" } as Cta,
+        cta: { label: "Get More Booking", href: "#contact" } as Cta,
       },
     ],
   },
@@ -367,7 +367,7 @@ export const defaultHomeContent = {
     cta: { label: "Book A Call Now", href: "#call" } as Cta,
     orbLabel: "Smart AI Assistant",
     // #demo is the handle the popup listens for — see DemoModal
-    pill: { label: "Try Now", href: "#demo" } as Cta,
+    pill: { label: "Book A Demo Call", href: "#call" } as Cta,
     chips: [
       "AI answers calls",
       "AI replies to messages",

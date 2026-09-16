@@ -96,7 +96,7 @@ export const defaultIndustry = {
       heading: "Businesses that reply in under a minute book 57% more appointments. Here's how SmartSyncLink gets you there.",
       highlight: "57%",
       cta: { label: "Book An Appointment", href: "#contact" } as Cta,
-      secondary: { label: "Watch 3-Minute Demo", href: "#demo" } as Cta,
+      secondary: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
     },
     cards: [
       {

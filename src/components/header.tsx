@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { GlobalContent } from "@/content/global";
 import { SiteLogo } from "./site-logo";
-import { Bolt, Button, Chevron, Container, UserIcon } from "./ui";
+import { Bolt, Button, Chevron, Container, PhoneIcon, UserIcon } from "./ui";
 
 export function Wordmark({
   brand,
@@ -49,7 +49,7 @@ export default function Header({
       <Container className="flex items-center justify-between gap-6">
         <Wordmark brand={brand} />
 
-        <nav className="hidden items-center gap-6 self-stretch xl:flex" aria-label="Main">
+        <nav className="hidden items-center gap-5 self-stretch xl:flex" aria-label="Main">
           {nav.items.map((item) => (
             // self-stretch + h-full make the trigger box as tall as the nav
             // row. Without it the link ends 13px above the row, and that strip
@@ -140,16 +140,34 @@ export default function Header({
           ))}
         </nav>
 
-        <div className="hidden items-center gap-5 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
+          {/* icon only: the label stays as the accessible name and the tooltip */}
           <a
             href={nav.login.href}
-            className="flex items-center gap-1.5 text-[16px] border border-black/10 px-6 py-3 rounded-full font-normal text-[#1E1E1E] transition-colors hover:text-brand"
+            aria-label={nav.login.label}
+            title={nav.login.label}
+            className="grid size-12 shrink-0 place-items-center rounded-full border border-black/10 text-[#1E1E1E] transition-colors hover:border-brand/40 hover:text-brand"
           >
-            <UserIcon className="size-4" />
-            {nav.login.label}
+            <UserIcon className="size-5" />
           </a>
 
-          <Button cta={nav.cta} className="px-6 text-[16px]" />
+          {/* the number, one tap to dial on a phone and a plain link on desktop */}
+          {nav.call?.number ? (
+            <a
+              href={nav.call.href}
+              className="flex items-center gap-2.5 rounded-full border border-black/10 py-1.5 pl-1.5 pr-5 transition-colors hover:border-brand/40"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white">
+                <PhoneIcon className="size-4" />
+              </span>
+              <span className="leading-tight">
+                <span className="block text-[12px] text-muted">{nav.call.label}</span>
+                <span className="block text-[15px] font-medium whitespace-nowrap text-ink">{nav.call.number}</span>
+              </span>
+            </a>
+          ) : null}
+
+          <Button cta={nav.cta} className="whitespace-nowrap px-6 text-[16px]" />
         </div>
 
         {/* mobile menu — native <details>, no client JS */}
@@ -187,6 +205,17 @@ export default function Header({
                   ) : null}
                 </div>
               ))}
+              {nav.call?.number ? (
+                <a
+                  href={nav.call.href}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-ink hover:bg-page"
+                >
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white">
+                    <PhoneIcon className="size-3.5" />
+                  </span>
+                  {nav.call.number}
+                </a>
+              ) : null}
               <a
                 href={nav.login.href}
                 className="rounded-lg px-3 py-2.5 text-sm font-normal text-ink hover:bg-page"

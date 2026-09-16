@@ -108,6 +108,23 @@ export function Bolt({ className = "" }: IconProps) {
   );
 }
 
+export function PhoneIcon({ className = "" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6.6 3h3l1.5 4.2-2 1.4a12 12 0 0 0 5.3 5.3l1.4-2 4.2 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.2 2 2 0 0 1 6.6 3Z" />
+    </svg>
+  );
+}
+
 export function UserIcon({ className = "" }: IconProps) {
   return (
     <svg
