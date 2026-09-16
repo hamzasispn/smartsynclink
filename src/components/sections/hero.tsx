@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { HomeContent } from "@/content/home";
-import { FUNNEL_BOARD, FunnelListScreen } from "../funnel/list-screen";
+import { FUNNEL_BOARD } from "../funnel/list-screen";
+import { FunnelMetricsScreen } from "../funnel/metrics-screen";
 import { HeroVideos, type HeroScreen } from "../hero-videos";
 import { ChatCycle, LiveDashboard, LivePhoneChat } from "../live-suite";
 import { BOARD, PHONE } from "../suite-mockup";
@@ -27,7 +28,7 @@ function Fit({ w, h, framed = false, children }: { w: number; h: number; framed?
   );
 }
 
-/** What plays between the clips: the Suite inbox, the same chat on the phone, then a funnel workspace. */
+/** What plays between the clips: the Suite inbox, the same chat on the phone, then the funnel metrics. */
 const SCREENS: HeroScreen[] = [
   {
     hold: 7000,
@@ -54,7 +55,7 @@ const SCREENS: HeroScreen[] = [
     hold: 6500,
     node: (
       <Fit w={FUNNEL_BOARD.w} h={FUNNEL_BOARD.h} framed>
-        <FunnelListScreen idPrefix="hero-funnel" />
+        <FunnelMetricsScreen />
       </Fit>
     ),
   },

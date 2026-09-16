@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:setup": "node --env-file=.env.local scripts/db-setup.ts",
     "db:check": "node --env-file=.env.local scripts/check-content.ts",
+    "db:backup": "node --env-file=.env.local scripts/backup-db.ts",
     "admin:create": "node --env-file=.env.local scripts/create-admin.ts"
   },
   "dependencies": {
