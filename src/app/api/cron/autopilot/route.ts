@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { generatePost } from "@/lib/ai";
-import { getAutopilot, isDue, recordRun } from "@/lib/autopilot";
+import { claimRun, getAutopilot, recordRun } from "@/lib/autopilot";
 import { listPosts, upsertPost } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +23,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  if (!(await isDue())) {
+  // the slot is taken first: a run the platform kills mid-write would otherwise
+  // leave the schedule untouched and fail again on every tick after it
+  if (!(await claimRun())) {
     const cfg = await getAutopilot();
     return NextResponse.json({
       skipped: cfg.enabled ? "not due yet" : "autopilot is off",

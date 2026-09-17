@@ -42,10 +42,27 @@ export async function recordRun(error: string | null) {
     where id = 1`;
 }
 
-/** True when the schedule says a post is owed. */
-export async function isDue() {
+/**
+ * Takes the slot before the writing starts, and says whether it got it.
+ *
+ * Writing a post outlives a serverless function on the smaller plans, and a
+ * function the platform kills never reaches recordRun — so next_run_at stayed
+ * null, every later tick still read as due, and the cron failed on a loop
+ * without ever leaving a reason behind. Moving the schedule first means a run
+ * that dies costs one slot instead of every slot.
+ *
+ * The check and the write are one statement, so two ticks arriving together
+ * cannot both take it.
+ */
+export async function claimRun() {
   const rows = await sql`
-    select enabled and (next_run_at is null or next_run_at <= now()) as due
-    from blog_autopilot where id = 1`;
-  return Boolean(rows[0]?.due);
+    update blog_autopilot set
+      last_run_at = now(),
+      next_run_at = now() + make_interval(hours => every_hours),
+      last_error  = 'started — no result recorded, the run did not finish'
+    where id = 1
+      and enabled
+      and (next_run_at is null or next_run_at <= now())
+    returning id`;
+  return rows.length > 0;
 }
