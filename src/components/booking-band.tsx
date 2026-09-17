@@ -7,7 +7,12 @@ export type BookingBandData = {
   /** Painted in the accent colour wherever it appears in the heading. */
   highlight: string;
   cta: Cta;
-  secondary: Cta;
+  /**
+   * A second action, only where there is genuinely a second thing to do.
+   * The band used to carry two — "Book An Appointment" and "Book A 15-Min
+   * Demo Call" — which read as one choice offered twice.
+   */
+  secondary?: Cta;
 };
 
 /** The heading with every occurrence of `highlight` painted in the accent. */
@@ -54,14 +59,16 @@ export function BookingBand({ booking, className = "" }: { booking: BookingBandD
         >
           {booking.cta.label}
         </a>
-        <a
-          href={booking.secondary.href}
-          data-fill=""
-          style={{ "--fill": "rgba(255,255,255,.14)" } as React.CSSProperties}
-          className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-white/80 px-5 text-[15px] font-medium text-white"
-        >
-          {booking.secondary.label}
-        </a>
+        {booking.secondary?.label ? (
+          <a
+            href={booking.secondary.href}
+            data-fill=""
+            style={{ "--fill": "rgba(255,255,255,.14)" } as React.CSSProperties}
+            className="inline-flex min-h-11 items-center justify-center rounded-[8px] border border-white/80 px-5 text-[15px] font-medium text-white"
+          >
+            {booking.secondary.label}
+          </a>
+        ) : null}
       </div>
     </article>
   );

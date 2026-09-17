@@ -2,10 +2,29 @@ import type { Bullet, HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
 import { BookingBand } from "../booking-band";
-import { SuiteLockup } from "../suite-logo";
+import { SuiteLockup, SuiteMark } from "../suite-logo";
 import { ChatCycle, LivePhone } from "../live-suite";
 import { Button, CheckSolid, Container } from "../ui";
 import { SuiteStage } from "./suite";
+
+/**
+ * The same mark on every feature card, so the three read as one product rather
+ * than three. Blue on the light cards, which is the mark's own colour; the
+ * gradient tile beside them carries the white lockup instead.
+ *
+ * `id` has to differ per card: the mark's gradient is referenced by id, and
+ * Chrome paints the second of two matching ids from the first.
+ */
+function SuiteBadge({ id }: { id: string }) {
+  return (
+    <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-brand/8 px-3 py-1.5">
+      <SuiteMark id={id} size={18} />
+      <span className="text-[13px] font-medium tracking-[-0.01em] text-brand">
+        SmartSync Suite
+      </span>
+    </span>
+  );
+}
 
 function FeatureList({ bullets }: { bullets: Bullet[] }) {
   return (
@@ -54,6 +73,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
 
           {/* smart voice ai */}
           <article className="flex flex-col rounded-[16px] bg-surface p-9 lg:col-span-8">
+            <SuiteBadge id="bento-badge-voice" />
             <h2 className="text-[26px] font-medium tracking-[-0.02em] text-ink">
               {data.voice.heading}
             </h2>
@@ -66,6 +86,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
 
           {/* smart inbox — copy */}
           <article className="flex flex-col rounded-[26px] bg-surface p-[20px] lg:col-span-3">
+            <SuiteBadge id="bento-badge-inbox" />
             <h2 className="text-[28px] font-medium leading-tight tracking-[-0.02em] text-ink">
               {data.inbox.heading}
             </h2>
@@ -94,6 +115,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
           <article className="relative z-10 flex flex-col overflow-hidden rounded-[26px] bg-surface lg:col-span-3 bg-[url('/images/campaigns.webp')] bg-cover bg-center">
             <div className="absolute inset-0 bg-gradient-to-b from-[#052EFF]/0 to-white -z-10"></div>
             <div className="flex flex-1 flex-col p-8 justify-end">
+              <SuiteBadge id="bento-badge-campaigns" />
               <h2 className="text-[28px] font-medium leading-tight tracking-[-0.02em] text-ink">
                 {data.campaigns.heading}
               </h2>

@@ -48,6 +48,7 @@ export async function GET(request: Request) {
 
     await recordRun(null);
     revalidatePath("/blog");
+    revalidatePath("/blog/[slug]", "page");
     revalidatePath("/admin/blog");
 
     return NextResponse.json({

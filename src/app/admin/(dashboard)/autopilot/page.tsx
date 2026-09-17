@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { formatDateTime } from "@/lib/format";
-import { Btn, Card, Field, PageHeader, Pill, inputClass } from "@/components/admin/ui";
+import { Card, Field, PageHeader, Pill, inputClass } from "@/components/admin/ui";
 import { AutopilotRun } from "@/components/admin/autopilot-run";
+import { SaveRow } from "@/components/admin/save-row";
 import { TopicsField } from "@/components/admin/topics-field";
 import { getAiStatus } from "@/lib/ai-settings";
 import { getAutopilot } from "@/lib/autopilot";
@@ -103,7 +104,7 @@ export default async function AutopilotPage() {
               </span>
             </label>
 
-            <Btn type="submit">Save settings</Btn>
+            <SaveRow />
           </Card>
         </form>
 

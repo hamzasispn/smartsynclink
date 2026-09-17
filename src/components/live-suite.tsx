@@ -69,7 +69,13 @@ const PER_CHARACTER = 34;
 const BEFORE_SEND = 400;
 const HOLD_SENT = 2800;
 
-export function useChatCycle(ref: RefObject<HTMLElement | null>) {
+/**
+ * @param startDelay wait this long after the stage comes into view before the
+ * first message. The Suite stage opens on a website whose form is still being
+ * filled in; the inbox answering that message before it is sent would give the
+ * story away.
+ */
+export function useChatCycle(ref: RefObject<HTMLElement | null>, startDelay = 0) {
   const [chat, setChat] = useState<ChatState>(STATIC_CHAT);
   const [typed] = useState(createTypedStore);
   const [inView, setInView] = useState(false);
@@ -99,6 +105,10 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>) {
       });
 
     (async () => {
+      if (startDelay) {
+        await wait(startDelay);
+        if (cancelled) return;
+      }
       while (!cancelled) {
         const i = index.current;
         const reply = REPLIES[i];
@@ -136,7 +146,7 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>) {
       cancelled = true;
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [inView, typed]);
+  }, [inView, typed, startDelay]);
 
   return { chat, typed };
 }
@@ -164,8 +174,8 @@ export function LiveDashboard() {
   return <SuiteDashboard chat={useContext(ChatContext)} typedSlot={<TypedText />} />;
 }
 
-export function LivePhone({ idPrefix }: { idPrefix: string }) {
-  return <SuitePhone idPrefix={idPrefix} chat={useContext(ChatContext)} />;
+export function LivePhone({ idPrefix, overlay }: { idPrefix: string; overlay?: ReactNode }) {
+  return <SuitePhone idPrefix={idPrefix} chat={useContext(ChatContext)} overlay={overlay} />;
 }
 
 /** The phone with the conversation open, its reply typing into the message box. */

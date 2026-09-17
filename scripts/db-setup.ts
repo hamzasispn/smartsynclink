@@ -113,6 +113,26 @@ await sql`
   )`;
 await sql`create index if not exists media_recent_idx on media (created_at desc)`;
 
+/* ------------------------------------------------------------- bookings -- */
+
+// Every booking the popup's own form takes. With GHL connected this is the
+// record alongside the appointment; without it, this is the booking.
+await sql`
+  create table if not exists bookings (
+    id          uuid primary key default gen_random_uuid(),
+    calendar_id text not null,
+    title       text not null default '',
+    name        text not null,
+    email       text not null,
+    phone       text not null,
+    city        text not null default '',
+    notes       text not null default '',
+    slot        text not null,
+    timezone    text not null,
+    created_at  timestamptz not null default now()
+  )`;
+await sql`create index if not exists bookings_recent_idx on bookings (created_at desc)`;
+
 /* ------------------------------------------------------------ ai config -- */
 
 // Single-row connection settings. Separate from blog_autopilot, which holds
@@ -238,4 +258,4 @@ console.log(
     ? `site_content.home ${force ? "overwritten from code" : "seeded"}`
     : "site_content.home already exists — left alone (pass --force to overwrite)",
 );
-console.log("tables ready: site_content, services, posts, blog_autopilot, ai_settings, media");
+console.log("tables ready: site_content, services, posts, bookings, blog_autopilot, ai_settings, media");

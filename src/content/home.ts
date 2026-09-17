@@ -61,8 +61,10 @@ export const defaultHomeContent = {
       /** Painted in the accent colour wherever it appears in the heading. */
       highlight: "57%",
       body: "Twenty minutes, no slide deck. We look at where calls and messages are going today, then show you exactly what the AI would have caught.",
-      cta: { label: "Book An Appointment", href: "#contact" } as Cta,
-      secondary: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
+      // One action, because there was only ever one: the two buttons here used
+      // to be "Book An Appointment" and "Book A 15-Min Demo Call", which is the
+      // same thing asked twice. #call is the Smart SyncLink Demo Calendar.
+      cta: { label: "Book A Demo", href: "#call" } as Cta,
     },
 
     intro: {
@@ -71,49 +73,51 @@ export const defaultHomeContent = {
       body: "Smart Sync Link automates every stage of your customer journey, from the first phone call to the final follow-up, so your team can focus on growing the business instead of managing repetitive tasks.",
       image: { src: "", alt: "AI assistant illustration" } as Media,
     },
+    // Copy on these three is deliberately short: the animations beside them
+    // are doing the explaining, and the long version buried them.
     voice: {
       heading: "Smart Voice AI",
-      body: "Get an AI receptionist that instantly answers calls, routes them, and books appointments directly to your calendar.",
+      body: "An AI receptionist that answers, routes, and books straight into your calendar.",
       bullets: [
         {
           title: "Never Miss A Call",
-          body: "If a customer calls your business and you can't answer, our AI will handle it naturally.",
+          body: "When you cannot pick up, the AI does — and it sounds like a person.",
         },
         {
           title: "Intelligent Routing",
-          body: "The AI knows who to forward urgent calls to and who to schedule for later.",
+          body: "Urgent calls go through. The rest get booked in.",
         },
         {
           title: "24/7 Availability",
-          body: "Missed a call after hours? No worries, we'll make sure everyone gets helped while you sleep.",
+          body: "After hours, weekends, holidays. Everyone gets an answer.",
         },
       ] as Bullet[],
-      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
+      cta: { label: "Book A Demo", href: "#call" } as Cta,
     },
     inbox: {
       heading: "All-In-One Smart Inbox",
-      body: "Stop checking five different apps. We combine SMS, Email, and Social DMs into one clean interface.",
+      body: "SMS, email and social DMs in one place, instead of five apps.",
       bullets: [
         {
           title: "Centralized Communication",
-          body: "Facebook messages, Instagram DMs, SMS, and Emails all flow into one easy-to-use inbox.",
+          body: "Facebook, Instagram, SMS and email land in one list.",
         },
         {
           title: "Team Collaboration",
-          body: "Assign conversations to team members so nothing falls through the cracks.",
+          body: "Assign a conversation so nothing falls through.",
         },
         {
           title: "Quick Responses",
-          body: "Use templates and AI-suggested replies to handle common questions instantly.",
+          body: "AI-suggested replies handle the usual questions.",
         },
       ] as Bullet[],
-      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
+      cta: { label: "Book A Demo", href: "#call" } as Cta,
       image: { src: "", alt: "Smart inbox interface" } as Media,
     },
     campaigns: {
       heading: "One-Click Marketing Campaigns",
-      body: "You know it, and we know it... Referrals and repeat customers are the best. Let's get you both!",
-      cta: { label: "Book A 15-Min Demo Call", href: "#call" } as Cta,
+      body: "Referrals and repeat customers, brought back without the busywork.",
+      cta: { label: "Book A Demo", href: "#call" } as Cta,
       image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
     },
   },
@@ -366,8 +370,9 @@ export const defaultHomeContent = {
     body: "Stop relying on manual processes. Let Smart Sync Link automate your customer journey, capture every opportunity, and help your business grow with confidence.",
     cta: { label: "Book A Call Now", href: "#call" } as Cta,
     orbLabel: "Smart AI Assistant",
-    // #demo is the handle the popup listens for — see DemoModal
-    pill: { label: "Book A Demo Call", href: "#call" } as Cta,
+    // #demo opens the voice agent — the orb IS the assistant, so it should hand
+    // you to it rather than to a calendar. See DemoModal, which listens for it.
+    pill: { label: "Talk To Smart AI", href: "#demo" } as Cta,
     chips: [
       "AI answers calls",
       "AI replies to messages",

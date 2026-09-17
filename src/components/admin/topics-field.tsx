@@ -33,8 +33,10 @@ export function TopicsField({ initial }: { initial: string[] }) {
           onClick={() =>
             run("topics", { kind: "topics", count: 8, existing }, (r) => {
               if (r.ok && r.kind === "topics") {
-                // append, so a suggestion never wipes what is already there
-                setTopics([...existing, ...r.topics].join("\n"));
+                // append rather than replace, so a suggestion never wipes what
+                // is already there — and drop repeats, which is what a long
+                // existing list tends to come back with
+                setTopics([...new Set([...existing, ...r.topics.map((t) => t.trim())])].join("\n"));
               }
             })
           }

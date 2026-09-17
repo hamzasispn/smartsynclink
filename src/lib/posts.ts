@@ -58,17 +58,30 @@ export async function uniqueSlug(base: string, ignoreId?: string) {
 
 export async function upsertPost(p: Partial<Post> & { title: string }) {
   const status = p.status ?? "draft";
-  // publishing without an explicit date means "now"
-  const publishedAt =
-    status === "published" ? (p.published_at ?? new Date().toISOString()) : null;
+  /**
+   * Publishing without an explicit date means "now" — but Postgres has to be
+   * the one that says when.
+   *
+   * It used to be `new Date().toISOString()` from the app server, and the feed
+   * below only shows posts whose `published_at <= now()`, where `now()` is the
+   * database's clock. Two machines, two clocks: whenever the app's ran ahead,
+   * a post published from the dashboard was filtered out of its own site until
+   * the database caught up. `coalesce(…, now())` leaves one clock in it.
+   */
+  const publishedAt = status === "published" ? (p.published_at ?? null) : null;
 
+  // one CASE rather than two queries: publishing keeps the date it already had,
+  // takes an explicit one, or asks the database what time it is
   if (p.id) {
     await sql`
       update posts set
         slug = ${p.slug || (await uniqueSlug(p.title, p.id))},
         title = ${p.title}, excerpt = ${p.excerpt ?? ""}, body = ${p.body ?? ""},
         cover = ${p.cover ?? ""}, tags = ${p.tags ?? []}, status = ${status},
-        published_at = ${publishedAt}, updated_at = now()
+        published_at = case when ${status} = 'published'
+          then coalesce(${publishedAt}::timestamptz, posts.published_at, now())
+          else null end,
+        updated_at = now()
       where id = ${p.id}`;
     return p.id;
   }
@@ -77,7 +90,10 @@ export async function upsertPost(p: Partial<Post> & { title: string }) {
     insert into posts (slug, title, excerpt, body, cover, tags, status, source, published_at)
     values (${p.slug || (await uniqueSlug(p.title))}, ${p.title}, ${p.excerpt ?? ""},
             ${p.body ?? ""}, ${p.cover ?? ""}, ${p.tags ?? []}, ${status},
-            ${p.source ?? "manual"}, ${publishedAt})
+            ${p.source ?? "manual"},
+            case when ${status} = 'published'
+              then coalesce(${publishedAt}::timestamptz, now())
+              else null end)
     returning id`;
   return rows[0].id as string;
 }

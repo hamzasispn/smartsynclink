@@ -245,6 +245,7 @@ export async function savePostAction(form: FormData) {
     status: bool(form, "published") ? "published" : "draft",
   });
   revalidatePath("/blog");
+  revalidatePath("/blog/[slug]", "page");
   revalidatePath("/admin/blog");
   redirect("/admin/blog");
 }
@@ -253,6 +254,7 @@ export async function deletePostAction(form: FormData) {
   await requireAdmin();
   await deletePost(str(form, "id"));
   revalidatePath("/blog");
+  revalidatePath("/blog/[slug]", "page");
   revalidatePath("/admin/blog");
 }
 
@@ -294,6 +296,7 @@ export async function runAutopilotAction(form: FormData) {
     });
     await recordRun(null);
     revalidatePath("/blog");
+    revalidatePath("/blog/[slug]", "page");
     revalidatePath("/admin/blog");
     revalidatePath("/admin/autopilot");
     return { ok: true as const, title: draft.title };

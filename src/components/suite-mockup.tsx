@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { VISITOR } from "@/lib/stage-intro";
 import { SuiteMark } from "./suite-logo";
 
 /**
@@ -375,6 +376,18 @@ const LILAC: Face = { bg: "#F6E3F7", fg: "#6B3F75" };
 const SKY: Face = { bg: "#DDEBFD", fg: "#2B4C80" };
 
 const THREADS: Thread[] = [
+  {
+    // The visitor from the website shot that opens the Suite section, because
+    // that is the whole point of it: the message she typed into a form on a
+    // website is the one at the top of the inbox, on desktop and on the phone.
+    name: VISITOR.name,
+    time: "Just now",
+    preview: VISITOR.message,
+    count: 1,
+    // the website's own chat — where a form on a site lands
+    channel: "chat",
+    face: { ...SKY, initials: "AB" },
+  },
   { name: "Emma Brooks", time: "3:37 PM", preview: "no", count: 1, channel: "fb", face: { ...PEACH, initials: "EB" } },
   { name: "Sophia Esposito Ma...", time: "1:41 PM", preview: "Call", count: 1, channel: "phone", face: { ...LILAC, initials: "SE" } },
   { name: "Tessa Evans", time: "10:17 AM", preview: "Stop", count: 1, channel: "chat", face: { ...LILAC, initials: "TE" } },
@@ -386,11 +399,11 @@ const THREADS: Thread[] = [
 
 /** What the AI sends back in the live demo, in THREADS order. The demo cycles through these threads. */
 export const REPLIES = [
+  "Of course! We have Thursday 11 AM open — shall I book it?",
   "No problem! Want me to hold a spot for next week instead?",
   "Sorry we missed you — calling you back in 2 minutes.",
   "You're unsubscribed. Reply START anytime to rejoin.",
   "Yes! Friday at 2:30 PM is open. Shall I book it?",
-  "Hi Bella, just tried you. When is a good time to call?",
 ];
 export const LIVE_COUNT = REPLIES.length;
 
@@ -1110,7 +1123,16 @@ function PhoneFrame({ children }: { children: ReactNode }) {
  * app, so this follows the desktop screen's data, colours and type, re-flowed
  * into a phone's single column.
  */
-export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string; chat?: ChatState }) {
+export function SuitePhone({
+  idPrefix,
+  chat = STATIC_CHAT,
+  /** Drawn over the app, inside the frame: the website she books from, and the ping. */
+  overlay,
+}: {
+  idPrefix: string;
+  chat?: ChatState;
+  overlay?: ReactNode;
+}) {
   const ROW = 74;
   return (
     <PhoneFrame>
@@ -1221,6 +1243,7 @@ export function SuitePhone({ idPrefix, chat = STATIC_CHAT }: { idPrefix: string;
           );
         })}
         <Count x={100} y={584} w={20} h={14} n={23} r={7} />
+        {overlay}
     </PhoneFrame>
   );
 }

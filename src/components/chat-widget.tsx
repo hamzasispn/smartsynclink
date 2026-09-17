@@ -10,6 +10,9 @@ import Script from "next/script";
  * lazyOnload waits until the page has finished loading and the browser is
  * idle, so the widget never competes with the first paint. The CMS and the
  * builder's preview iframe skip it.
+ *
+ * Nothing on the page opens it by hand — the assistant orb hands people to the
+ * voice agent instead (#demo, see DemoModal), and this keeps its own bubble.
  */
 export function ChatWidget() {
   const pathname = usePathname();

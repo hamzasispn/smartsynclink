@@ -28,10 +28,23 @@ function Fit({ w, h, framed = false, children }: { w: number; h: number; framed?
   );
 }
 
-/** What plays between the clips: the Suite inbox, the same chat on the phone, then the funnel metrics. */
+/**
+ * One story told across five shots, alternating footage and product:
+ *
+ *   she taps the tablet → the dashboard zooms open out of it → it closes again
+ *   → he points at the screen → what he points at fades up → it hands over to
+ *   the phone.
+ *
+ * The order here is what makes that read, so the screens are not
+ * interchangeable: `zoom` belongs to the shot that follows a tap, `rise`
+ * to the phone that takes over from the board. See HeroVideos for how the
+ * clips and screens interleave, and .hero-screen in globals.css for the motion.
+ */
 const SCREENS: HeroScreen[] = [
   {
     hold: 7000,
+    // opens out of the tablet she just tapped, and closes back into it
+    enter: "zoom",
     node: (
       <ChatCycle className="h-full w-full">
         <Fit w={BOARD.w} h={BOARD.h} framed>
@@ -41,8 +54,19 @@ const SCREENS: HeroScreen[] = [
     ),
   },
   {
+    hold: 6500,
+    // what he is pointing at, so it arrives quietly rather than jumping in
+    enter: "fade",
+    node: (
+      <Fit w={FUNNEL_BOARD.w} h={FUNNEL_BOARD.h} framed>
+        <FunnelMetricsScreen />
+      </Fit>
+    ),
+  },
+  {
     // long enough for a message to arrive, the reply to type and send
     hold: 8500,
+    enter: "rise",
     node: (
       <ChatCycle className="h-full w-full py-2">
         <Fit w={PHONE.w} h={PHONE.h}>
@@ -51,15 +75,17 @@ const SCREENS: HeroScreen[] = [
       </ChatCycle>
     ),
   },
-  {
-    hold: 6500,
-    node: (
-      <Fit w={FUNNEL_BOARD.w} h={FUNNEL_BOARD.h} framed>
-        <FunnelMetricsScreen />
-      </Fit>
-    ),
-  },
 ];
+
+/**
+ * Seconds per clip, by position: the first clip (she taps the tablet) plays at
+ * its own pace, the second (he points at the screen) is four seconds of
+ * footage the story only wants two and a half of.
+ *
+ * ponytail: by position, because that is what the playlist is. Reorder the
+ * clips in the dashboard and this wants reordering too.
+ */
+const CLIP_SECONDS = [undefined, 2.5];
 
 export function Hero({ data }: { data: HomeContent["hero"] }) {
   return (
@@ -98,7 +124,11 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
       >
         {/* wider than the clip on desktop: the clips stay 700px, the product screens get the room */}
         <div className="relative h-[300px] w-full px-3 md:h-[420px] lg:h-[500px] lg:max-w-[1100px] lg:px-6">
-          <HeroVideos videos={data.videos ?? []} screens={SCREENS} />
+          <HeroVideos
+            videos={data.videos ?? []}
+            screens={SCREENS}
+            clipSeconds={CLIP_SECONDS}
+          />
         </div>
       </div>
 

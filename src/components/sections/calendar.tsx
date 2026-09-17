@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Script from "next/script";
 import type { HomeContent } from "@/content/home";
+import { BookingForm } from "../booking-form";
 
 type Kind = "appointment" | "call";
 
@@ -32,7 +33,17 @@ export function Calendar({ data }: { data: HomeContent["calendar"] }) {
   const [kind, setKind] = useState<Kind | null>(null);
   // frames already built: they stay mounted so a second open costs nothing
   const [built, setBuilt] = useState<Kind[]>([]);
+  // calendars our own form could not serve, which fall back to the widget
+  const [widget, setWidget] = useState<Kind[]>([]);
   const close = useCallback(() => setKind(null), []);
+
+  // stable per kind: BookingForm loads its slots once, and an inline arrow here
+  // would make it start again every time the popup opens
+  const fallback = useMemo(() => {
+    const give = (which: Kind) => () =>
+      setWidget((current) => (current.includes(which) ? current : [...current, which]));
+    return { appointment: give("appointment"), call: give("call") };
+  }, []);
 
   const build = useCallback(
     (next: Kind) => setBuilt((current) => (current.includes(next) ? current : [...current, next])),
@@ -88,6 +99,10 @@ export function Calendar({ data }: { data: HomeContent["calendar"] }) {
     which === "call" ? data?.callEmbedUrl || data?.embedUrl : data?.embedUrl;
   if (!data?.embedUrl) return null;
 
+  // the calendar's own id, which is the last path segment of its widget URL
+  const calendarOf = (which: Kind) =>
+    urlFor(which)!.split("?")[0].split("/").filter(Boolean).pop() ?? "";
+
   const host = (() => {
     try {
       return new URL(data.embedUrl).origin;
@@ -111,55 +126,70 @@ export function Calendar({ data }: { data: HomeContent["calendar"] }) {
         aria-modal="true"
         aria-label={data.heading}
         hidden={!kind}
-        className="fixed inset-0 z-[10000] flex items-center justify-center overflow-hidden bg-ink/55 p-4 backdrop-blur-sm sm:p-8"
+        className="fixed inset-0 z-[10000] flex items-center justify-center overflow-y-auto bg-ink/55 p-4 backdrop-blur-sm sm:p-8"
         onClick={(event) => {
           if (event.target === event.currentTarget) close();
         }}
       >
-        <div className="flex max-h-full w-full max-w-[1120px] flex-col overflow-hidden rounded-[20px] bg-white shadow-lift">
-          {/* the close button lives in the header row, not floating outside it —
-              floating left it stacking under the card on small screens */}
-          <div className="flex items-center gap-4 bg-gradient-to-r from-[#052EFF] to-[#3300EA] px-6 py-4">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-bold tracking-[0.08em] text-white/70">{data.badge}</p>
-              <p className="mt-1 truncate text-[18px] font-semibold tracking-[-0.01em] text-white">
-                {data.heading}
-              </p>
-            </div>
-            <button
-              onClick={close}
-              aria-label="Close"
-              className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5 stroke-current" fill="none" strokeWidth="2" strokeLinecap="round">
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </button>
-          </div>
+        {/* One card, the way the reference does it: the eyebrow, the ask and the
+            times all live inside it, and the close button rides its corner —
+            pulled inward on small screens, where outside the corner is off. */}
+        <div className="relative my-auto w-full max-w-[660px]">
+          {/* The same close button as the demo popup. The X was on a half-step
+              size utility that was not in the generated stylesheet, so the svg
+              had no width at all and stretched to fill the button; a whole-step
+              size and the demo popup's filled glyph cannot do that. */}
+          <button
+            onClick={close}
+            aria-label="Close"
+            className="absolute top-2.5 right-2.5 z-10 grid size-9 place-items-center rounded-full bg-white text-ink shadow-lift transition-transform hover:scale-105 sm:-top-3 sm:-right-3"
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 fill-current">
+              <path d="m10 8.6 5-5 1.4 1.4-5 5 5 5-1.4 1.4-5-5-5 5L3.6 15l5-5-5-5L10 3.6z" />
+            </svg>
+          </button>
 
-          {/* the frame scrolls itself: form_embed.js only resizes frames it can
-              reach, and a booking form taller than the screen must stay usable
-              whether or not that script ever runs */}
-          {built.map((which) => {
-            const url = urlFor(which)!;
-            const bookingId = url.split("?")[0].split("/").filter(Boolean).pop() ?? "booking";
-            return (
-              <iframe
-                key={which}
-                id={`${bookingId}_1`}
-                src={url}
-                title={data.heading}
-                allow="payment"
-                hidden={which !== kind}
-                className="booking-frame block w-full shrink border-0"
-              />
-            );
-          })}
+          <div className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-y-auto rounded-[18px] bg-white shadow-lift sm:max-h-[calc(100dvh-4rem)] sm:rounded-[20px]">
+            {built.map((which) => {
+              const url = urlFor(which)!;
+              const bookingId = calendarOf(which) || "booking";
+              // our own form, in the site's own design. The GHL widget is only
+              // the last resort, for when even our slots endpoint cannot answer.
+              if (!widget.includes(which)) {
+                return (
+                  <div key={which} hidden={which !== kind}>
+                    <BookingForm
+                      calendarId={bookingId}
+                      eyebrow={data.badge}
+                      title={data.heading}
+                      subtitle={data.subheading}
+                      onUnavailable={fallback[which]}
+                    />
+                  </div>
+                );
+              }
+              // the frame scrolls itself: form_embed.js only resizes frames it
+              // can reach, and a booking form taller than the screen must stay
+              // usable whether or not that script ever runs
+              return (
+                <iframe
+                  key={which}
+                  id={`${bookingId}_1`}
+                  src={url}
+                  title={data.heading}
+                  allow="payment"
+                  hidden={which !== kind}
+                  className="booking-frame block w-full shrink border-0"
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* loaded once the page is idle, so it is already there when a frame appears */}
-      {built.length ? (
+      {/* loaded once the page is idle, so it is already there when a frame
+          appears — and only when one actually will */}
+      {built.some((which) => widget.includes(which)) ? (
         <Script src="https://link.smartsynclink.com/js/form_embed.js" strategy="afterInteractive" />
       ) : null}
     </>

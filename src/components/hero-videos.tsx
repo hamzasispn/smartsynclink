@@ -9,10 +9,17 @@ import "swiper/css/effect-fade";
 import type { Media } from "@/content/home";
 import { Placeholder } from "./ui";
 
-/** A product screen shown between clips, for `hold` milliseconds. */
-export type HeroScreen = { node: ReactNode; hold: number };
+/**
+ * A product screen shown between clips, for `hold` milliseconds.
+ *
+ * `enter` is how it arrives and leaves, which is what ties the playlist into
+ * one story rather than five unrelated shots — see .hero-screen in globals.css.
+ */
+export type HeroScreen = { node: ReactNode; hold: number; enter?: "zoom" | "fade" | "rise" };
 
-type Slide = { kind: "video"; clip: Media } | ({ kind: "screen" } & HeroScreen);
+type Slide =
+  | { kind: "video"; clip: Media; seconds?: number }
+  | ({ kind: "screen" } & HeroScreen);
 
 /**
  * The hero clip, or a crossfading playlist of clips with product screens
@@ -45,7 +52,21 @@ type Slide = { kind: "video"; clip: Media } | ({ kind: "screen" } & HeroScreen);
  * slide with nothing behind it. Applied to the root, the slides composite
  * together first and the finished frame multiplies with the section.
  */
-export function HeroVideos({ videos, screens = [] }: { videos: Media[]; screens?: HeroScreen[] }) {
+export function HeroVideos({
+  videos,
+  screens = [],
+  clipSeconds = [],
+}: {
+  videos: Media[];
+  screens?: HeroScreen[];
+  /**
+   * How long clip *n* should take on screen, in seconds. A clip longer than
+   * that is played faster rather than cut short, so the whole gesture still
+   * reads — the man's clip runs four seconds but the story only wants two and
+   * a half of them, and cutting it would drop the point he is making.
+   */
+  clipSeconds?: (number | undefined)[];
+}) {
   const clips = (videos ?? []).filter((clip) => clip?.src);
   const players = useRef<(HTMLVideoElement | null)[]>([]);
   const [swiper, setSwiper] = useState<SwiperClass | null>(null);
@@ -54,7 +75,7 @@ export function HeroVideos({ videos, screens = [] }: { videos: Media[]; screens?
 
   const slides: Slide[] = [];
   for (let i = 0; i < Math.max(clips.length, screens.length); i++) {
-    if (clips[i]) slides.push({ kind: "video", clip: clips[i] });
+    if (clips[i]) slides.push({ kind: "video", clip: clips[i], seconds: clipSeconds[i] });
     if (screens[i]) slides.push({ kind: "screen", ...screens[i] });
   }
 
@@ -136,6 +157,12 @@ export function HeroVideos({ videos, screens = [] }: { videos: Media[]; screens?
               playsInline
               preload="auto"
               autoPlay={i === 0}
+              onLoadedMetadata={(event) => {
+                const video = event.currentTarget;
+                // 2x is the ceiling: past it a person's movement turns comic
+                if (slide.seconds && video.duration)
+                  video.playbackRate = Math.min(2, Math.max(1, video.duration / slide.seconds));
+              }}
               onEnded={() => swiper?.slideNext()}
               aria-label={slide.clip.alt}
               className="mx-auto h-full w-full object-cover brightness-[1.03] lg:w-[700px]"
@@ -143,7 +170,16 @@ export function HeroVideos({ videos, screens = [] }: { videos: Media[]; screens?
               <source src={slide.clip.src} />
             </video>
           ) : i === active || i === previous ? (
-            slide.node
+            // the screen carries its own entrance and exit; swiper only
+            // crossfades the slides, which on its own reads as five unrelated
+            // shots rather than one continuous take
+            <div
+              className={`hero-screen hero-screen--${slide.enter ?? "fade"} ${
+                i === active ? "is-in" : "is-out"
+              }`}
+            >
+              {slide.node}
+            </div>
           ) : null}
         </SwiperSlide>
       ))}
