@@ -32,6 +32,34 @@ export const defaultHomeContent = {
     video: { src: "", alt: "" } as Media,
   },
 
+  /**
+   * One-click campaigns, on its own. It started as a video stuffed into the
+   * bento tile, which is a quarter of a row wide — too small to follow and it
+   * crowded out the tile's own job. The tile now says "Learn More" and points
+   * here, where the walkthrough has the room to be watched.
+   */
+  oneClick: {
+    badge: "ONE-CLICK CAMPAIGNS",
+    heading: "Bring past customers back in one click.",
+    subheading:
+      "Pick who to reach, pick what to say, press send. The AI handles the replies, the follow-ups and the bookings that come back.",
+    /**
+     * Upload the walkthrough here. The builder's picker offers a clip rather
+     * than a photo because the field is called "video" — see content-editor.
+     */
+    video: { src: "", alt: "One-click campaigns, start to finish" } as Media,
+    /** Or paste a link instead: YouTube, Vimeo, or a direct .mp4. */
+    videoUrl: "",
+    /** Shown until a video is added, and used as the video's poster frame. */
+    image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
+    points: [
+      { title: "Pick the list", body: "Past clients, no-shows, anyone who went quiet." },
+      { title: "Pick the message", body: "Write it once, or let the AI draft it for you." },
+      { title: "Let it run", body: "Replies answered and appointments booked automatically." },
+    ] as Bullet[],
+    cta: { label: "Book A Demo", href: "#call" } as Cta,
+  },
+
   showcaseVideo: {
     label: "Product walkthrough",
     video: { src: "", alt: "" } as Media,
@@ -117,16 +145,9 @@ export const defaultHomeContent = {
     campaigns: {
       heading: "One-Click Marketing Campaigns",
       body: "Referrals and repeat customers, brought back without the busywork.",
-      cta: { label: "Book A Demo", href: "#call" } as Cta,
-      /** The card's picture — and the video's poster frame when there is one. */
+      // the tile teases it; the walkthrough lives in its own section below
+      cta: { label: "Learn More", href: "#one-click" } as Cta,
       image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
-      /**
-       * Upload the walkthrough here. The builder's picker accepts a clip rather
-       * than a photo because the field is called "video" — see content-editor.
-       */
-      video: { src: "", alt: "One-click campaigns, start to finish" } as Media,
-      /** Or paste a link instead: YouTube, Vimeo, or a direct .mp4. */
-      videoUrl: "",
     },
   },
 

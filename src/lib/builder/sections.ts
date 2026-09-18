@@ -42,6 +42,7 @@ export const SECTIONS: Record<string, SectionMeta> = {
 
   intro: meta({ label: "Intro", group: "Home", description: "Conversion funnels intro with bullets and image.", defaults: home.intro }),
   bento: meta({ label: "Bento grid", group: "Home", description: "Booking band, voice AI, smart inbox and campaigns tiles.", defaults: home.bento }),
+  oneClick: meta({ label: "One-click campaigns", group: "Home", description: "The campaigns walkthrough, full width, with its video.", defaults: home.oneClick }),
   industries: meta({ label: "Industries", group: "Home", description: "Industry cards with hover frames.", defaults: home.industries }),
   showcaseVideo: meta({ label: "Showcase video", group: "Home", description: "Large product video band.", defaults: home.showcaseVideo }),
   testimonials: meta({ label: "Testimonials", group: "Home", description: "Customer quotes.", defaults: home.testimonials }),

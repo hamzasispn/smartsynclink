@@ -26,6 +26,7 @@ import {
   IndustryProblem,
   IndustryReels,
   Intro,
+  OneClick,
   Pricing,
   ShowcaseVideo,
   Solutions,
@@ -73,6 +74,7 @@ const RENDER: Record<string, Render> = {
 
   intro: (d: HomeContent["intro"]) => <Intro data={d} />,
   bento: (d: HomeContent["bento"]) => <Bento data={d} />,
+  oneClick: (d: HomeContent["oneClick"]) => <OneClick data={d} />,
   industries: (d: HomeContent["industries"]) => <Industries data={d} />,
   showcaseVideo: (d: HomeContent["showcaseVideo"]) => <ShowcaseVideo data={d} />,
   testimonials: (d: HomeContent["testimonials"]) => <Testimonials data={d} />,

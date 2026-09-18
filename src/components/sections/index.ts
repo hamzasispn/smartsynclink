@@ -12,6 +12,7 @@ export { IndustryJourney } from "./industry-journey";
 export { IndustryProblem } from "./industry-problem";
 export { IndustryReels } from "./industry-reels";
 export { Intro } from "./intro";
+export { OneClick } from "./one-click";
 export { Pricing } from "./pricing";
 export { ShowcaseVideo } from "./showcase-video";
 export { Solutions } from "./solutions";
