@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/format";
 import { BtnLink, Card, Empty, PageHeader, Pill } from "@/components/admin/ui";
+import { FillCovers } from "@/components/admin/fill-covers";
 import { listPosts } from "@/lib/posts";
 import { deletePostAction } from "@/app/admin/actions";
 
@@ -12,7 +13,12 @@ export default async function BlogPage() {
       <PageHeader
         title="Blog"
         subtitle="Drafts stay private until you publish them."
-        action={<BtnLink href="/admin/blog/new">New post</BtnLink>}
+        action={
+          <span className="flex flex-wrap items-center gap-3">
+            <FillCovers />
+            <BtnLink href="/admin/blog/new">New post</BtnLink>
+          </span>
+        }
       />
 
       {posts.length ? (

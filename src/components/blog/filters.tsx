@@ -190,14 +190,15 @@ export function TabRow({
     }`;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-5 pt-10 md:flex-row md:items-center md:justify-between md:gap-6">
-      {/* min-w-0, not shrink-0: a flex item will not go narrower than its
-          content unless told to, so with enough tags this row pushed the search
-          box off the side and the whole page scrolled sideways. It has its own
-          overflow — let it shrink and use it. */}
+    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-5 pt-10 md:flex-row md:items-start md:justify-between md:gap-6">
+      {/* The tags wrap onto a second line rather than scrolling sideways.
+          Scrolling here was wrong twice over: the scrollbar was hidden, so with
+          a mouse there was no way to reach the tags past the edge at all, and
+          sharing one row with the search box left neither enough width — the
+          box shrank to a stub while the tags still overflowed the page. */}
       <nav
         aria-label="Article categories"
-        className="flex min-w-0 items-center gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5"
       >
         <Link href="/blog" className={tab(!active)}>
           {allLabel}
@@ -214,7 +215,9 @@ export function TabRow({
         ))}
       </nav>
 
-      <form action="/blog" className="relative w-full min-w-0 md:max-w-[380px] md:flex-1">
+      {/* a fixed width, not a share of what is left: flex-1 against a row of
+          tags gave the box whatever the tags did not want, which was nothing */}
+      <form action="/blog" className="relative w-full shrink-0 md:w-[340px]">
         <label className="sr-only" htmlFor="blog-q">
           Search articles
         </label>

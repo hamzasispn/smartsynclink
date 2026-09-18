@@ -23,7 +23,7 @@ import type { SolutionsContent } from "@/content/solutions";
 import type { HomeContent } from "@/content/home";
 import { saveAiSettings, clearAiKey } from "@/lib/ai-settings";
 import { deleteMedia, listMedia, storeUpload } from "@/lib/media";
-import { coverQueries, findCover } from "@/lib/pexels";
+import { coverQueries, findCover, pexelsReady } from "@/lib/pexels";
 import { deletePost, listPosts, upsertPost } from "@/lib/posts";
 import { deleteIndustry, upsertIndustry } from "@/lib/industries";
 import type { IndustryContent } from "@/content/industry";
@@ -276,6 +276,37 @@ export async function saveAutopilotAction(form: FormData) {
     auto_publish: bool(form, "auto_publish"),
   });
   revalidatePath("/admin/autopilot");
+}
+
+/**
+ * Gives every coverless post a photograph from Pexels.
+ *
+ * It runs here rather than as a script because the key lives on the server that
+ * serves the site — adding PEXELS_API_KEY on the host does nothing for posts
+ * that were written before it, and new covers are only fetched as a post is
+ * written. This is the button that catches the rest up.
+ */
+export async function fillCoversAction() {
+  await requireAdmin();
+  if (!pexelsReady()) {
+    return { ok: false as const, error: "PEXELS_API_KEY is not set on this deployment." };
+  }
+
+  const missing = (await listPosts(true)).filter((post) => !post.cover);
+  if (!missing.length) return { ok: true as const, filled: 0, total: 0 };
+
+  let filled = 0;
+  for (const post of missing) {
+    const cover = await findCover(coverQueries(post.tags));
+    if (!cover) continue;
+    await upsertPost({ ...post, cover });
+    filled++;
+  }
+
+  revalidatePath("/blog");
+  revalidatePath("/blog/[slug]", "page");
+  revalidatePath("/admin/blog");
+  return { ok: true as const, filled, total: missing.length };
 }
 
 /** "Write one now" — same path the cron takes, minus the schedule check. */
