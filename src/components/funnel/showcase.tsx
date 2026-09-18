@@ -136,7 +136,7 @@ export function FunnelShowcase({
             {/* the inset gives the shadow room inside the slide — Swiper clips
                 at the slide edges, and a wider shadow showed as a hard grey band */}
             <div
-              className={`overflow-x-auto px-1 pt-1 pb-6 md:overflow-visible md:px-6 ${narrow ? "swiper-no-swiping" : ""}`}
+              className={`px-1 pt-1 pb-6 md:px-6 ${narrow ? "swiper-no-swiping" : ""}`}
             >
               <div
                 data-screen={i}
