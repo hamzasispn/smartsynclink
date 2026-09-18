@@ -37,10 +37,15 @@ export async function GET(request: Request) {
   const cfg = await getAutopilot();
 
   try {
-    const recent = (await listPosts(true)).slice(0, 10).map((p) => p.title);
+    const posts = await listPosts(true);
+    const recent = posts.slice(0, 10).map((p) => p.title);
     const draft = await generatePost(cfg, { avoidTitles: recent });
-    // a post without a photograph still ships; this never throws
-    const cover = await findCover(coverQueries(draft.tags));
+    // a post without a photograph still ships; this never throws. The covers
+    // already in use are passed so this one does not repeat any of them.
+    const cover = await findCover(
+      coverQueries(draft.tags),
+      posts.map((p) => p.cover).filter(Boolean),
+    );
 
     const id = await upsertPost({
       title: draft.title,

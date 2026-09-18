@@ -1,4 +1,4 @@
-import type { Bullet, HomeContent } from "@/content/home";
+import type { Bullet, HomeContent, Media } from "@/content/home";
 import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
 import { BookingBand } from "../booking-band";
@@ -26,6 +26,80 @@ function SuiteBadge({ id }: { id: string }) {
   );
 }
 
+/** A YouTube or Vimeo link has to be an iframe; anything else plays as a file. */
+function embedSrc(url: string) {
+  const youtube = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/,
+  );
+  if (youtube) return `https://www.youtube.com/embed/${youtube[1]}`;
+  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return null;
+}
+
+/**
+ * The campaigns walkthrough, however it was given to us: a clip uploaded in the
+ * page builder, or a link pasted next to it. The upload wins if both are set.
+ *
+ * Controls rather than autoplay, the same as the other two video sections — it
+ * is something to watch, not wallpaper, and the point of the card is that a
+ * visitor can see what one-click campaigns actually do.
+ */
+function CampaignClip({
+  video,
+  url,
+  poster,
+  label,
+}: {
+  video: Media;
+  url: string;
+  poster: string;
+  label: string;
+}) {
+  if (video?.src) {
+    return (
+      <video
+        src={video.src}
+        poster={poster || undefined}
+        aria-label={video.alt || label}
+        controls
+        playsInline
+        preload="metadata"
+        className="mb-5 aspect-video w-full rounded-[16px] bg-ink object-cover"
+      />
+    );
+  }
+
+  const embed = url ? embedSrc(url.trim()) : null;
+  if (embed) {
+    return (
+      <iframe
+        src={embed}
+        title={label}
+        allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+        allowFullScreen
+        className="mb-5 aspect-video w-full rounded-[16px] border-0 bg-ink"
+      />
+    );
+  }
+
+  // a direct file link, which <video> plays like any other source
+  if (url?.trim()) {
+    return (
+      <video
+        src={url.trim()}
+        poster={poster || undefined}
+        aria-label={label}
+        controls
+        playsInline
+        preload="metadata"
+        className="mb-5 aspect-video w-full rounded-[16px] bg-ink object-cover"
+      />
+    );
+  }
+  return null;
+}
+
 function FeatureList({ bullets }: { bullets: Bullet[] }) {
   return (
     <ul>
@@ -50,6 +124,9 @@ function FeatureList({ bullets }: { bullets: Bullet[] }) {
 
 export function Bento({ data }: { data: HomeContent["bento"] }) {
   const booking = data.booking;
+  // with a video in the card, the photograph stops being its background and
+  // becomes the poster frame instead
+  const hasClip = Boolean(data.campaigns.video?.src || data.campaigns.videoUrl?.trim());
 
   return (
     <section id="solutions" className="py-24 lg:py-28">
@@ -111,10 +188,27 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
             </div>
           </div>
 
-          {/* campaigns */}
-          <article className="relative z-10 flex flex-col overflow-hidden rounded-[26px] bg-surface lg:col-span-3 bg-[url('/images/campaigns.webp')] bg-cover bg-center">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#052EFF]/0 to-white -z-10"></div>
-            <div className="flex flex-1 flex-col p-8 justify-end">
+          {/* campaigns — the walkthrough if there is one, the photograph if not.
+              The picture comes from the content now; it used to be a URL
+              hardcoded in the class, so the field in the builder did nothing. */}
+          <article
+            className="relative z-10 flex flex-col overflow-hidden rounded-[26px] bg-surface bg-cover bg-center lg:col-span-3"
+            style={
+              hasClip || !data.campaigns.image?.src
+                ? undefined
+                : { backgroundImage: `url("${data.campaigns.image.src}")` }
+            }
+          >
+            {hasClip ? null : (
+              <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#052EFF]/0 to-white" />
+            )}
+            <div className="flex flex-1 flex-col justify-end p-8">
+              <CampaignClip
+                video={data.campaigns.video}
+                url={data.campaigns.videoUrl}
+                poster={data.campaigns.image?.src ?? ""}
+                label={data.campaigns.heading}
+              />
               <SuiteBadge id="bento-badge-campaigns" />
               <h2 className="text-[28px] font-medium leading-tight tracking-[-0.02em] text-ink">
                 {data.campaigns.heading}

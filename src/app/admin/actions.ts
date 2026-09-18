@@ -292,13 +292,24 @@ export async function fillCoversAction() {
     return { ok: false as const, error: "PEXELS_API_KEY is not set on this deployment." };
   }
 
-  const missing = (await listPosts(true)).filter((post) => !post.cover);
+  const posts = await listPosts(true);
+
+  // A post needs one if it has none, or if an earlier post already wears it.
+  // The second case is the older runs, which asked for a single result per
+  // search and so gave every post sharing a tag the same photograph.
+  const used = new Set<string>();
+  const missing = posts.filter((post) => {
+    if (!post.cover || used.has(post.cover)) return true;
+    used.add(post.cover);
+    return false;
+  });
   if (!missing.length) return { ok: true as const, filled: 0, total: 0 };
 
   let filled = 0;
   for (const post of missing) {
-    const cover = await findCover(coverQueries(post.tags));
+    const cover = await findCover(coverQueries(post.tags), used);
     if (!cover) continue;
+    used.add(cover);
     await upsertPost({ ...post, cover });
     filled++;
   }
@@ -316,10 +327,15 @@ export async function runAutopilotAction(form: FormData) {
   const topic = str(form, "topic");
 
   try {
-    const recent = (await listPosts(true)).slice(0, 10).map((p) => p.title);
+    const posts = await listPosts(true);
+    const recent = posts.slice(0, 10).map((p) => p.title);
     const draft = await generatePost(cfg, { topic, avoidTitles: recent });
-    // a post without a photograph still ships; this never throws
-    const cover = await findCover(coverQueries(draft.tags));
+    // a post without a photograph still ships; this never throws. The covers
+    // already in use are passed so this one does not repeat any of them.
+    const cover = await findCover(
+      coverQueries(draft.tags),
+      posts.map((p) => p.cover).filter(Boolean),
+    );
     await upsertPost({
       title: draft.title,
       excerpt: draft.excerpt,

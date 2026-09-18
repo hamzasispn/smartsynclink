@@ -118,7 +118,15 @@ export const defaultHomeContent = {
       heading: "One-Click Marketing Campaigns",
       body: "Referrals and repeat customers, brought back without the busywork.",
       cta: { label: "Book A Demo", href: "#call" } as Cta,
+      /** The card's picture — and the video's poster frame when there is one. */
       image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
+      /**
+       * Upload the walkthrough here. The builder's picker accepts a clip rather
+       * than a photo because the field is called "video" — see content-editor.
+       */
+      video: { src: "", alt: "One-click campaigns, start to finish" } as Media,
+      /** Or paste a link instead: YouTube, Vimeo, or a direct .mp4. */
+      videoUrl: "",
     },
   },
 
