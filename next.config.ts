@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    // Blog covers come from Pexels (see lib/pexels.ts) and go through
+    // next/image, which refuses a host it was not told about.
+    remotePatterns: [{ protocol: "https", hostname: "images.pexels.com" }],
+  },
   experimental: {
     serverActions: {
       // Uploads ride a Server Action, whose body defaults to 1MB — too small

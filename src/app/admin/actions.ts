@@ -23,6 +23,7 @@ import type { SolutionsContent } from "@/content/solutions";
 import type { HomeContent } from "@/content/home";
 import { saveAiSettings, clearAiKey } from "@/lib/ai-settings";
 import { deleteMedia, listMedia, storeUpload } from "@/lib/media";
+import { coverQueries, findCover } from "@/lib/pexels";
 import { deletePost, listPosts, upsertPost } from "@/lib/posts";
 import { deleteIndustry, upsertIndustry } from "@/lib/industries";
 import type { IndustryContent } from "@/content/industry";
@@ -286,11 +287,14 @@ export async function runAutopilotAction(form: FormData) {
   try {
     const recent = (await listPosts(true)).slice(0, 10).map((p) => p.title);
     const draft = await generatePost(cfg, { topic, avoidTitles: recent });
+    // a post without a photograph still ships; this never throws
+    const cover = await findCover(coverQueries(draft.tags));
     await upsertPost({
       title: draft.title,
       excerpt: draft.excerpt,
       body: draft.body_markdown,
       tags: draft.tags,
+      cover: cover ?? "",
       status: cfg.auto_publish ? "published" : "draft",
       source: "autopilot",
     });

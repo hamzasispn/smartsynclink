@@ -191,9 +191,13 @@ export function TabRow({
 
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-5 pt-10 md:flex-row md:items-center md:justify-between md:gap-6">
+      {/* min-w-0, not shrink-0: a flex item will not go narrower than its
+          content unless told to, so with enough tags this row pushed the search
+          box off the side and the whole page scrolled sideways. It has its own
+          overflow — let it shrink and use it. */}
       <nav
         aria-label="Article categories"
-        className="flex shrink-0 items-center gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex min-w-0 items-center gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <Link href="/blog" className={tab(!active)}>
           {allLabel}

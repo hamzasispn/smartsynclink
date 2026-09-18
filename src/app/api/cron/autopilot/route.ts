@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { generatePost } from "@/lib/ai";
 import { claimRun, getAutopilot, recordRun } from "@/lib/autopilot";
+import { coverQueries, findCover } from "@/lib/pexels";
 import { listPosts, upsertPost } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
@@ -38,12 +39,15 @@ export async function GET(request: Request) {
   try {
     const recent = (await listPosts(true)).slice(0, 10).map((p) => p.title);
     const draft = await generatePost(cfg, { avoidTitles: recent });
+    // a post without a photograph still ships; this never throws
+    const cover = await findCover(coverQueries(draft.tags));
 
     const id = await upsertPost({
       title: draft.title,
       excerpt: draft.excerpt,
       body: draft.body_markdown,
       tags: draft.tags,
+      cover: cover ?? "",
       status: cfg.auto_publish ? "published" : "draft",
       source: "autopilot",
     });
