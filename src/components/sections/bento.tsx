@@ -122,16 +122,19 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
                 : undefined
             }
           >
-            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#052EFF]/0 to-white" />
-            <div className="flex flex-1 flex-col justify-end p-8">
+            {/* the photograph reads as a band across the top now: the card
+                carries points like its siblings, and they need a plain ground */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/0 via-white/85 to-white" />
+            <div className="flex flex-1 flex-col justify-end p-[20px]">
               <SuiteBadge id="bento-badge-campaigns" />
               <h2 className="text-[28px] font-medium leading-tight tracking-[-0.02em] text-ink">
                 {data.campaigns.heading}
               </h2>
-              <p className="mt-2 text-[16px] leading-[136%] text-[#1E1E1E]">
+              <p className="mt-2 mb-8 text-[16px] leading-[136%] text-[#1E1E1E]">
                 {data.campaigns.body}
               </p>
-              <Button cta={data.campaigns.cta} className="mt-4 w-fit" />
+              <FeatureList bullets={data.campaigns.bullets} />
+              <Button cta={data.campaigns.cta} className="mt-8 w-fit" />
             </div>
           </article>
         </Reveal>

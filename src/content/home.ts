@@ -33,16 +33,21 @@ export const defaultHomeContent = {
   },
 
   /**
-   * One-click campaigns, on its own. It started as a video stuffed into the
-   * bento tile, which is a quarter of a row wide — too small to follow and it
-   * crowded out the tile's own job. The tile now says "Learn More" and points
-   * here, where the walkthrough has the room to be watched.
+   * One-click campaigns, in full. It sits on the home page under the bento tile
+   * that links to it, and again on the aesthetics page. Each page keeps its own
+   * copy of this content, so one can be reworded without touching the other.
+   *
+   * What it describes: the front desk types a client's first name and mobile
+   * number after the visit, and that one submit starts a year of texts — four
+   * weekly review requests that stop the moment a review lands, then a
+   * returning-client offer every two or three months carrying a referral
+   * reward. Everything is SMS, never email.
    */
   oneClick: {
     badge: "ONE-CLICK CAMPAIGNS",
-    heading: "Bring past customers back in one click.",
+    heading: "One click after every appointment. A year of follow-up.",
     subheading:
-      "Pick who to reach, pick what to say, press send. The AI handles the replies, the follow-ups and the bookings that come back.",
+      "Your front desk adds the client's first name and mobile number. The review requests, rebooking offers and referral asks then run on their own for the next 12 months.",
     /**
      * Upload the walkthrough here. The builder's picker offers a clip rather
      * than a photo because the field is called "video" — see content-editor.
@@ -51,12 +56,27 @@ export const defaultHomeContent = {
     /** Or paste a link instead: YouTube, Vimeo, or a direct .mp4. */
     videoUrl: "",
     /** Shown until a video is added, and used as the video's poster frame. */
-    image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
+    image: { src: "/images/campaigns.webp", alt: "Front desk checking a client in" } as Media,
     points: [
-      { title: "Pick the list", body: "Past clients, no-shows, anyone who went quiet." },
-      { title: "Pick the message", body: "Write it once, or let the AI draft it for you." },
-      { title: "Let it run", body: "Replies answered and appointments booked automatically." },
+      {
+        title: "Check them in.",
+        body: "After the visit, enter the client's first name and phone number and press Launch campaign.",
+      },
+      {
+        title: "Get the review.",
+        body: "They get a friendly review request once a week for 4 weeks. The reminders stop as soon as they leave one.",
+      },
+      {
+        title: "Bring them back.",
+        body: "Every 2–3 months they get a text with your returning-client offer, like 20% off their next treatment.",
+      },
+      {
+        title: "Turn them into referrals.",
+        body: "Each text invites them to refer a friend for the same reward, like a free facial. If they reply, you're notified right away.",
+      },
     ] as Bullet[],
+    /** The line under the steps. */
+    footnote: "Your offer, your review link and your spa's name on every message.",
     cta: { label: "Book A Demo", href: "#call" } as Cta,
   },
 
@@ -144,8 +164,13 @@ export const defaultHomeContent = {
     },
     campaigns: {
       heading: "One-Click Marketing Campaigns",
-      body: "Referrals and repeat customers, brought back without the busywork.",
-      // the tile teases it; the walkthrough lives in its own section below
+      body: "Enter a client's name and number after their visit. One click starts a full year of review requests, return-visit offers and referral texts.",
+      bullets: [
+        { title: "4 weekly review reminders, stopped once they review" },
+        { title: "A return-visit offer every 2–3 months" },
+        { title: "A refer-a-friend reward in every text" },
+      ] as Bullet[],
+      // the tile says what it is; the section right below it explains it
       cta: { label: "Learn More", href: "#one-click" } as Cta,
       image: { src: "/images/campaigns.webp", alt: "Team reviewing a campaign" } as Media,
     },

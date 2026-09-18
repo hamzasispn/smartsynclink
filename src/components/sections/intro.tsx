@@ -44,7 +44,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <Media
             image={data.image}
             sizes="(max-width: 1024px) 100vw, 640px"
-            className="h-[768px] w-full rounded-3xl"
+            className="h-[300px] md:h-[768px] w-full rounded-3xl"
             fit="contain"
           />
         </Reveal>
