@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { GlobalContent } from "@/content/global";
 import { SiteLogo } from "./site-logo";
