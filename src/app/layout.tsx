@@ -64,6 +64,9 @@ export default async function RootLayout({
           `}
         </Script>
         <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element -- Meta's own
+              tracking pixel: it has to be this exact request, so it must not
+              be routed through the image optimiser */}
           <img
             height="1"
             width="1"

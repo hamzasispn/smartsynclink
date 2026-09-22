@@ -46,7 +46,7 @@ export function Funnel({ data }: { data: HomeContent["funnel"] }) {
             width={FUNNEL_BOARD.w}
             height={FUNNEL_BOARD.h}
             screens={[
-              <FunnelListScreen key="list" idPrefix="funnel-list" />,
+              <FunnelListScreen key="list" />,
               <FunnelEditorScreen key="editor" />,
               <FunnelMetricsScreen key="metrics" />,
             ]}

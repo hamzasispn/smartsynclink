@@ -19,12 +19,6 @@ export function Wordmark({
       className={`flex items-center gap-2.5 text-ink transition-opacity hover:opacity-80 ${className}`}
     >
       {brand.logo?.src ? (
-        /* A plain <img>, not next/image. Logos are very often SVG, and the
-           optimiser refuses those outright — "image type is not allowed" —
-           so the header rendered nothing at all. It also wanted a width and
-           height it cannot know for a vector. At this size there is no
-           optimisation worth having, and this works for every format. */
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={brand.logo.src}
           alt={brand.logo.alt || brand.name}
@@ -32,7 +26,6 @@ export function Wordmark({
           className="shrink-0"
         />
       ) : (
-        // the lockup already contains the wordmark, so no separate name here
         <SiteLogo height={height} label={brand.name} className="shrink-0" />
       )}
     </Link>

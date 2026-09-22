@@ -1,4 +1,3 @@
-import { FunnelMark } from "../suite-logo";
 import { Box, Ico, INK, LINE, MUTED, T } from "../suite-mockup";
 
 /**
@@ -6,8 +5,8 @@ import { Box, Ico, INK, LINE, MUTED, T } from "../suite-mockup";
  *
  * Traced from the client's recording with the browser chrome cropped off
  * (their tabs and bookmarks are not ours to publish): x is the recording's
- * position less 5, y less 120. The before/after photos and the third-party
- * logo on the cards are swapped for the site's own imagery and the funnel mark.
+ * position less 5, y less 120. The photographs on the cards are the client's
+ * own treatment shots, not the recording's.
  */
 
 export const FUNNEL_BOARD = { w: 1674, h: 784 };
@@ -17,18 +16,23 @@ const PILL = "#F3F4F6";
 type Card = {
   x: number;
   y: number;
-  image: string | null;
+  image: string;
   title: string;
   contacts: string;
   contactsW: number;
   hover?: boolean;
 };
 
+/**
+ * One card per supplied photograph, each paired with the treatment it shows.
+ * Three to a row — the grid's right edge lines up with the New Funnel button —
+ * so the fourth wraps, the way the real workspace wraps.
+ */
 const CARDS: Card[] = [
   {
     x: 294,
     y: 200,
-    image: "/images/industries/medspa/1.png",
+    image: "/images/funnel-editor-imgs/img3.jpeg",
     title: "BODY CONTOURING $37 - Appoi...",
     contacts: "371 Contacts",
     contactsW: 95,
@@ -36,7 +40,7 @@ const CARDS: Card[] = [
   {
     x: 671,
     y: 198,
-    image: "/images/industries/medspa/2.png",
+    image: "/images/funnel-editor-imgs/img1.webp",
     title: "Hydrafacial $149 — Skin Diagnost...",
     contacts: "37 Contacts",
     contactsW: 90,
@@ -45,14 +49,22 @@ const CARDS: Card[] = [
   {
     x: 1046,
     y: 200,
-    image: null,
+    image: "/images/funnel-editor-imgs/img4.jpeg",
     title: "Glow & Co. Hydrafacial-Special ...",
     contacts: "1 Contact",
     contactsW: 77,
   },
+  {
+    x: 294,
+    y: 500,
+    image: "/images/funnel-editor-imgs/img2.jpeg",
+    title: "Microneedling $199 — Free Consu...",
+    contacts: "128 Contacts",
+    contactsW: 95,
+  },
 ];
 
-function FunnelCard({ card, idPrefix }: { card: Card; idPrefix: string }) {
+function FunnelCard({ card }: { card: Card }) {
   return (
     <div
       data-fa="card"
@@ -75,18 +87,12 @@ function FunnelCard({ card, idPrefix }: { card: Card; idPrefix: string }) {
         h={147}
         style={{ borderRadius: 8, overflow: "hidden", background: "#0B0B0B" }}
       >
-        {card.image ? (
-          // eslint-disable-next-line @next/next/no-img-element -- a thumbnail inside a scaled mockup
-          <img
-            src={card.image}
-            alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
-        ) : (
-          <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-            <FunnelMark id={`${idPrefix}-thumb`} size={96} inverse />
-          </div>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element -- a thumbnail inside a scaled mockup */}
+        <img
+          src={card.image}
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
       </Box>
 
       {card.hover ? (
@@ -148,7 +154,7 @@ function FunnelCard({ card, idPrefix }: { card: Card; idPrefix: string }) {
   );
 }
 
-export function FunnelListScreen({ idPrefix }: { idPrefix: string }) {
+export function FunnelListScreen() {
   return (
     <div
       style={{
@@ -224,7 +230,7 @@ export function FunnelListScreen({ idPrefix }: { idPrefix: string }) {
       </T>
 
       {CARDS.map((card) => (
-        <FunnelCard key={card.title} card={card} idPrefix={idPrefix} />
+        <FunnelCard key={card.title} card={card} />
       ))}
     </div>
   );

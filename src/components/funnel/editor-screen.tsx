@@ -233,7 +233,7 @@ export function FunnelEditorScreen() {
         <Box x={20} y={553} w={330} h={180} style={{ borderRadius: 12, overflow: "hidden" }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- a photo inside a scaled mockup */}
           <img
-            src="/images/industries/medspa/3.png"
+            src="/images/funnel-editor-imgs/img1.webp"
             alt=""
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
