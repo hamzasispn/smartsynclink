@@ -129,7 +129,7 @@ export const defaultGlobal = {
       { label: "Contractors", href: "#industries", mega: false, children: [] },
       { label: "Aesthetics", href: "#industries", mega: false, children: [] },
       { label: "Realtors", href: "#industries", mega: false, children: [] },
-      { label: "Portfolio", href: "#portfolio", mega: false, children: [] },
+      { label: "Portfolio", href: "/portfolio", mega: false, children: [] },
       { label: "Blog", href: "/blog", mega: false, children: [] },
     ] as NavItem[],
     login: { label: "Login", href: "/login" } as Cta,

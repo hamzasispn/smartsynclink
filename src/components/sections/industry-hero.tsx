@@ -1,9 +1,79 @@
+import type { Media as MediaItem } from "@/content/home";
 import type { IndustryContent } from "@/content/industry";
+import { ReelSlider } from "../reel-slider";
 import { Button, Container, Media, Tick } from "../ui";
 
-export function IndustryHero({ data }: { data: IndustryContent["hero"] }) {
+/**
+ * An industry page's hero. With reels on the page it is two columns — the copy
+ * on the left, the clips playing on the right — and the Reels section's own
+ * badge and heading are left out (PageShell hands the clips over). Without
+ * reels it is the centred hero it always was.
+ */
+export function IndustryHero({ data, reels }: { data: IndustryContent["hero"]; reels?: MediaItem[] }) {
+  const split = Boolean(reels?.length);
+  // centred alone; left-aligned beside the clips from lg, centred above them below it
+  const align = split ? "text-center lg:text-left" : "text-center";
+  const block = split ? "mx-auto lg:mx-0" : "mx-auto";
+  const row = split ? "justify-center lg:justify-start" : "justify-center";
+
+  const copy = (
+    <div>
+      <p
+        className={`rise text-[13px] font-normal uppercase tracking-[0.18em] text-[#1E1E1E]/70 ${align}`}
+        style={{ "--i": 0 } as React.CSSProperties}
+      >
+        {data.badge}
+      </p>
+
+      <h1
+        className={`rise mt-5 max-w-[860px] text-balance text-[34px] font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[46px] ${
+          split ? "lg:text-[48px]" : "lg:text-[54px]"
+        } ${align} ${block}`}
+        style={{ "--i": 1 } as React.CSSProperties}
+      >
+        {data.heading}
+      </h1>
+
+      <p
+        className={`rise mt-6 max-w-[720px] text-[16px] leading-[1.75] text-[#1E1E1E] ${align} ${block}`}
+        style={{ "--i": 2 } as React.CSSProperties}
+      >
+        {data.body}
+      </p>
+      <p
+        className={`rise mt-4 max-w-[720px] text-[16px] leading-[1.75] text-[#1E1E1E] ${align} ${block}`}
+        style={{ "--i": 3 } as React.CSSProperties}
+      >
+        {data.body2}
+      </p>
+
+      <div
+        className={`rise mt-9 flex flex-wrap items-center gap-4 ${row}`}
+        style={{ "--i": 4 } as React.CSSProperties}
+      >
+        <Button cta={data.primary} className="px-8" />
+        <Button cta={data.secondary} variant="outline" />
+      </div>
+
+      <ul
+        className={`rise mt-10 flex flex-wrap items-center gap-y-3 ${split ? "gap-x-6" : "gap-x-8"} ${row}`}
+        style={{ "--i": 5 } as React.CSSProperties}
+      >
+        {data.stats.map((stat) => (
+          <li
+            key={stat}
+            className="flex items-center gap-2 text-[16px] font-normal text-[#1E1E1E]"
+          >
+            <Tick className="size-3.5 text-brand" />
+            {stat}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
-    <section className="relative z-10 overflow-hidden pb-14 pt-36 sm:pt-40 lg:pt-48">
+    <section className={`relative z-10 overflow-hidden pb-14 pt-36 sm:pt-40 ${split ? "lg:pt-44" : "lg:pt-48"}`}>
       {/* the illustration behind the copy. An empty src renders the dashed
           placeholder, so the layout is final before the artwork exists. */}
       <Media
@@ -17,55 +87,16 @@ export function IndustryHero({ data }: { data: IndustryContent["hero"] }) {
       <div aria-hidden="true" className="absolute inset-0 -z-1 bg-white/72" />
 
       <Container>
-        <p
-          className="rise text-center text-[13px] font-normal uppercase tracking-[0.18em] text-[#1E1E1E]/70"
-          style={{ "--i": 0 } as React.CSSProperties}
-        >
-          {data.badge}
-        </p>
-
-        <h1
-          className="rise mx-auto mt-5 max-w-[860px] text-balance text-center text-[34px] font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[46px] lg:text-[54px]"
-          style={{ "--i": 1 } as React.CSSProperties}
-        >
-          {data.heading}
-        </h1>
-
-        <p
-          className="rise mx-auto mt-6 max-w-[720px] text-center text-[16px] leading-[1.75] text-[#1E1E1E]"
-          style={{ "--i": 2 } as React.CSSProperties}
-        >
-          {data.body}
-        </p>
-        <p
-          className="rise mx-auto mt-4 max-w-[720px] text-center text-[16px] leading-[1.75] text-[#1E1E1E]"
-          style={{ "--i": 3 } as React.CSSProperties}
-        >
-          {data.body2}
-        </p>
-
-        <div
-          className="rise mt-9 flex flex-wrap items-center justify-center gap-4"
-          style={{ "--i": 4 } as React.CSSProperties}
-        >
-          <Button cta={data.primary} className="px-8" />
-          <Button cta={data.secondary} variant="outline" />
-        </div>
-
-        <ul
-          className="rise mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3"
-          style={{ "--i": 5 } as React.CSSProperties}
-        >
-          {data.stats.map((stat) => (
-            <li
-              key={stat}
-              className="flex items-center gap-2 text-[16px] font-normal text-[#1E1E1E]"
-            >
-              <Tick className="size-3.5 text-brand" />
-              {stat}
-            </li>
-          ))}
-        </ul>
+        {split && reels ? (
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-10">
+            {copy}
+            <div className="rise min-w-0" style={{ "--i": 3 } as React.CSSProperties}>
+              <ReelSlider videos={reels} fit="column" />
+            </div>
+          </div>
+        ) : (
+          copy
+        )}
       </Container>
     </section>
   );

@@ -1,6 +1,7 @@
 import { defaultBlog, type BlogContent } from "@/content/blog";
 import { defaultGlobal, type GlobalContent } from "@/content/global";
 import { defaultSolutions, type SolutionsContent } from "@/content/solutions";
+import { defaultPortfolio, type PortfolioContent } from "@/content/portfolio";
 import { defaultHomeContent, type HomeContent } from "@/content/home";
 import { defaultCookies, defaultPrivacy, defaultTerms, type LegalDoc } from "@/content/legal";
 import {
@@ -80,6 +81,11 @@ export const getSolutionsContent = () =>
   read<SolutionsContent>("solutions", defaultSolutions);
 export const saveSolutionsContent = (data: SolutionsContent) =>
   write("solutions", data);
+
+export const getPortfolioContent = () =>
+  read<PortfolioContent>("portfolio", defaultPortfolio);
+export const savePortfolioContent = (data: PortfolioContent) =>
+  write("portfolio", data);
 
 export const getPrivacyContent = () => read<LegalDoc>("privacy", defaultPrivacy);
 export const savePrivacyContent = (data: LegalDoc) => write("privacy", data);

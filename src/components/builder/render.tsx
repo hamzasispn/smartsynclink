@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import type { BlogContent } from "@/content/blog";
 import type { GlobalContent } from "@/content/global";
-import type { HomeContent } from "@/content/home";
+import type { HomeContent, Media } from "@/content/home";
 import type { IndustryContent } from "@/content/industry";
 import type { LegalDoc } from "@/content/legal";
 import type { PricingTableContent, UsagePricingContent } from "@/content/pricing-pages";
@@ -70,7 +70,7 @@ const RENDER: Record<string, Render> = {
 
   hero: (d: HomeContent["hero"]) => <Hero data={d} />,
   heroVideo: (d: HomeContent["heroVideo"]) => <HeroVideo data={d} />,
-  industryHero: (d: IndustryContent["hero"]) => <IndustryHero data={d} />,
+  industryHero: (d: IndustryContent["hero"] & { reels?: Media[] }) => <IndustryHero data={d} reels={d.reels} />,
 
   intro: (d: HomeContent["intro"]) => <Intro data={d} />,
   bento: (d: HomeContent["bento"]) => <Bento data={d} />,
@@ -177,11 +177,29 @@ export function PageShell({
   /** The live preview swaps in a memoised block so unchanged sections skip re-rendering. */
   Block?: ComponentType<SectionBlockProps>;
 }) {
-  const visible = layout.sections.filter((s) => sectionShows(s, ctx.pageKey));
+  const shown = layout.sections.filter((s) => sectionShows(s, ctx.pageKey));
+  const dataOf = (s: SectionInstance) => (s.linked ? blocks[s.type] : s.props);
+
+  // An industry page's reels play in the right-hand column of its hero rather
+  // than as a section of their own: the hero takes the clips and the Reels
+  // block drops out of the flow. The clips are still edited — and hidden — on
+  // the Reels block, so nothing had to move.
+  const reels = shown.find((s) => s.type === "industryReels");
+  const heroReels =
+    reels && shown.some((s) => s.type === "industryHero")
+      ? (dataOf(reels) as IndustryContent["reels"] | undefined)?.videos
+      : undefined;
+  const visible = heroReels?.length ? shown.filter((s) => s !== reels) : shown;
 
   // ctx is passed through untouched so a memoised Block can compare it by identity
   const renderSection = (s: SectionInstance) => (
-    <Block key={s.id} section={s} data={s.linked ? blocks[s.type] : s.props} ctx={ctx} preview={preview} />
+    <Block
+      key={s.id}
+      section={s}
+      data={heroReels?.length && s.type === "industryHero" ? { ...(dataOf(s) as object), reels: heroReels } : dataOf(s)}
+      ctx={ctx}
+      preview={preview}
+    />
   );
 
   // The header floats over the blueprint artwork, and that artwork belongs to

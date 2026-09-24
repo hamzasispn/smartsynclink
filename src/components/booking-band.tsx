@@ -31,10 +31,20 @@ function Highlighted({ text, highlight }: { text: string; highlight?: string }) 
 }
 
 /**
- * The "Did You Know?" band: copy left, the booking drawing in the middle, two
- * actions stacked on the right. Shared by the home bento and the industry pages.
+ * The "Did You Know?" band: copy left, a drawing in the middle, two actions
+ * stacked on the right. Shared by the home bento and the industry pages. The
+ * drawing is the booking one unless the band is about something else — the
+ * bento's second band carries Sofia's.
  */
-export function BookingBand({ booking, className = "" }: { booking: BookingBandData; className?: string }) {
+export function BookingBand({
+  booking,
+  art: Art = BookingArt,
+  className = "",
+}: {
+  booking: BookingBandData;
+  art?: typeof BookingArt;
+  className?: string;
+}) {
   return (
     <article
       className={`relative grid items-center gap-6 overflow-hidden rounded-[16px] bg-[linear-gradient(100deg,#14063F_0%,#2600B0_58%,#3300EA_100%)] px-9 pt-9 lg:grid-cols-[1.25fr_1fr_auto] lg:gap-10 lg:py-0 lg:pl-9 lg:pr-12 ${className}`}
@@ -47,7 +57,7 @@ export function BookingBand({ booking, className = "" }: { booking: BookingBandD
       </div>
 
       <div className="relative -mb-px h-[215px] self-end max-lg:order-last">
-        <BookingArt className="absolute bottom-0 left-1/2 h-full w-auto -translate-x-1/2" />
+        <Art className="absolute bottom-0 left-1/2 h-full w-auto -translate-x-1/2" />
       </div>
 
       <div className="flex flex-col gap-3 whitespace-nowrap lg:w-[220px]">

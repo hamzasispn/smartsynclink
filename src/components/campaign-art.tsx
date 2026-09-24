@@ -43,6 +43,19 @@ export const CAMPAIGN_LAYOUTS = {
     follow: { x: 24, y: 528 },
     wires: ["M210 256 C 210 276, 210 276, 210 292", "M210 500 C 210 514, 210 514, 210 524"],
   },
+  /**
+   * The home bento's campaigns tile, which plays it as a sequence rather than
+   * all at once: the form alone in the middle, then the two cards in its place.
+   * They share the board, so there is nothing to wire.
+   */
+  tile: {
+    w: 420,
+    h: 504,
+    form: { x: 74, y: 134 },
+    review: { x: 24, y: 24 },
+    follow: { x: 24, y: 244 },
+    wires: [],
+  },
 } as const;
 
 export type CampaignLayout = keyof typeof CAMPAIGN_LAYOUTS;
@@ -74,6 +87,7 @@ function Field({ y, label, value }: { y: number; label: string; value: string })
 function CheckInCard({ x, y }: { x: number; y: number }) {
   return (
     <Box
+      a="form"
       x={x}
       y={y}
       w={272}
@@ -140,6 +154,7 @@ function Card({
 }) {
   return (
     <Box
+      a="card"
       x={x}
       y={y}
       w={CARD_W}

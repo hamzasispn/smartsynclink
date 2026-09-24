@@ -18,15 +18,17 @@ type Card = {
   y: number;
   image: string;
   title: string;
-  contacts: string;
-  contactsW: number;
+  contacts: number;
   hover?: boolean;
 };
+
+/** Wide enough for "9,999 Contacts" — every count here is four digits. */
+const CONTACTS_W = 108;
 
 /**
  * One card per supplied photograph, each paired with the treatment it shows.
  * Three to a row — the grid's right edge lines up with the New Funnel button —
- * so the fourth wraps, the way the real workspace wraps.
+ * two full rows. The counts are made up, just varied enough to look lived-in.
  */
 const CARDS: Card[] = [
   {
@@ -34,16 +36,14 @@ const CARDS: Card[] = [
     y: 200,
     image: "/images/funnel-editor-imgs/img3.jpeg",
     title: "BODY CONTOURING $37 - Appoi...",
-    contacts: "371 Contacts",
-    contactsW: 95,
+    contacts: 2847,
   },
   {
     x: 671,
     y: 198,
     image: "/images/funnel-editor-imgs/img1.webp",
     title: "Hydrafacial $149 — Skin Diagnost...",
-    contacts: "37 Contacts",
-    contactsW: 90,
+    contacts: 1563,
     hover: true,
   },
   {
@@ -51,16 +51,28 @@ const CARDS: Card[] = [
     y: 200,
     image: "/images/funnel-editor-imgs/img4.jpeg",
     title: "Glow & Co. Hydrafacial-Special ...",
-    contacts: "1 Contact",
-    contactsW: 77,
+    contacts: 3214,
   },
   {
     x: 294,
     y: 500,
     image: "/images/funnel-editor-imgs/img2.jpeg",
     title: "Microneedling $199 — Free Consu...",
-    contacts: "128 Contacts",
-    contactsW: 95,
+    contacts: 1982,
+  },
+  {
+    x: 671,
+    y: 500,
+    image: "/images/funnel-editor-imgs/img5.webp",
+    title: "Signature Facial $99 — New Clie...",
+    contacts: 4106,
+  },
+  {
+    x: 1046,
+    y: 500,
+    image: "/images/funnel-editor-imgs/img6.webp",
+    title: "Glow Skincare Kit $129 — Free Sh...",
+    contacts: 2371,
   },
 ];
 
@@ -139,12 +151,12 @@ function FunnelCard({ card }: { card: Card }) {
             <Box
               x={108}
               y={row}
-              w={card.contactsW}
+              w={CONTACTS_W}
               h={32}
               style={{ background: "#EFF6FF", borderRadius: 6 }}
             />
-            <T x={108 + card.contactsW / 2} y={row + 16} s={13} c="#2563EB" align="center">
-              {card.contacts}
+            <T x={108 + CONTACTS_W / 2} y={row + 16} s={13} c="#2563EB" align="center">
+              {card.contacts.toLocaleString("en-US")} Contacts
             </T>
             <Ico n="dotsH" x={297} y={row + 16} s={20} c={INK} sw={2.5} />
           </>

@@ -2,6 +2,7 @@ import type { Bullet, HomeContent } from "@/content/home";
 import { Reveal } from "../reveal";
 import { AssistantOrb } from "../assistant-orb";
 import { BookingBand } from "../booking-band";
+import { CampaignTile } from "../campaign-motion";
 import { SuiteLockup, SuiteMark } from "../suite-logo";
 import { ChatCycle, LivePhone } from "../live-suite";
 import { Button, CheckSolid, Container } from "../ui";
@@ -113,8 +114,10 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
 
           {/* campaigns — the tile teases it, its own section below explains it.
               The picture comes from the content now; it used to be a URL
-              hardcoded in the class, so the field in the builder did nothing. */}
-          <article
+              hardcoded in the class, so the field in the builder did nothing.
+              Every so often the copy steps aside and the feature plays in its
+              place — see CampaignTile. */}
+          <CampaignTile
             className="relative z-10 flex flex-col overflow-hidden rounded-[26px] bg-surface bg-cover bg-center lg:col-span-3"
             style={
               data.campaigns.image?.src
@@ -125,7 +128,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
             {/* the photograph reads as a band across the top now: the card
                 carries points like its siblings, and they need a plain ground */}
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/0 via-white/85 to-white" />
-            <div className="flex flex-1 flex-col justify-end p-[20px]">
+            <div data-tile="copy" className="flex flex-1 flex-col justify-end p-[20px]">
               <SuiteBadge id="bento-badge-campaigns" />
               <h2 className="text-[28px] font-medium leading-tight tracking-[-0.02em] text-ink">
                 {data.campaigns.heading}
@@ -134,9 +137,40 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
                 {data.campaigns.body}
               </p>
               <FeatureList bullets={data.campaigns.bullets} />
-              <Button cta={data.campaigns.cta} className="mt-8 w-fit" />
+              {/* holds the button's place in the copy; the button itself sits
+                  outside it so it stays put while the copy fades */}
+              {data.campaigns.cta?.href ? <span aria-hidden="true" className="mt-8 block h-12" /> : null}
             </div>
-          </article>
+
+            {/* Learn More, in its place under the copy. When the feature starts
+                playing, the label folds into an arrow right there, then the
+                arrow slides to the bottom-right corner, above the drawing, so
+                anyone watching can still go to the section. On the way back it
+                slides home first, then unfolds. CampaignTile sets
+                data-cta="arrow" on the tile; the timing is .tile-cta in globals.css. */}
+            {data.campaigns.cta?.href ? (
+              <a
+                href={data.campaigns.cta.href}
+                data-fill=""
+                style={{ "--fill": "#6c31e9" } as React.CSSProperties}
+                className="tile-cta absolute z-10 inline-flex h-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-[16px] font-medium whitespace-nowrap text-white shadow-[0_10px_20px_-12px_rgba(5,46,255,.9)] hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+              >
+                <span className="tile-cta-label">{data.campaigns.cta.label}</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  className="tile-cta-arrow h-5 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            ) : null}
+          </CampaignTile>
         </Reveal>
       </Container>
     </section>

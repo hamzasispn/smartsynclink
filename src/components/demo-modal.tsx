@@ -126,22 +126,97 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
 
             {/* the thread: one line of context, then the live widget */}
             <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
-              {data.reply ? (
-                <p className="max-w-[86%] self-start rounded-[16px] rounded-bl-[5px] border border-line bg-white px-3.5 py-2.5 text-[14px] leading-[1.5] text-ink">
-                  {data.reply}
-                </p>
-              ) : null}
+              <Opening data={data} />
 
-              {[
-                { title: data.bookedTitle, sub: data.bookedSub, tone: "green" as const },
-                { title: data.syncedTitle, sub: data.syncedSub, tone: "blue" as const },
-              ]
-                .filter((note) => note.title)
-                .map((note) => (
-                  <span
-                    key={note.title}
-                    className="flex items-center gap-2.5 self-start rounded-[14px] border border-line bg-white px-3 py-2"
-                  >
+              {/* the widget mounts here, where the next reply would be */}
+              <div
+                ref={embed}
+                className="mt-auto w-full [&>div]:!w-full [&_iframe]:!w-full"
+              />
+            </div>
+
+            <span aria-hidden="true" className="mx-auto mb-2 h-1.5 w-28 shrink-0 rounded-full bg-ink/70" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Pause before she starts, and the pace she types at, in milliseconds. */
+const THINK_MS = 1100;
+const TYPE_MS = 28;
+
+/**
+ * Sofia's opening line, typed: the dots first, then the reply letter by letter,
+ * then the booking and the calendar land under it. Mounted with the modal, so
+ * it plays on every open. Reduced motion gets the finished thread at once.
+ *
+ * Only ever rendered once the modal is open, which is after a click — so
+ * reading matchMedia in the initial state never runs on the server.
+ */
+function Opening({ data }: { data: HomeContent["demo"] }) {
+  const reply = data.reply ?? "";
+  const [shown, setShown] = useState(() =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ? reply.length : 0,
+  );
+  const done = shown >= reply.length;
+
+  useEffect(() => {
+    if (done) return;
+    let n = shown;
+    let tick: number | undefined;
+    const wait = window.setTimeout(() => {
+      tick = window.setInterval(() => {
+        n += 1;
+        setShown(n);
+        if (n >= reply.length) window.clearInterval(tick);
+      }, TYPE_MS);
+    }, THINK_MS);
+    return () => {
+      window.clearTimeout(wait);
+      window.clearInterval(tick);
+    };
+    // runs once per open; `shown` and `done` only seed it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reply]);
+
+  return (
+    <>
+      {!reply ? null : shown === 0 ? (
+        <span
+          role="status"
+          aria-label={`${data.agentName} is typing`}
+          className="suite-pop inline-flex self-start rounded-[16px] rounded-bl-[5px] border border-line bg-white px-4 py-3.5 text-muted"
+        >
+          <span className="suite-dots">
+            <i />
+            <i />
+            <i />
+          </span>
+        </span>
+      ) : (
+        <p
+          aria-live="polite"
+          className="max-w-[86%] self-start rounded-[16px] rounded-bl-[5px] border border-line bg-white px-3.5 py-2.5 text-[14px] leading-[1.5] text-ink"
+        >
+          {reply.slice(0, shown)}
+          {done ? null : <span className="suite-caret !h-[15px]" />}
+        </p>
+      )}
+
+      {done
+        ? [
+            { title: data.bookedTitle, sub: data.bookedSub, tone: "green" as const },
+            { title: data.syncedTitle, sub: data.syncedSub, tone: "blue" as const },
+          ]
+            .filter((note) => note.title)
+            .map((note, i) => (
+              <span
+                key={note.title}
+                style={{ animationDelay: `${0.25 + i * 0.35}s` }}
+                className="suite-pop flex items-center gap-2.5 self-start rounded-[14px] border border-line bg-white px-3 py-2"
+              >
                     <span
                       className={`grid size-6 shrink-0 place-items-center rounded-full ${
                         note.tone === "green" ? "bg-[#dcfce7]" : "bg-brand-soft"
@@ -167,20 +242,9 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
                       </span>
                     </span>
                   </span>
-                ))}
-
-              {/* the widget mounts here, where the next reply would be */}
-              <div
-                ref={embed}
-                className="mt-auto w-full [&>div]:!w-full [&_iframe]:!w-full"
-              />
-            </div>
-
-            <span aria-hidden="true" className="mx-auto mb-2 h-1.5 w-28 shrink-0 rounded-full bg-ink/70" />
-          </div>
-        </div>
-      </div>
-    </div>
+                ))
+        : null}
+    </>
   );
 }
 

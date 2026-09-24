@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import type { HomeContent } from "@/content/home";
+import { AssistantArt } from "../assistant-art";
+import { BookingBand } from "../booking-band";
 import { FUNNEL_BOARD } from "../funnel/list-screen";
 import { FunnelMetricsScreen } from "../funnel/metrics-screen";
 import { HeroVideos, type HeroScreen } from "../hero-videos";
@@ -155,6 +157,11 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
             </li>
           ))}
         </ul>
+
+        {/* "Did You Know?" about Sofia, straight under the hero; its button opens her */}
+        {data.assistant?.heading ? (
+          <BookingBand booking={data.assistant} art={AssistantArt} className="mt-16 text-left lg:mt-20" />
+        ) : null}
       </Container>
     </section>
   );

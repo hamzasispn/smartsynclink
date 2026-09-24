@@ -56,7 +56,7 @@ export const SECTIONS: Record<string, SectionMeta> = {
 
   industryProblem: meta({ label: "Industry problem", group: "Industry", description: "The problem cards for an industry.", defaults: industry.problem }),
   industryJourney: meta({ label: "Industry journey", group: "Industry", description: "Journey steps bento.", defaults: industry.journey }),
-  industryReels: meta({ label: "Reels", group: "Industry", description: "Vertical 9:16 video slider.", defaults: industry.reels }),
+  industryReels: meta({ label: "Reels", group: "Industry", description: "Vertical 9:16 video slider. On a page with an industry hero, the clips play in the hero's right column.", defaults: industry.reels }),
 
   solutions: meta({ label: "Solutions grid", group: "Page", description: "Intro and every solution card.", defaults: defaultSolutions }),
   blogIndex: meta({ label: "Blog listing", group: "Page", description: "Title, categories, post grid, newsletter.", defaults: defaultBlog }),

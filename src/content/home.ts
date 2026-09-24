@@ -25,6 +25,16 @@ export const defaultHomeContent = {
       "92.9% Uptime",
       "4.5/5 Average Rating",
     ],
+    // The "Did You Know?" band under the hero, about Sofia — the booking
+    // band's shape with her orb in it. #demo opens her (DemoModal). An empty
+    // heading hides the band.
+    assistant: {
+      eyebrow: "Did You Know?",
+      heading: "Sofia, our AI assistant, answers every call and message 24/7 — and books the appointment while the lead is still interested.",
+      /** Painted in the accent colour wherever it appears in the heading. */
+      highlight: "24/7",
+      cta: { label: "Have A Chat With Sofia", href: "#demo" } as Cta,
+    },
   },
 
   heroVideo: {

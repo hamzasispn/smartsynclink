@@ -525,6 +525,53 @@ summary::-webkit-details-marker {
 
 
 
+/* Campaigns tile (home bento): Learn More sits under the copy. When the tile's
+   drawing starts (CampaignTile sets data-cta="arrow") it happens in two steps:
+   the label folds into an arrow in place, then the arrow slides to the
+   bottom-right corner. Coming back it is the reverse — home first, then the
+   label unfolds. The delays are what order the steps, per direction. */
+.tile-cta {
+  left: 20px;
+  bottom: 20px;
+  padding-inline: 24px;
+  transition:
+    left 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.3s ease 0.6s,
+    scale 0.2s ease;
+}
+[data-cta="arrow"] .tile-cta {
+  /* 48px circle, 12px off the corner */
+  left: calc(100% - 60px);
+  bottom: 12px;
+  padding-inline: 14px;
+  /* fold (0.3s), a beat as an arrow in place, then slide */
+  transition-delay: 0.6s, 0.6s, 0s, 0s;
+}
+.tile-cta-label {
+  max-width: 10rem;
+  transition:
+    max-width 0.3s ease 0.6s,
+    opacity 0.3s ease 0.6s;
+}
+[data-cta="arrow"] .tile-cta-label {
+  max-width: 0;
+  opacity: 0;
+  transition-delay: 0s;
+}
+.tile-cta-arrow {
+  width: 0;
+  opacity: 0;
+  transition:
+    width 0.3s ease 0.6s,
+    opacity 0.3s ease 0.6s;
+}
+[data-cta="arrow"] .tile-cta-arrow {
+  width: 20px;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
 /* SmartSync Suite live demo — a message landing, the composer caret, typing dots.
    Transform/opacity only; reduced motion freezes all three. */
 @keyframes suitePop {
