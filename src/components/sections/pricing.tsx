@@ -39,9 +39,12 @@ export function PlanCards({
                 : "border border-black/25 bg-linear-to-br from-[#cabee2]/20 via-white/10 to-[#cad7dd]/30 backdrop-blur-xl"
             }`}
           >
+            {/* clip-path as well as overflow: iOS Safari lets a blurred child
+                escape an overflow:hidden rounded box, and the glows showed as
+                square patches past the card's corners on iPhone 17 */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px]"
+              className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px] [clip-path:inset(0_round_22px)]"
             >
               <span
                 className={`absolute right-0 -top-20 size-64 rounded-full blur-[60px] ${hot ? "opacity-100" : "opacity-[0.22]"}`}

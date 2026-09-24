@@ -15,7 +15,7 @@ export function Industries({ data }: { data: HomeContent["industries"] }) {
           {data.cards.map((card) => (
             <article
               key={card.title}
-              className="group relative flex min-h-[752px] flex-col overflow-hidden rounded-[22px] bg-[#F2F2F2]"
+              className="group relative flex min-h-120 flex-col overflow-hidden rounded-[22px] bg-[#F2F2F2] md:min-h-150 lg:min-h-160"
             >
               <div className="px-[24px] pb-[18px] pt-[30px]">
                 <h3 className="text-[28px] font-medium tracking-[-0.02em] text-ink">
