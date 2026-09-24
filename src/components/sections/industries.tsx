@@ -26,11 +26,14 @@ export function Industries({ data }: { data: HomeContent["industries"] }) {
                 </p>
               </div>
               {/* a frame sequence when the card has one, the single still
-                  otherwise — so a card without frames is unaffected */}
+                  otherwise — so a card without frames is unaffected. Whole
+                  pictures, resting on the bottom edge: the cards got shorter
+                  and cover was cutting off heads and baskets. */}
               {card.frames?.length ? (
                 <Flipbook
                   frames={card.frames}
                   sizes="(max-width: 768px) 100vw, 460px"
+                  fit="contain"
                   className="w-full flex-1"
                 />
               ) : (
@@ -38,6 +41,7 @@ export function Industries({ data }: { data: HomeContent["industries"] }) {
                   image={card.image}
                   variant="plain"
                   sizes="(max-width: 768px) 100vw, 460px"
+                  fit="contain-bottom"
                   className="w-full flex-1"
                 />
               )}

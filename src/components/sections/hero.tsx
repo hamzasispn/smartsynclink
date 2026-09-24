@@ -150,15 +150,17 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
         </div>
 
         <ul
-          className="rise mt-10 flex flex-wrap items-center justify-center gap-x-12 gap-y-3"
+          className="rise mt-10 flex flex-wrap items-start justify-center gap-x-[6%] gap-y-3 sm:items-center sm:gap-x-12 sm:gap-y-3"
           style={{ "--i": 4 } as React.CSSProperties}
         >
+          {/* on a phone, two to a row in small centred type, the odd one
+              centred under them; from sm, one wrapping line as before */}
           {data.stats.map((stat) => (
             <li
               key={stat}
-              className="flex items-center gap-2 text-[16px] font-normal text-[#1E1E1E]"
+              className="w-[46%] text-center text-[11px] leading-snug font-normal text-[#1E1E1E] sm:flex sm:w-auto sm:items-center sm:gap-2 sm:text-[16px] sm:leading-normal"
             >
-              <Tick className="size-3.5 text-brand" />
+              <Tick className="mr-1 inline size-3 align-[-1px] text-brand sm:mr-0 sm:size-3.5" />
               {stat}
             </li>
           ))}

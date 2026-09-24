@@ -27,10 +27,13 @@ export function Flipbook({
   frames,
   className = "",
   sizes = "100vw",
+  fit = "cover",
 }: {
   frames: Media[];
   className?: string;
   sizes?: string;
+  /** `cover` crops to fill; `contain` shows the whole frame, resting on the bottom edge. */
+  fit?: "cover" | "contain";
 }) {
   const shots = (frames ?? []).filter((frame) => frame?.src);
   const root = useRef<HTMLDivElement>(null);
@@ -88,7 +91,7 @@ export function Flipbook({
           priority={false}
           loading={i === 0 ? "eager" : "lazy"}
           aria-hidden={i === 0 ? undefined : true}
-          className={`object-cover ${
+          className={`${fit === "contain" ? "object-contain object-bottom" : "object-cover"} ${
             i === frame ? "opacity-100" : "opacity-0"
           }`}
         />

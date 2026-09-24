@@ -254,9 +254,11 @@ export function Media({
    * It has to be a prop: className lands on the wrapper, and object-fit only
    * means anything on the <img> inside it. Passing object-contain through
    * className looks like it should work and silently does nothing.
+   * `contain-bottom` is contain with the picture resting on the bottom edge.
    */
-  fit?: "cover" | "contain";
+  fit?: "cover" | "contain" | "contain-bottom";
 }) {
+  const fitClass = { cover: "object-cover", contain: "object-contain", "contain-bottom": "object-contain object-bottom" }[fit];
   if (!image.src) {
     return (
       <Placeholder
@@ -277,9 +279,7 @@ export function Media({
         <img
           src={image.src}
           alt={image.alt}
-          className={`absolute inset-0 h-full w-full ${
-            fit === "contain" ? "object-contain" : "object-cover"
-          }`}
+          className={`absolute inset-0 h-full w-full ${fitClass}`}
         />
       </div>
     );
@@ -293,7 +293,7 @@ export function Media({
         fill
         sizes={sizes}
         priority={priority}
-        className={fit === "contain" ? "object-contain" : "object-cover"}
+        className={fitClass}
       />
     </div>
   );
