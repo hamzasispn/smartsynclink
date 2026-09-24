@@ -4,7 +4,7 @@ import { Button, Container, Media, Badge } from "../ui";
 
 export function Intro({ data }: { data: HomeContent["intro"] }) {
   return (
-    <section id="conversion" className="bg-page py-14 md:py-24 lg:py-28">
+    <section id="conversion" className="bg-page py-14">
       <Container>
         <Reveal
           className="grid items-center gap-10 md:gap-20 lg:grid-cols-2 lg:gap-40"
