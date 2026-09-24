@@ -10,17 +10,17 @@ import { F_BLUE, FUNNEL_BOARD } from "./list-screen";
  * the bars from the baseline each time this screen comes round.
  */
 
-const KPIS: { label: string; value: string; to: number; suffix?: string; info: number; arrow: boolean }[] = [
+export const KPIS: { label: string; value: string; to: number; suffix?: string; info: number; arrow: boolean }[] = [
   { label: "Funnel Visits", value: "1,937", to: 1937, info: 134, arrow: true },
   { label: "New Conversions", value: "39", to: 39, info: 170, arrow: true },
   { label: "Conversion Rate", value: "2.01", to: 2.01, suffix: "%", info: 162, arrow: false },
   { label: "Messages Sent", value: "0", to: 0, info: 154, arrow: true },
 ];
 
-const STAGES = ["Start", "Concern", "Behavior", "Experience", "Reason", "Location", "Result", "Book", "Confirmed"];
+export const STAGES = ["Start", "Concern", "Behavior", "Experience", "Reason", "Location", "Result", "Book", "Confirmed"];
 const BAR_X = [353, 477, 601, 726, 850, 975, 1099, 1224, 1349];
-const BAR_H = [185, 28, 22, 21, 21, 21, 20, 11, 3];
-const DROPS = ["15%", "78%", "94%", "99%", "98%", "95%", "60%", "33%"];
+export const BAR_H = [185, 28, 22, 21, 21, 21, 20, 11, 3];
+export const DROPS = ["15%", "78%", "94%", "99%", "98%", "95%", "60%", "33%"];
 const DROP_Y = [522, 603, 608, 609, 608, 609, 614, 621];
 const BASE = 621;
 

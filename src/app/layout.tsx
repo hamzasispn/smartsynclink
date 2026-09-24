@@ -7,6 +7,7 @@ import { DemoModal } from "@/components/demo-modal";
 import { Calendar } from "@/components/sections/calendar";
 import { Loader } from "@/components/loader";
 import { PointerFill } from "@/components/pointer-fill";
+import { StageScale } from "@/components/stage-scale";
 import { getHomeContent } from "@/lib/content";
 
 // Inter variable: opsz 14→32, wght 100→900 (verified from the fvar table).
@@ -47,6 +48,7 @@ export default async function RootLayout({
         <DemoModal data={demo} />
         <Calendar data={calendar} />
         <PointerFill />
+        <StageScale />
         <ChatWidget />
 
         <Script id="fb-pixel" strategy="afterInteractive">

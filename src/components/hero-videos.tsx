@@ -119,7 +119,7 @@ export function HeroVideos({
         muted
         playsInline
         aria-label={clips[0].alt}
-        className="mx-auto h-full w-full object-cover brightness-[1.03] mix-blend-multiply lg:w-[700px]"
+        className="hero-clip mx-auto h-full w-full object-cover brightness-[1.03] mix-blend-multiply lg:w-[700px]"
       >
         <source src={clips[0].src} />
       </video>
@@ -165,7 +165,7 @@ export function HeroVideos({
               }}
               onEnded={() => swiper?.slideNext()}
               aria-label={slide.clip.alt}
-              className="mx-auto h-full w-full object-cover brightness-[1.03] lg:w-[700px]"
+              className="hero-clip mx-auto h-full w-full object-cover brightness-[1.03] lg:w-[700px]"
             >
               <source src={slide.clip.src} />
             </video>

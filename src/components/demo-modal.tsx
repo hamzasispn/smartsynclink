@@ -49,11 +49,21 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") close();
     };
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    // overflow:hidden alone does not hold the page on an iPhone — Safari still
+    // scrolls it under a finger — so the body is pinned where it is and put
+    // back on close. data-demo also hides the site's chat bubble, which sat
+    // over the bottom of the phone, on top of Sofia's call button.
+    const y = window.scrollY;
+    const { style } = document.body;
+    const previous = { overflow: style.overflow, position: style.position, top: style.top, width: style.width };
+    Object.assign(style, { overflow: "hidden", position: "fixed", top: `-${y}px`, width: "100%" });
+    document.documentElement.dataset.demo = "open";
     document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = previous;
+      Object.assign(style, previous);
+      delete document.documentElement.dataset.demo;
+      // instant: the page is smooth-scrolling, and it should not glide back
+      window.scrollTo({ top: y, behavior: "instant" });
       document.removeEventListener("keydown", onKey);
     };
   }, [open, close]);

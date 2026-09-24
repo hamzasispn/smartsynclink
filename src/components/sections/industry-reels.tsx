@@ -8,7 +8,7 @@ export function IndustryReels({ data }: { data: IndustryContent["reels"] }) {
   if (!data?.videos?.length) return null;
 
   return (
-    <section id="reels" className="overflow-hidden bg-page py-24 lg:py-28">
+    <section id="reels" className="overflow-hidden bg-page py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal>
           <SectionHead badge={data.badge} heading={data.heading} subheading={data.subheading} />

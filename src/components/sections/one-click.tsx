@@ -61,7 +61,7 @@ export function OneClick({ data }: { data: HomeContent["oneClick"] }) {
   const poster = data.image?.src || "";
 
   return (
-    <section id="one-click" className="scroll-mt-24 bg-page py-24 lg:py-28">
+    <section id="one-click" className="scroll-mt-24 bg-page py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal
           className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16"

@@ -189,7 +189,9 @@ export function AssistantArt({ className = "" }: { className?: string }) {
         </g>
       </g>
 
-      {/* what she handles, on the orbit — placed at their starting angles */}
+      {/* what she handles, on the orbit — placed at their starting angles.
+          Rounded: the server's Math.cos and Safari's differ in the last digit,
+          and React treats that as a hydration mismatch. */}
       <g data-art="orbit">
         {BADGES.map((badge) => {
           const p = onOrbit(badge.at * DEG);
@@ -198,8 +200,8 @@ export function AssistantArt({ className = "" }: { className?: string }) {
             <g
               key={badge.label}
               data-orbit={badge.label}
-              transform={`translate(${p.x} ${p.y}) scale(${s})`}
-              opacity={0.55 + 0.45 * p.near}
+              transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) scale(${s.toFixed(3)})`}
+              opacity={(0.55 + 0.45 * p.near).toFixed(3)}
             >
               <circle r="17" fill="#fff" fillOpacity=".16" stroke="#fff" strokeOpacity=".4" strokeWidth=".8" />
               <g

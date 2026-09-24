@@ -5,13 +5,13 @@ import { Button, Container, Media, SectionHead } from "../ui";
 
 export function Industries({ data }: { data: HomeContent["industries"] }) {
   return (
-    <section id="industries" className="py-24 lg:py-28">
+    <section id="industries" className="py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal>
           <SectionHead heading={data.heading} subheading={data.subheading} />
         </Reveal>
 
-        <Reveal className="mt-16 grid gap-6 md:grid-cols-3" stagger={0.16} delay={0.18}>
+        <Reveal className="mt-10 grid gap-6 md:mt-16 md:grid-cols-3" stagger={0.16} delay={0.18}>
           {data.cards.map((card) => (
             <article
               key={card.title}

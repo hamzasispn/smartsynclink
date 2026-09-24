@@ -46,10 +46,6 @@ export default function Header({
 
         <nav className="hidden items-center gap-5 self-stretch xl:flex" aria-label="Main">
           {nav.items.map((item) => (
-            // self-stretch + h-full make the trigger box as tall as the nav
-            // row. Without it the link ends 13px above the row, and that strip
-            // is neither link nor panel — the pointer crossing it dropped
-            // :hover and the menu vanished before it could be reached.
             <div
               key={item.label}
               className={`group flex items-center self-stretch ${item.mega ? "static" : "relative"}`}
@@ -67,9 +63,6 @@ export default function Header({
                 // keyboard and not only by mouse
                 <div
                   className={`nav-panel absolute left-1/2 top-full z-50 -translate-x-1/2 ${
-                    // a mega panel hangs off the header (static parent), so it
-                    // starts one header padding lower than the trigger; -mt-3
-                    // cancels that py-3 and pt-7 puts the card back where it was
                     item.mega
                       ? "-mt-3 w-[min(1180px,calc(100vw-3rem))] pt-7"
                       : "pt-4"
@@ -136,26 +129,27 @@ export default function Header({
         </nav>
 
         <div className="hidden items-center gap-4 lg:flex">
-          {/* icon only: the label stays as the accessible name and the tooltip */}
           <a
             href={nav.login.href}
-            aria-label={nav.login.label}
-            title={nav.login.label}
-            className="grid size-12 shrink-0 place-items-center rounded-full border border-black/10 text-[#1E1E1E] transition-colors hover:border-brand/40 hover:text-brand"
+            className="flex h-12 shrink-0 items-center gap-2 rounded-full border border-black/10 pl-4 pr-5 text-[15px] font-medium text-[#1E1E1E] transition-colors hover:border-brand/40 hover:text-brand"
           >
             <UserIcon className="size-5" />
+            {nav.login.label}
           </a>
 
-          {/* the number, one tap to dial on a phone and a plain link on desktop */}
+          {/* the number, one tap to dial on a phone and a plain link on desktop.
+              Between 1280 and 1440 the full menu is out and there is no room
+              for it as well, so there it is the round button alone. */}
           {nav.call?.number ? (
             <a
               href={nav.call.href}
-              className="flex items-center gap-2.5 rounded-full border border-black/10 py-1.5 pl-1.5 pr-5 transition-colors hover:border-brand/40"
+              aria-label={`${nav.call.label} ${nav.call.number}`}
+              className="flex items-center gap-2.5 rounded-full border border-black/10 py-1.5 pl-1.5 pr-1.5 transition-colors hover:border-brand/40 max-xl:pr-5 min-[1440px]:pr-5"
             >
               <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white">
                 <PhoneIcon className="size-4" />
               </span>
-              <span className="leading-tight">
+              <span className="leading-tight xl:max-[1439px]:hidden">
                 <span className="block text-[12px] text-muted">{nav.call.label}</span>
                 <span className="block text-[15px] font-medium whitespace-nowrap text-ink">{nav.call.number}</span>
               </span>

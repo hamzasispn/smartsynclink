@@ -22,20 +22,24 @@ const reduced = () =>
  * and never starts under prefers-reduced-motion; arrows, dots, keys and swipes
  * always work.
  *
- * On mobile the original desktop-sized screen is proportionally scaled down
- * to fit the available viewport width, so the complete screen remains visible
- * without horizontal cropping.
+ * Below md each screen switches to its phone layout (`mobile`), drawn at
+ * phone width so it shows whole and at nearly full size, rather than the
+ * desktop board shrunk to a fifth. Both are scaled to the slide by
+ * <StageScale>; CSS picks which one shows.
  */
 export function FunnelShowcase({
   tabs,
   screens,
   width,
   height,
+  mobile,
 }: {
   tabs: string[];
   screens: ReactNode[];
   width: number;
   height: number;
+  /** The same screens laid out for a phone, in the same order. */
+  mobile?: { screens: ReactNode[]; width: number; height: number };
 }) {
   const root = useRef<HTMLDivElement>(null);
 
@@ -43,13 +47,7 @@ export function FunnelShowcase({
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
   const [narrow, setNarrow] = useState(false);
-  const [containerWidth, setContainerWidth] = useState(width);
 
-  /**
-   * Detect viewport size and available container width.
-   * The container width is used to calculate the scale factor for the
-   * original desktop-sized funnel screen on mobile.
-   */
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -58,45 +56,19 @@ export function FunnelShowcase({
       ([entry]) => setInView(entry.isIntersecting),
       { threshold: 0.3 }
     );
-
     io.observe(el);
 
+    // on a phone the slides do not take swipes: the page scroll does
     const mq = window.matchMedia("(max-width: 767px)");
-
-    const updateResponsiveState = () => {
-      setNarrow(mq.matches);
-      setContainerWidth(el.clientWidth || width);
-    };
-
-    updateResponsiveState();
-
-    mq.addEventListener("change", updateResponsiveState);
-
-    const resizeObserver = new ResizeObserver(() => {
-      setContainerWidth(el.clientWidth || width);
-    });
-
-    resizeObserver.observe(el);
+    const update = () => setNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
 
     return () => {
       io.disconnect();
-      mq.removeEventListener("change", updateResponsiveState);
-      resizeObserver.disconnect();
+      mq.removeEventListener("change", update);
     };
-  }, [width]);
-
-  /**
-   * Scale the original screen down on mobile so it fits completely
-   * inside the available viewport width.
-   */
-  const mobileScale =
-    narrow && width > 0
-      ? Math.min(1, containerWidth / width)
-      : 1;
-
-  const renderedHeight = narrow
-    ? height * mobileScale
-    : height;
+  }, []);
 
   // autoplay only while it can be seen
   useEffect(() => {
@@ -156,6 +128,13 @@ export function FunnelShowcase({
         ease: "steps(7)",
         delay: 1.1,
       });
+      // the phone editor's pages are steps across the top, lit in turn
+      gsap.from(q('[data-fa="page-step"]'), {
+        backgroundColor: "#E5E7EB",
+        duration: 0.2,
+        stagger: 0.5,
+        delay: 1.1,
+      });
 
       gsap.from(q('[data-fa="kpi"]'), {
         y: 24,
@@ -188,6 +167,14 @@ export function FunnelShowcase({
 
       gsap.from(q('[data-fa="bar"]'), {
         scaleY: 0,
+        duration: 0.8,
+        stagger: 0.09,
+        delay: 0.65,
+        ...out,
+      });
+      // the phone layout's bars run across, so they grow from the left
+      gsap.from(q('[data-fa="hbar"]'), {
+        scaleX: 0,
         duration: 0.8,
         stagger: 0.09,
         delay: 0.65,
@@ -254,39 +241,21 @@ export function FunnelShowcase({
                 narrow ? "swiper-no-swiping" : ""
               }`}
             >
-              {/* 
-                Mobile:
-                - Stage becomes 100% width.
-                - Height follows the original aspect ratio.
-                - Inner desktop-sized board is scaled proportionally.
-                
-                Desktop:
-                - Original width/height remain unchanged.
-              */}
-              <div
-                data-screen={i}
-                className="suite-stage relative w-full overflow-hidden rounded-[14px] shadow-[0_16px_36px_-20px_rgba(14,14,20,0.4)] ring-1 ring-black/5"
-                style={{
-                  aspectRatio: `${width} / ${height}`,
-                  height: narrow ? renderedHeight : "auto",
-                }}
-              >
-                <div
-                  className="suite-board absolute left-0 top-0"
-                  style={{
-                    width: `${width}px`,
-                    height: `${height}px`,
-                    ["--stage-w" as string]: `${width}px`,
-
-                    transform: narrow
-                      ? `scale(${mobileScale})`
-                      : undefined,
-
-                    transformOrigin: "top left",
-                  }}
+              {/* both layouts, each on its own stage; CSS shows one. The
+                  animations look inside data-screen, so they find either. */}
+              <div data-screen={i}>
+                <Stage
+                  w={width}
+                  h={height}
+                  className={mobile ? "hidden md:block" : undefined}
                 >
                   {screen}
-                </div>
+                </Stage>
+                {mobile ? (
+                  <Stage w={mobile.width} h={mobile.height} className="mx-auto max-w-105 md:hidden">
+                    {mobile.screens[i]}
+                  </Stage>
+                ) : null}
               </div>
             </div>
           </SwiperSlide>
@@ -367,6 +336,20 @@ export function FunnelShowcase({
             <path d="m9 18 6-6-6-6" />
           </svg>
         </button>
+      </div>
+    </div>
+  );
+}
+
+/** One drawn screen: a board of w × h, scaled as a piece to the stage's width. */
+function Stage({ w, h, className = "", children }: { w: number; h: number; className?: string; children: ReactNode }) {
+  return (
+    <div
+      className={`suite-stage relative w-full overflow-hidden rounded-[14px] shadow-[0_16px_36px_-20px_rgba(14,14,20,0.4)] ring-1 ring-black/5 ${className}`}
+      style={{ aspectRatio: `${w} / ${h}` }}
+    >
+      <div className="suite-board" style={{ width: w, height: h, ["--stage-w" as string]: `${w}px` }}>
+        {children}
       </div>
     </div>
   );

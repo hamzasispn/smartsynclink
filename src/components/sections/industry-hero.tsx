@@ -16,7 +16,8 @@ export function IndustryHero({ data, reels }: { data: IndustryContent["hero"]; r
   const block = split ? "mx-auto lg:mx-0" : "mx-auto";
   const row = split ? "justify-center lg:justify-start" : "justify-center";
 
-  const copy = (
+  // two pieces, so that on a phone the clips can sit between them
+  const head = (
     <div>
       <p
         className={`rise text-[13px] font-normal uppercase tracking-[0.18em] text-[#1E1E1E]/70 ${align}`}
@@ -33,9 +34,13 @@ export function IndustryHero({ data, reels }: { data: IndustryContent["hero"]; r
       >
         {data.heading}
       </h1>
+    </div>
+  );
 
+  const rest = (
+    <div>
       <p
-        className={`rise mt-6 max-w-[720px] text-[16px] leading-[1.75] text-[#1E1E1E] ${align} ${block}`}
+        className={`rise max-w-[720px] text-[16px] leading-[1.75] text-[#1E1E1E] ${split ? "" : "mt-6"} ${align} ${block}`}
         style={{ "--i": 2 } as React.CSSProperties}
       >
         {data.body}
@@ -88,14 +93,24 @@ export function IndustryHero({ data, reels }: { data: IndustryContent["hero"]; r
 
       <Container>
         {split && reels ? (
-          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-10">
-            {copy}
-            <div className="rise min-w-0" style={{ "--i": 3 } as React.CSSProperties}>
+          // Beside the clips from lg: heading over copy on the left, the clips
+          // spanning both rows on the right. On a phone they stack in source
+          // order — heading, clips, then the copy and the buttons.
+          <div className="grid items-center gap-y-8 lg:grid-cols-2 lg:gap-x-10 lg:gap-y-6">
+            <div className="lg:col-start-1 lg:row-start-1 lg:self-end">{head}</div>
+            <div
+              className="rise min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center"
+              style={{ "--i": 2 } as React.CSSProperties}
+            >
               <ReelSlider videos={reels} fit="column" />
             </div>
+            <div className="lg:col-start-1 lg:row-start-2 lg:self-start">{rest}</div>
           </div>
         ) : (
-          copy
+          <>
+            {head}
+            {rest}
+          </>
         )}
       </Container>
     </section>

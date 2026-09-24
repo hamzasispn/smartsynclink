@@ -9,7 +9,7 @@ export function IndustryProblem({
   data: IndustryContent["problem"];
 }) {
   return (
-    <section className="py-20 lg:py-24">
+    <section className="py-14 md:py-20 lg:py-24">
       <Container>
         {data.notice?.heading ? (
           <Reveal className="mb-16 lg:mb-20">

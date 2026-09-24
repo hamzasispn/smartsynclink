@@ -4,7 +4,7 @@ import { Chevron, Container } from "../ui";
 
 export function Faq({ data }: { data: HomeContent["faq"] }) {
   return (
-    <section className="pb-24 lg:pb-28">
+    <section className="pb-14 md:pb-24 lg:pb-28">
       <Container>
         <Reveal
           className="grid gap-12 lg:grid-cols-12 lg:gap-10"

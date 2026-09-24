@@ -311,6 +311,86 @@ summary::-webkit-details-marker {
   animation-delay: calc(var(--i, 0) * 0.8s);
 }
 
+/* The hero's chips: now and then one is nudged to catch the eye — HeroChips
+   picks which, and which of these, at random. On the chip itself, so it adds
+   to the float on its <li> rather than replacing it. */
+.hero-chip {
+  transition: border-color 0.3s ease;
+}
+.hero-chip[data-nudge] {
+  border-color: rgb(51 0 234 / 0.35);
+}
+.hero-chip[data-nudge="wiggle"] {
+  animation: chipWiggle 0.8s ease-in-out;
+}
+.hero-chip[data-nudge="pop"] {
+  animation: chipPop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.hero-chip[data-nudge="jump"] {
+  animation: chipJump 0.8s ease-out;
+}
+.hero-chip[data-nudge="glow"] {
+  animation: chipGlow 0.9s ease-out;
+}
+@keyframes chipWiggle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  15% {
+    rotate: -12deg;
+  }
+  35% {
+    rotate: 10deg;
+  }
+  55% {
+    rotate: -6deg;
+  }
+  75% {
+    rotate: 3deg;
+  }
+}
+@keyframes chipPop {
+  0%,
+  100% {
+    scale: 1;
+  }
+  35% {
+    scale: 1.22;
+  }
+  65% {
+    scale: 0.94;
+  }
+}
+@keyframes chipJump {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: 0 -14px;
+  }
+  55% {
+    translate: 0 0;
+  }
+  72% {
+    translate: 0 -5px;
+  }
+}
+@keyframes chipGlow {
+  from {
+    box-shadow: 0 0 0 0 rgb(51 0 234 / 0.45);
+  }
+  to {
+    box-shadow: 0 0 0 14px rgb(51 0 234 / 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-chip {
+    animation: none !important;
+  }
+}
+
 /* --- final-CTA orb -------------------------------------------------------
  * CSS rather than GSAP: it runs off the compositor, costs no JS, and keeps
  * the section free of the per-frame work that stalled the inbox card.
@@ -505,9 +585,12 @@ summary::-webkit-details-marker {
 }
 
 /* SmartSync Suite stage. The mockups are drawn on a fixed pixel grid and scaled
-   as one piece so nothing reflows. tan(atan2(a, b)) is a / b as a plain number,
-   which is what scale() needs and what calc() cannot produce from two lengths.
-   The plain scale before it is for browsers without trig functions. */
+   as one piece so nothing reflows. --stage-scale is measured by <StageScale>;
+   until it lands a board is not drawn at all. The CSS-only version,
+   scale(tan(atan2(100cqw, var(--stage-w)))), is wrong in Safari (a 0.2 board
+   came out at -3.4, an 0.8 one at 8.7), and even a moment of that on first
+   paint made the page 1500px wide on an iPhone. The loading curtain covers
+   that moment, so nobody sees the board arrive. */
 .suite-stage {
   container-type: inline-size;
 }
@@ -516,9 +599,36 @@ summary::-webkit-details-marker {
   top: 0;
   left: 0;
   transform-origin: 0 0;
-  transform: scale(0.74);
-  transform: scale(tan(atan2(100cqw, var(--stage-w))));
+  transform: scale(var(--stage-scale, 0));
 }
+/* While Sofia's popup is open (DemoModal sets data-demo) the site's chat
+   bubble steps aside: on a phone it covered the bottom of her screen. */
+html[data-demo] chat-widget {
+  display: none !important;
+}
+
+/* Hero clips on an iPhone. The white background of a clip is dropped out with
+   mix-blend-multiply (see HeroVideos), but iOS draws <video> on its own layer
+   and the blend never reaches it, so the clip showed as a white box. On iOS
+   only (-webkit-touch-callout exists nowhere else) the hero goes pure white
+   behind it and the clip's edges fade out, so the box has nothing to show
+   against. Everywhere else the blend works and none of this applies. */
+@supports (-webkit-touch-callout: none) {
+  .hero-backdrop {
+    background: #fff;
+  }
+  .hero-clip {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent),
+      linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent),
+      linear-gradient(180deg, transparent, #000 7%, #000 93%, transparent);
+    mask-composite: intersect;
+  }
+}
+
 
 
 

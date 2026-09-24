@@ -30,7 +30,7 @@ const CONTACTS_W = 108;
  * Three to a row — the grid's right edge lines up with the New Funnel button —
  * two full rows. The counts are made up, just varied enough to look lived-in.
  */
-const CARDS: Card[] = [
+export const CARDS: Card[] = [
   {
     x: 294,
     y: 200,

@@ -7,7 +7,7 @@ export function ShowcaseVideo({
   data: HomeContent["showcaseVideo"];
 }) {
   return (
-    <section className="pb-24 lg:pb-28">
+    <section className="pb-14 md:pb-24 lg:pb-28">
       <Container>
         {data.video?.src ? (
           <video

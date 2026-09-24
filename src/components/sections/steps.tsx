@@ -4,7 +4,7 @@ import { Container, SectionHead } from "../ui";
 
 export function Steps({ data }: { data: HomeContent["steps"] }) {
   return (
-    <section className="py-24 lg:py-28">
+    <section className="py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal>
           <SectionHead
@@ -14,7 +14,7 @@ export function Steps({ data }: { data: HomeContent["steps"] }) {
           />
         </Reveal>
 
-        <Reveal className="mt-16 grid gap-6 md:grid-cols-3" stagger={0.16} delay={0.18}>
+        <Reveal className="mt-10 grid gap-6 md:mt-16 md:grid-cols-3" stagger={0.16} delay={0.18}>
           {data.items.map((item) => (
             <article
               key={item.step}

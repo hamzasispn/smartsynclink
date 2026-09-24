@@ -60,10 +60,24 @@ export function StageMotion({
 
   useGsap(ref, (gsap, el) => {
     const q = gsap.utils.selector(el);
-    const tl = gsap.timeline({
-      defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 82%", once: true },
-    });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" }, paused: true });
+
+    // Started by the stage actually being on screen, not by a scroll position
+    // worked out at load. Content above settles after that (fonts, clips, the
+    // drawings sizing themselves), and on an iPhone the stale position fired
+    // the intro while the stage was still far below: the story played to
+    // nobody and the visitor arrived at the finished inbox. Same threshold as
+    // useChatCycle, whose replies pick up where the intro leaves off.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        tl.play();
+        io.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(el);
+    const stop = () => io.disconnect();
 
     const board = q('[data-sa="board"]');
     const phone = q('[data-sa="phone"]');
@@ -71,14 +85,16 @@ export function StageMotion({
     const prows = q('[data-a="prow"]');
     const site = q('[data-a="site"]');
 
-    if (!site.length) {
+    // by the prop, not by whether the desktop website is on the stage: the
+    // phone-only stage tells the whole story too, with no desktop at all
+    if (!intro) {
       // the bento tile: both screens simply arrive
       tl.from(board, { y: 60, autoAlpha: 0, duration: 0.9 })
         .from(rows, { x: -24, autoAlpha: 0, duration: 0.5, stagger: 0.07 }, "-=0.45")
         .from(phone, { y: 160, rotate: 5, autoAlpha: 0, duration: 1, ease: "back.out(1.2)" }, "-=0.6")
         .from(prows, { y: 18, autoAlpha: 0, duration: 0.45, stagger: 0.08 }, "-=0.5")
         .to(q('[data-sa="float"]'), { y: -14, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1 });
-      return;
+      return stop;
     }
 
     const mobile = q('[data-a="mobile-site"]');
@@ -87,14 +103,11 @@ export function StageMotion({
     // the same form on both screens, so each hook is looked up per site
     const tap = q('[data-a="mobile-site"] [data-a="tap"]');
     const pointer = q('[data-a="site"] [data-a="pointer"]');
-    const rings = (i: number) => [
-      q('[data-a="site"] [data-a="ring"]')[i],
-      q('[data-a="mobile-site"] [data-a="ring"]')[i],
-    ];
-    const fields = (i: number) => [
-      q('[data-a="site"] [data-a="value"]')[i],
-      q('[data-a="mobile-site"] [data-a="value"]')[i],
-    ];
+    // either screen may be missing (the phone-only stage has no desktop site)
+    const rings = (i: number) =>
+      [q('[data-a="site"] [data-a="ring"]')[i], q('[data-a="mobile-site"] [data-a="ring"]')[i]].filter(Boolean);
+    const fields = (i: number) =>
+      [q('[data-a="site"] [data-a="value"]')[i], q('[data-a="mobile-site"] [data-a="value"]')[i]].filter(Boolean);
     const buttons = q('[data-a="send"]');
     const { cues, end } = fieldCues(VALUES);
 
@@ -166,6 +179,8 @@ export function StageMotion({
         { backgroundColor: "rgba(5,46,255,0)", duration: 1.1, immediateRender: false },
         HANDOVER + 1.5,
       );
+
+    return stop;
   });
 
   return (

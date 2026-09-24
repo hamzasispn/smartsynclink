@@ -4,10 +4,10 @@ import { Button, Container, Media, Badge } from "../ui";
 
 export function Intro({ data }: { data: HomeContent["intro"] }) {
   return (
-    <section id="conversion" className="bg-page py-24 lg:py-28">
+    <section id="conversion" className="bg-page py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal
-          className="grid items-center gap-20 lg:grid-cols-2 lg:gap-40"
+          className="grid items-center gap-10 md:gap-20 lg:grid-cols-2 lg:gap-40"
           stagger={0.14}
         >
           <div>
@@ -44,7 +44,7 @@ export function Intro({ data }: { data: HomeContent["intro"] }) {
           <Media
             image={data.image}
             sizes="(max-width: 1024px) 100vw, 640px"
-            className="h-[300px] md:h-[768px] w-full rounded-3xl"
+            className="h-[300px] w-full rounded-3xl max-lg:order-first md:h-[768px]"
             fit="contain"
           />
         </Reveal>

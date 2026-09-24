@@ -4,7 +4,7 @@ import { Container, Placeholder, Stars } from "../ui";
 
 export function Testimonials({ data }: { data: HomeContent["testimonials"] }) {
   return (
-    <section id="reviews" className="py-24 lg:py-28">
+    <section id="reviews" className="py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal
           className="grid gap-12 lg:grid-cols-12 lg:gap-10"

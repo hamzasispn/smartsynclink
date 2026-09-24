@@ -16,7 +16,8 @@ gsap.registerPlugin(ScrollTrigger);
  */
 export function useGsap<T extends Element>(
   ref: RefObject<T | null>,
-  setup: (g: typeof gsap, el: T) => void,
+  /** May return a cleanup, for anything it starts that GSAP does not own (an observer, say). */
+  setup: (g: typeof gsap, el: T) => void | (() => void),
 ) {
   useLayoutEffect(() => {
     const el = ref.current;
@@ -24,7 +25,7 @@ export function useGsap<T extends Element>(
 
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", (context) => {
-      setup(gsap, el);
+      const cleanup = setup(gsap, el);
 
       // Endless idle loops (repeat: -1) change something every frame, and on a
       // page this long every frame re-layerizes all of it — even when the loop
@@ -46,6 +47,7 @@ export function useGsap<T extends Element>(
       return () => {
         io.disconnect();
         el.removeAttribute("data-offscreen");
+        cleanup?.();
       };
     });
 

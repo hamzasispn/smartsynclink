@@ -74,7 +74,7 @@ export function AppHeader({ active }: { active: "funnel" | "metrics" }) {
   );
 }
 
-const PAGES = ["Start", "Concern", "Behavior", "Experience", "Reason", "Location", "Result", "Book"];
+export const PAGES = ["Start", "Concern", "Behavior", "Experience", "Reason", "Location", "Result", "Book"];
 const GOLD = "#8B6F2E";
 
 export function FunnelEditorScreen() {
@@ -154,91 +154,101 @@ export function FunnelEditorScreen() {
       </T>
 
       {/* the page itself, as a phone-width preview */}
+      <PagePreview x={830} y={110} />
+    </div>
+  );
+}
+
+/**
+ * The funnel's first page, as the editor previews it: 370 wide, drawn once for
+ * the desktop editor and the phone one. `h` crops it from the bottom.
+ */
+export function PagePreview({ x, y, h = 720 }: { x: number; y: number; h?: number }) {
+  return (
+    <div
+      data-fa="preview"
+      style={{
+        position: "absolute",
+        left: x,
+        top: y,
+        width: 370,
+        height: h,
+        background: "#fff",
+        border: "1px solid #EEF0F3",
+        borderRadius: 16,
+        boxShadow: "0 12px 32px -18px rgba(17,24,39,.18)",
+        overflow: "hidden",
+      }}
+    >
+      <T x={19} y={31} s={14} w={600} c="#3A3A3A" style={{ fontFamily: "Georgia, serif" }}>
+        Glow &amp; Co.
+      </T>
+      <T x={19} y={44} s={5} c="#8A8A8A" style={{ letterSpacing: 1 }}>
+        AESTHETICS &amp; WELLNESS
+      </T>
+      <Ico n="phone" x={255} y={32} s={14} c="#7A5C1E" sw={2} />
+      <T x={268} y={32} s={13} w={600} c="#7A5C1E">
+        (512) 555-0142
+      </T>
+
+      <T x={185} y={104} s={12} w={600} c={GOLD} align="center" style={{ letterSpacing: 2.4 }}>
+        FIRST-TIME HYDRAFACIAL · $149{" "}
+        <span style={{ color: "#C9BC9F", textDecoration: "line-through" }}>REG. $220</span>
+      </T>
+
+      {["Your first", "Hydrafacial,", "guided by a real"].map((line, i) => (
+        <T key={line} x={185} y={149 + i * 36.7} s={36} w={800} c="#1F2A24" align="center" style={{ letterSpacing: -1 }}>
+          {line}
+        </T>
+      ))}
+      <T x={185} y={259} s={36} w={800} c="#1F2A24" align="center" style={{ letterSpacing: -1 }}>
+        <span style={{ color: "#B08A3E", fontStyle: "italic" }}>skin analysis</span>.
+      </T>
+
+      {[
+        "Most facials start with a guess. Yours starts",
+        "with a professional skin analysis — and five",
+        "quick questions that get sent ahead to",
+        "your esthetician.",
+      ].map((line, i) => (
+        <T key={line} x={185} y={308 + i * 25} s={16} c="#4B5563" align="center">
+          {line}
+        </T>
+      ))}
+
       <div
-        data-fa="preview"
+        data-fa="cta"
         style={{
           position: "absolute",
-          left: 830,
-          top: 110,
-          width: 370,
-          height: 720,
-          background: "#fff",
-          border: "1px solid #EEF0F3",
-          borderRadius: 16,
-          boxShadow: "0 12px 32px -18px rgba(17,24,39,.18)",
-          overflow: "hidden",
+          left: 19,
+          top: 428,
+          width: 332,
+          height: 46,
+          borderRadius: 23,
+          background: "linear-gradient(180deg, #94722F, #7A5C22)",
+          boxShadow: "0 6px 14px -8px rgba(122,92,34,.8)",
         }}
       >
-        <T x={19} y={31} s={14} w={600} c="#3A3A3A" style={{ fontFamily: "Georgia, serif" }}>
-          Glow &amp; Co.
+        <T x={158} y={23} s={16} w={600} c="#fff" align="center">
+          Start my skin check
         </T>
-        <T x={19} y={44} s={5} c="#8A8A8A" style={{ letterSpacing: 1 }}>
-          AESTHETICS &amp; WELLNESS
-        </T>
-        <Ico n="phone" x={255} y={32} s={14} c="#7A5C1E" sw={2} />
-        <T x={268} y={32} s={13} w={600} c="#7A5C1E">
-          (512) 555-0142
-        </T>
-
-        <T x={185} y={104} s={12} w={600} c={GOLD} align="center" style={{ letterSpacing: 2.4 }}>
-          FIRST-TIME HYDRAFACIAL · $149{" "}
-          <span style={{ color: "#C9BC9F", textDecoration: "line-through" }}>REG. $220</span>
-        </T>
-
-        {["Your first", "Hydrafacial,", "guided by a real"].map((line, i) => (
-          <T key={line} x={185} y={149 + i * 36.7} s={36} w={800} c="#1F2A24" align="center" style={{ letterSpacing: -1 }}>
-            {line}
-          </T>
-        ))}
-        <T x={185} y={259} s={36} w={800} c="#1F2A24" align="center" style={{ letterSpacing: -1 }}>
-          <span style={{ color: "#B08A3E", fontStyle: "italic" }}>skin analysis</span>.
-        </T>
-
-        {[
-          "Most facials start with a guess. Yours starts",
-          "with a professional skin analysis — and five",
-          "quick questions that get sent ahead to",
-          "your esthetician.",
-        ].map((line, i) => (
-          <T key={line} x={185} y={308 + i * 25} s={16} c="#4B5563" align="center">
-            {line}
-          </T>
-        ))}
-
-        <div
-          data-fa="cta"
-          style={{
-            position: "absolute",
-            left: 19,
-            top: 428,
-            width: 332,
-            height: 46,
-            borderRadius: 23,
-            background: "linear-gradient(180deg, #94722F, #7A5C22)",
-            boxShadow: "0 6px 14px -8px rgba(122,92,34,.8)",
-          }}
-        >
-          <T x={158} y={23} s={16} w={600} c="#fff" align="center">
-            Start my skin check
-          </T>
-          <Ico n="arrowR" x={251} y={23} s={16} c="#fff" sw={2.2} />
-        </div>
-        <T x={185} y={493} s={11.5} c="#9CA3AF" align="center">
-          5 quick questions · about 60 seconds · no card required
-        </T>
-        <T x={185} y={509} s={11.5} c="#9CA3AF" align="center">
-          to start
-        </T>
-
-        <Box x={20} y={553} w={330} h={180} style={{ borderRadius: 12, overflow: "hidden" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- a photo inside a scaled mockup */}
-          <img
-            src="/images/funnel-editor-imgs/img1.webp"
-            alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
-        </Box>
+        <Ico n="arrowR" x={251} y={23} s={16} c="#fff" sw={2.2} />
       </div>
+      <T x={185} y={493} s={11.5} c="#9CA3AF" align="center">
+        5 quick questions · about 60 seconds · no card required
+      </T>
+      <T x={185} y={509} s={11.5} c="#9CA3AF" align="center">
+        to start
+      </T>
+
+      <Box x={20} y={553} w={330} h={180} style={{ borderRadius: 12, overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- a photo inside a scaled mockup */}
+        <img
+          src="/images/funnel-editor-imgs/img1.webp"
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      </Box>
     </div>
   );
 }

@@ -132,7 +132,7 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
   return (
     <section
       id="pricing"
-      className="relative overflow-hidden bg-page py-24 lg:py-28"
+      className="relative overflow-hidden bg-page py-14 md:py-24 lg:py-28"
     >
       <span
         aria-hidden="true"

@@ -4,7 +4,6 @@ import { AssistantOrb } from "../assistant-orb";
 import { BookingBand } from "../booking-band";
 import { CampaignTile } from "../campaign-motion";
 import { SuiteLockup, SuiteMark } from "../suite-logo";
-import { ChatCycle, LivePhone } from "../live-suite";
 import { Button, CheckSolid, Container } from "../ui";
 import { SuiteStage } from "./suite";
 
@@ -53,7 +52,7 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
   const booking = data.booking;
 
   return (
-    <section id="solutions" className="py-24 lg:py-28">
+    <section id="solutions" className="py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal className="grid gap-[16px] lg:grid-cols-12" stagger={0.14}>
           <BookingBand booking={booking} className="lg:col-span-12" />
@@ -104,11 +103,9 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
             {/* half as wide again as the tile, clipped by its right edge */}
             <div className="mt-auto pt-8">
               <SuiteStage idPrefix="bento-stage" layout="tile" className="hidden w-[150%] max-w-none md:block" />
-              <div className="flex justify-center [zoom:0.8] md:hidden">
-                <ChatCycle>
-                  <LivePhone idPrefix="bento-solo" />
-                </ChatCycle>
-              </div>
+              {/* on a phone, the phone alone — telling the whole story: the
+                  med spa's site, the form sent, the lead landing in the inbox */}
+              <SuiteStage idPrefix="bento-solo" layout="phone" intro className="mx-auto w-full max-w-66 md:hidden" />
             </div>
           </div>
 

@@ -3,7 +3,7 @@ import { Reveal } from "../reveal";
 import { CLICKS, LeadAlert, VisitorSite, VisitorSiteMobile } from "../site-mockup";
 import { StageMotion } from "../stage-motion";
 import { SuiteLockup } from "../suite-logo";
-import { ChatCycle, LiveDashboard, LivePhone } from "../live-suite";
+import { LiveDashboard, LivePhone } from "../live-suite";
 import { BOARD, INK, LINE, PHONE } from "../suite-mockup";
 import { Button, Container } from "../ui";
 
@@ -13,10 +13,15 @@ import { Button, Container } from "../ui";
  *   tile    — the phone in front on the left, the dashboard running off the
  *             right edge; for the bento tile, which is too narrow to show the
  *             whole screen at a readable size, so it shows the part that matters
+ *   phone   — the phone alone, for the Suite section on a phone: the desktop
+ *             screen would draw at a fifth of its size there, and the phone
+ *             tells the same story — the website, the form sent, the lead
+ *             landing, the inbox — at a size that reads
  */
 const LAYOUTS = {
   section: { board: { x: 0, y: 0 }, phone: { x: 1559, y: 309 }, w: 1559 + PHONE.w, h: 309 + PHONE.h },
   tile: { board: { x: 200, y: 0 }, phone: { x: 0, y: 250 }, w: 200 + BOARD.w, h: 250 + PHONE.h },
+  phone: { board: null, phone: { x: 0, y: 0 }, w: PHONE.w, h: PHONE.h },
 } as const;
 
 /**
@@ -44,6 +49,7 @@ export function SuiteStage({
   intro?: boolean;
 }) {
   const STAGE = LAYOUTS[layout];
+  const board = STAGE.board;
   return (
     <StageMotion
       intro={intro}
@@ -59,23 +65,25 @@ export function SuiteStage({
         className="suite-board"
         style={{ width: STAGE.w, height: STAGE.h, ["--stage-w" as string]: `${STAGE.w}px` }}
       >
-        <div
-          data-sa="board"
-          className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
-          style={{ left: STAGE.board.x, top: STAGE.board.y, width: BOARD.w, height: BOARD.h }}
-        >
-          <LiveDashboard />
-        </div>
+        {board ? (
+          <div
+            data-sa="board"
+            className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
+            style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
+          >
+            <LiveDashboard />
+          </div>
+        ) : null}
 
         {/* Between the dashboard and the phone on purpose: it covers the
             dashboard exactly, so the inbox opens where the website was, but the
             phone stays in front of it the way it does over the finished screen.
             stage-cue keeps it out of the way wherever the timeline never runs. */}
-        {intro ? (
+        {intro && board ? (
           <div
             data-a="site"
             className="stage-cue absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
-            style={{ left: STAGE.board.x, top: STAGE.board.y, width: BOARD.w, height: BOARD.h }}
+            style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
           >
             <VisitorSite />
           </div>
@@ -100,15 +108,15 @@ export function SuiteStage({
           </div>
         </div>
 
-        {intro ? (
+        {intro && board ? (
           <>
             {/* what the desk catches the moment the form is sent */}
             <div
               data-a="chip"
               className="stage-cue absolute flex items-center gap-2.5"
               style={{
-                left: STAGE.board.x + BOOKED.x - 95,
-                top: STAGE.board.y + BOOKED.y - 22,
+                left: board.x + BOOKED.x - 95,
+                top: board.y + BOOKED.y - 22,
                 width: 190,
                 height: 44,
                 paddingLeft: 16,
@@ -133,11 +141,12 @@ export function SuiteStage({
 
 /**
  * SmartSync Suite. Below md the desktop screen would shrink past reading, so
- * the phone — which is the mobile story anyway — is shown on its own.
+ * the phone plays the whole story on its own — the website, the form sent,
+ * the lead, the inbox — the same one the desktop stage plays.
  */
 export function Suite({ data }: { data: HomeContent["suite"] }) {
   return (
-    <section id="suite" className="relative overflow-hidden bg-page py-24 lg:py-28">
+    <section id="suite" className="relative overflow-hidden bg-page py-14 md:py-24 lg:py-28">
       <Container>
         <Reveal className="flex flex-col items-center text-center" stagger={0.1}>
           <SuiteLockup id="suite-lockup" size={36} />
@@ -150,7 +159,7 @@ export function Suite({ data }: { data: HomeContent["suite"] }) {
           <Button cta={data.cta} className="mt-9" />
         </Reveal>
 
-        <Reveal as="ul" className="mt-14 grid gap-4 md:grid-cols-3" stagger={0.08} delay={0.1}>
+        <Reveal as="ul" className="mt-10 grid gap-4 md:mt-14 md:grid-cols-3" stagger={0.08} delay={0.1}>
           {data.points.map((point) => (
             <li key={point.title} className="rounded-2xl border border-line bg-white p-6">
               <p className="text-[18px] font-medium tracking-[-0.01em] text-ink">{point.title}</p>
@@ -159,17 +168,13 @@ export function Suite({ data }: { data: HomeContent["suite"] }) {
           ))}
         </Reveal>
 
-        <div className="relative mt-16">
+        <div className="relative mt-10 md:mt-16">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-[10%] top-[10%] bottom-0 rounded-full bg-[radial-gradient(closest-side,rgba(5,46,255,0.16),transparent)] blur-2xl"
           />
           <SuiteStage idPrefix="suite-stage" className="hidden w-full md:block" intro />
-          <div className="relative flex justify-center md:hidden">
-            <ChatCycle>
-              <LivePhone idPrefix="suite-solo" />
-            </ChatCycle>
-          </div>
+          <SuiteStage idPrefix="suite-solo" layout="phone" className="mx-auto w-full max-w-75 md:hidden" intro />
         </div>
       </Container>
     </section>
