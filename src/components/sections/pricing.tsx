@@ -136,7 +136,7 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
     >
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-20 -translate-x-1/2 select-none text-[324px] font-black leading-none tracking-[-0.04em] text-ink/[0.038]"
+        className="pointer-events-none absolute left-1/2 top-20 -translate-x-1/2 select-none text-[120px] md:text-[324px] font-black leading-none tracking-[-0.04em] text-ink/[0.038]"
       >
         {data.watermark}
       </span>
