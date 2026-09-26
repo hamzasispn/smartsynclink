@@ -60,14 +60,17 @@ export const defaultIndustry = {
   },
 
   hero: {
-    badge: "SMARTSYNCLINK FOR AESTHETICS",
-    heading: "Turn Treatment Interest Into More Consultations & Booked Appointments.",
-    body: "From Botox and HydraFacials to body contouring and other aesthetic treatments, your prospects have questions before they're ready to book.",
+    // The first thing a visitor reads: we build the website, and the Suite is
+    // wired into it. Everything else on the page follows from that.
+    badge: "MED SPA WEBSITES + SMARTSYNC SUITE",
+    heading: "We Build Your Med Spa Website — And Connect It To An AI That Books Clients.",
+    body: "A custom website for your treatments, designed, built and hosted by us. Every form, chat and call from it goes straight into your SmartSync Suite.",
     body2:
-      "SmartSyncLink helps capture that interest, answer questions, qualify leads, automate follow-up, and guide prospects toward the right appointment.",
+      "There, AI answers in seconds, qualifies the lead and books the consultation — so your new site doesn't just look good, it fills your calendar.",
     primary: { label: "Get More Booking", href: "#contact" } as Cta,
     secondary: { label: "See How It Works", href: "#journey" } as Cta,
     stats: [
+      "Custom Website",
       "Funnels",
       "AI Booking",
       "Lead Qualification",

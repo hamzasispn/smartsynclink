@@ -1,7 +1,8 @@
 import type { HomeContent } from "@/content/home";
 import { PaymentMarks } from "../payment-marks";
 import { Reveal } from "../reveal";
-import { Button, CheckRing, Container, GLOW, SectionHead } from "../ui";
+import { SuiteLockup } from "../suite-logo";
+import { Button, CheckRing, Container, GLOW, SectionHead, Tick } from "../ui";
 
 /**
  * A plan card as the home page stores it, plus the optional extras the
@@ -154,7 +155,84 @@ export function Pricing({ data }: { data: HomeContent["pricing"] }) {
         </Reveal>
 
         <PlanCards plans={data.plans} period={data.period} className="mt-20" />
+
+        {data.funnel?.heading ? <FunnelBanner data={data.funnel} /> : null}
       </Container>
     </section>
+  );
+}
+
+/**
+ * SmartSync Funnel, as a bento banner rather than another row of plans: what
+ * it is on a white tile with the funnel drawn beside it, the starting price on
+ * a dark one. Thinner than the plan cards and built differently on purpose —
+ * it is an add-on with one starting price, not more plans to compare.
+ */
+function FunnelBanner({ data }: { data: HomeContent["pricing"]["funnel"] }) {
+  return (
+    <Reveal className="mt-16 grid gap-4 md:mt-20 lg:grid-cols-3" stagger={0.12}>
+      <article className="relative overflow-hidden rounded-[28px] border border-line bg-white p-7 sm:p-9 lg:col-span-2">
+        <FunnelArt className="pointer-events-none absolute top-1/2 -right-4 hidden h-[86%] -translate-y-1/2 md:block" />
+        <div className="relative md:max-w-[58%]">
+          <SuiteLockup id="pricing-funnel-lockup" product="funnel" size={28} />
+          <h3 className="mt-5 text-balance text-[26px] font-medium leading-[1.15] tracking-[-0.02em] text-ink sm:text-[30px]">
+            {data.heading}
+          </h3>
+          {data.body ? <p className="mt-3 text-[15px] leading-[1.7] text-[#1E1E1E]">{data.body}</p> : null}
+          {data.highlights?.length ? (
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {data.highlights.map((item) => (
+                <li
+                  key={item}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-[13px] font-medium text-brand"
+                >
+                  <Tick className="size-3" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </article>
+
+      {/* the glow is a plain gradient, not a blur: iOS Safari leaks blurred
+          layers past rounded corners (see the plan cards above) */}
+      <article className="relative flex flex-col justify-between overflow-hidden rounded-[28px] bg-[#0E0E14] p-7 text-white sm:p-9">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-20 -right-20 size-64 rounded-full bg-[radial-gradient(closest-side,rgba(51,0,234,0.6),transparent)]"
+        />
+        <div className="relative">
+          <p className="text-[12px] font-medium tracking-[0.18em] text-white/55 uppercase">{data.priceLabel}</p>
+          <p className="mt-3 flex items-baseline gap-1.5">
+            <span className="text-[56px] font-medium leading-none tracking-[-0.03em]">{data.price}</span>
+            <span className="text-[16px] text-white/60">{data.unit}</span>
+          </p>
+          {data.note ? <p className="mt-3 text-[14px] leading-snug text-white/70">{data.note}</p> : null}
+        </div>
+        <Button cta={data.cta} variant="white" className="relative mt-8 w-full" />
+      </article>
+    </Reveal>
+  );
+}
+
+/** Visitors → leads → booked, as three bands narrowing: the funnel, drawn. */
+function FunnelArt({ className = "" }: { className?: string }) {
+  const bands = [
+    { d: "M16 14H244L218 72H42Z", label: "Visitors", y: 47, fill: "#052EFF" },
+    { d: "M48 84H212L190 142H70Z", label: "Leads", y: 117, fill: "#2A17F2" },
+    { d: "M76 154H184L166 212H94Z", label: "Booked", y: 187, fill: "#3300EA" },
+  ];
+  return (
+    <svg viewBox="0 0 260 226" aria-hidden="true" className={className}>
+      {bands.map((band, i) => (
+        <g key={band.label} opacity={1 - i * 0.08}>
+          <path d={band.d} fill={band.fill} />
+          <text x="130" y={band.y} textAnchor="middle" fontSize="13" fontWeight="600" fill="#fff">
+            {band.label}
+          </text>
+        </g>
+      ))}
+    </svg>
   );
 }

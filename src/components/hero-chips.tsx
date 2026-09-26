@@ -15,7 +15,7 @@ import { useEffect, useRef } from "react";
 const CHIPS = [
   {
     label: "Website",
-    spot: "-top-10 left-[-2%] sm:-top-9 sm:-left-3 lg:-left-8",
+    spot: "-top-11 left-[-2%] sm:-top-10 sm:-left-3 lg:-top-14 lg:-left-8",
     tilt: -8,
     icon: (
       <>
@@ -26,19 +26,19 @@ const CHIPS = [
   },
   {
     label: "Integrations",
-    spot: "-top-12 right-[-2%] sm:-top-11 sm:-right-3 lg:-right-10",
+    spot: "-top-12 right-[-2%] sm:-top-11 sm:-right-3 lg:-top-14 lg:-right-10",
     tilt: 7,
     icon: <path d="M9 2.5v5M15 2.5v5M6 7.5h12v4a6 6 0 0 1-12 0v-4ZM12 17.5v4" />,
   },
   {
     label: "Funnels",
-    spot: "-bottom-10 left-[4%] sm:left-0 lg:-left-3",
+    spot: "-bottom-14 left-[4%] sm:left-0 lg:-bottom-16 lg:-left-3",
     tilt: 6,
     icon: <path d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4Z" />,
   },
   {
     label: "AI Calls",
-    spot: "-bottom-8 right-[3%] sm:-bottom-9 sm:right-2 lg:right-4",
+    spot: "-bottom-14 right-[3%] sm:right-2 lg:-bottom-16 lg:right-4",
     tilt: -6,
     icon: (
       <>
@@ -51,7 +51,12 @@ const CHIPS = [
 
 const NUDGES = ["wiggle", "pop", "jump", "glow"];
 
-export function HeroChips() {
+/**
+ * `spots` repositions the four chips for a different heading (one class string
+ * each, in chip order) — the aesthetics hero has a badge above its heading and
+ * the clips beside it. Left out, they sit as they do on the home hero.
+ */
+export function HeroChips({ spots }: { spots?: string[] } = {}) {
   const chips = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export function HeroChips() {
       {CHIPS.map((chip, i) => (
         <li
           key={chip.label}
-          className={`hero-float absolute ${chip.spot}`}
+          className={`hero-float absolute ${spots?.[i] ?? chip.spot}`}
           // the resting tilt; while floating, heroFloat carries it instead
           style={{ "--tilt": `${chip.tilt}deg`, "--i": i, transform: `rotate(${chip.tilt}deg)` } as React.CSSProperties}
         >

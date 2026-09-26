@@ -11,7 +11,9 @@ const WHOLE_LOGO = "inset(0% 0% 0% 0%)";
 /** Long enough for the intro to finish, so a fast load does not flash. */
 const MIN_MS = 1500;
 /** Never trap the visitor if `load` refuses to fire (a stalled image, say). */
-const MAX_MS = 6000;
+// 3.5s, not 6: `load` waits on every image, and on a phone that was most of
+// what made the site feel slow — the page is ready well before its pictures
+const MAX_MS = 3500;
 
 /**
  * First-paint loader.

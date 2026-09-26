@@ -109,7 +109,7 @@ export function Hero({ data }: { data: HomeContent["hero"] }) {
       <Container>
         {/* shrink-wrapped to the heading, so its corners are the heading's
             corners — the chips float there. The margins make room for them. */}
-        <div className="relative mx-auto mt-12 mb-14 w-fit max-w-full sm:mt-10 sm:mb-12 lg:mb-14">
+        <div className="relative mx-auto mt-12 mb-16 w-fit max-w-full sm:mt-10 lg:mt-14 lg:mb-20">
           <h1
             className="rise text-balance text-center text-[38px] font-medium leading-[1.08] tracking-[-0.03em] text-ink sm:text-[54px] lg:text-[64px]"
             style={{ "--i": 0 } as React.CSSProperties}

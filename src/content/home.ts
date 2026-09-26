@@ -314,6 +314,21 @@ export const defaultHomeContent = {
         cta: { label: "Book A Call Now", href: "#call" } as Cta,
       },
     ],
+    /**
+     * The SmartSync Funnel offer, as one banner under the plans: a starting
+     * price and the gist of it, not a second row of plan cards. An empty
+     * heading hides it.
+     */
+    funnel: {
+      heading: "Funnels that turn clicks into booked calls.",
+      body: "Conversion-focused funnel pages, lead capture and automated follow-up — built, hosted and connected to your SmartSync Suite.",
+      highlights: ["Done-for-you funnel pages", "Lead capture on every step", "Automated follow-up", "Live conversion metrics"],
+      priceLabel: "Starts at",
+      price: "$297",
+      unit: "/month",
+      note: "Built, hosted and connected for you.",
+      cta: { label: "Book A Funnel Call", href: "#call" } as Cta,
+    },
   },
 
   testimonials: {

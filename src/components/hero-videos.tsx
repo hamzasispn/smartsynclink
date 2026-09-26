@@ -89,11 +89,19 @@ export function HeroVideos({
     return () => window.clearTimeout(timer);
   }, [swiper, active, hold]);
 
-  const playOnly = (index: number) => {
+  // Only the clip on screen loads in full, and the next one while a product
+  // screen holds (seven seconds or so — ample); the rest wait with just their
+  // metadata. They all used to preload at once, and the first clip — the one
+  // the visitor is actually waiting for — shared the connection with every
+  // other clip in the playlist.
+  const nextVideo = slides.findIndex((slide, i) => i > active && slide.kind === "video");
+  const upNext = current?.kind === "screen" ? (nextVideo === -1 ? slides.findIndex((slide) => slide.kind === "video") : nextVideo) : -1;
+
+  const playOnly = (index: number, restart = true) => {
     players.current.forEach((video, i) => {
       if (!video) return;
       if (i === index) {
-        video.currentTime = 0;
+        if (restart) video.currentTime = 0;
         // autoplay can still be refused; a stalled slide must not throw
         video.play().catch(() => {});
       } else {
@@ -137,7 +145,9 @@ export function HeroVideos({
       speed={700}
       onSwiper={(instance) => {
         setSwiper(instance);
-        playOnly(0);
+        // not from the top: the first clip autoplays from the HTML before the
+        // page's script arrives, and rewinding it here made it visibly restart
+        playOnly(0, false);
       }}
       onSlideChange={(instance) => {
         setPrevious(instance.previousIndex);
@@ -155,7 +165,7 @@ export function HeroVideos({
               }}
               muted
               playsInline
-              preload="auto"
+              preload={i === active || i === upNext ? "auto" : "metadata"}
               autoPlay={i === 0}
               onLoadedMetadata={(event) => {
                 const video = event.currentTarget;

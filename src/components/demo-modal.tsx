@@ -17,11 +17,22 @@ import type { HomeContent } from "@/content/home";
  * left is the shape a person already knows — a phone, a thread, the agent at
  * the top — with the real widget sitting in the thread where a reply would be.
  *
- * The third-party widget script loads on first open, never on page load — it
- * is a third-party bundle and nobody should pay for it just by visiting.
+ * The call widget is a third-party bundle that takes seconds to arrive, and
+ * loading it on open meant an empty phone and a late call button — worst on a
+ * phone. So the dialog is always in the page (hidden until opened) and the
+ * widget warms up in it ahead of time: WARM_AFTER_LOAD_MS after the page has
+ * loaded, or the moment a finger or pointer comes down on a #demo link,
+ * whichever is first. By the time the dialog shows, the button is there.
+ *
+ * On a phone the dialog is the whole screen — a phone drawn inside a phone
+ * only squeezed it — and from sm up it is the handset mockup.
  */
+const WARM_AFTER_LOAD_MS = 3000;
+const DEMO_LINK = 'a[href="#demo"], a[href$="/#demo"]';
+
 export function DemoModal({ data }: { data: HomeContent["demo"] }) {
   const [open, setOpen] = useState(false);
+  const [warm, setWarm] = useState(false);
   const embed = useRef<HTMLDivElement>(null);
   const loaded = useRef(false);
 
@@ -32,15 +43,33 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
     const onClick = (event: MouseEvent) => {
       // let a modified click do what the browser would normally do
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.button !== 0) return;
-      const link = (event.target as Element | null)?.closest?.(
-        'a[href="#demo"], a[href$="/#demo"]',
-      );
+      const link = (event.target as Element | null)?.closest?.(DEMO_LINK);
       if (!link) return;
       event.preventDefault();
       setOpen(true);
     };
+    // the press itself, before the click lands: a head start on the widget
+    const onPress = (event: PointerEvent) => {
+      if ((event.target as Element | null)?.closest?.(DEMO_LINK)) setWarm(true);
+    };
     document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    document.addEventListener("pointerdown", onPress, { passive: true });
+    return () => {
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("pointerdown", onPress);
+    };
+  }, []);
+
+  /* ---- and warm it anyway, a little after the page has loaded ---- */
+  useEffect(() => {
+    let timer = 0;
+    const later = () => (timer = window.setTimeout(() => setWarm(true), WARM_AFTER_LOAD_MS));
+    if (document.readyState === "complete") later();
+    else window.addEventListener("load", later, { once: true });
+    return () => {
+      window.removeEventListener("load", later);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   /* ---- escape, and the page must not scroll behind the phone ---- */
@@ -68,45 +97,49 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
     };
   }, [open, close]);
 
-  /* ---- the widget, once ---- */
+  /* ---- the widget, once, as soon as it is wanted ---- */
   useEffect(() => {
-    if (!open || loaded.current || !data.widgetId || !embed.current) return;
+    if (!(warm || open) || loaded.current || !data.widgetId || !embed.current) return;
     loaded.current = true;
     const script = document.createElement("script");
     script.src = "https://beta.leadconnectorhq.com/loader.js";
     script.dataset.resourcesUrl = "https://beta.leadconnectorhq.com/chat-widget/loader.js";
     script.dataset.widgetId = data.widgetId;
     embed.current.appendChild(script);
-  }, [open, data.widgetId]);
-
-  if (!open) return null;
+  }, [warm, open, data.widgetId]);
 
   return (
     <div
       role="dialog"
       aria-modal="true"
+      aria-hidden={!open}
       aria-label={`${data.agentName} — ${data.role}`}
-      className="fixed inset-0 z-[10000] flex items-center justify-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm"
+      className={`fixed inset-0 z-[10000] items-center justify-center overflow-y-auto bg-ink/60 p-4 backdrop-blur-sm max-sm:p-0 ${
+        open ? "flex" : "hidden"
+      }`}
       onClick={(event) => {
         if (event.target === event.currentTarget) close();
       }}
     >
-      <div className="relative my-auto w-full max-w-[360px]">
+      <div className="relative my-auto max-sm:m-0 max-sm:size-full">
         <button
           onClick={close}
           aria-label="Close"
-          className="absolute -top-3 -right-3 z-10 grid size-9 place-items-center rounded-full bg-white text-ink shadow-lift transition-transform hover:scale-105"
+          className="absolute -top-3 -right-3 z-10 grid size-9 place-items-center rounded-full bg-white text-ink shadow-lift transition-transform hover:scale-105 max-sm:top-3 max-sm:right-3 max-sm:bg-surface max-sm:shadow-none"
         >
           <svg viewBox="0 0 20 20" aria-hidden="true" className="size-4 fill-current">
             <path d="m10 8.6 5-5 1.4 1.4-5 5 5 5-1.4 1.4-5-5-5 5L3.6 15l5-5-5-5L10 3.6z" />
           </svg>
         </button>
 
-        {/* the handset */}
-        <div className="rounded-[46px] bg-[#0E0E14] p-2.5 shadow-[0_40px_80px_-30px_rgba(14,14,20,.65)] ring-1 ring-white/10">
-          <div className="relative flex h-[min(640px,calc(100dvh-7rem))] flex-col overflow-hidden rounded-[36px] bg-page">
-            {/* status bar, with the notch between the two halves */}
-            <div className="relative flex shrink-0 items-center justify-between bg-white px-6 pt-3 pb-1.5 text-[13px] font-semibold text-ink">
+        {/* the handset — from sm up; on a phone, just the screen, full size */}
+        <div className="rounded-[46px] bg-[#0E0E14] p-2.5 shadow-[0_40px_80px_-30px_rgba(14,14,20,.65)] ring-1 ring-white/10 max-sm:size-full max-sm:rounded-none max-sm:p-0 max-sm:shadow-none max-sm:ring-0">
+          {/* sized by .demo-screen in globals.css: the whole screen on a phone,
+              a 9 : 19.5 handset from sm up */}
+          <div className="demo-screen relative flex flex-col overflow-hidden bg-page">
+            {/* status bar, with the notch between the two halves — the mockup's
+                own; a real phone already has one */}
+            <div className="relative flex shrink-0 items-center justify-between bg-white px-6 pt-3 pb-1.5 text-[13px] font-semibold text-ink max-sm:hidden">
               <span>9:41</span>
               <span
                 aria-hidden="true"
@@ -116,7 +149,7 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
             </div>
 
             {/* who you are talking to */}
-            <div className="flex shrink-0 items-center gap-3 border-b border-line bg-white px-4 pt-1 pb-3">
+            <div className="flex shrink-0 items-center gap-3 border-b border-line bg-white px-4 pt-1 pb-3 max-sm:pt-4 max-sm:pr-16">
               <span className="relative size-10 shrink-0">
                 <Avatar src={data.avatar?.src} alt={data.avatar?.alt || data.agentName} big={false} />
                 <span className="absolute right-0 bottom-0 size-3 rounded-full border-2 border-white bg-[#22c55e]" />
@@ -135,17 +168,21 @@ export function DemoModal({ data }: { data: HomeContent["demo"] }) {
             </div>
 
             {/* the thread: one line of context, then the live widget */}
-            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
-              <Opening data={data} />
+            <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto px-4 py-4">
+              {/* mounted per open, so the typing plays each time */}
+              {open ? <Opening data={data} /> : null}
 
               {/* the widget mounts here, where the next reply would be */}
               <div
                 ref={embed}
-                className="mt-auto w-full [&>div]:!w-full [&_iframe]:!w-full"
+                // LeadConnector lays the widget out 380px wide with the call
+                // pill centred in it, wider than this screen; centring that box
+                // here keeps the pill in the middle of the phone, not off its edge
+                className="mt-auto w-full [&>chat-widget]:mx-[calc((100%-380px)/2)] [&>chat-widget]:block [&>chat-widget]:w-[380px] [&>div]:!w-full [&_iframe]:!w-full"
               />
             </div>
 
-            <span aria-hidden="true" className="mx-auto mb-2 h-1.5 w-28 shrink-0 rounded-full bg-ink/70" />
+            <span aria-hidden="true" className="mx-auto mb-2 h-1.5 w-28 shrink-0 rounded-full bg-ink/70 max-sm:hidden" />
           </div>
         </div>
       </div>
