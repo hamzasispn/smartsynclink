@@ -7,7 +7,7 @@ import type { BuilderPage } from "@/lib/builder/pages";
 import { SECTIONS } from "@/lib/builder/sections";
 import type { Device } from "@/lib/builder/types";
 import type { CustomProps } from "@/lib/builder/widgets";
-import { ContentEditor } from "../admin/content-editor";
+import { ContentEditor, FieldGroups } from "../admin/content-editor";
 import { CustomEditor } from "./custom-editor";
 import type { BuilderDoc } from "./use-builder";
 
@@ -16,8 +16,9 @@ import type { BuilderDoc } from "./use-builder";
  *
  * Content reuses the dashboard's document walker, so every text, image, video,
  * list and button a section has is already editable here — the builder adds
- * placement, not a second form system. Each selection is wrapped under one
- * named key so the walker shows it as a single open panel.
+ * placement, not a second form system. A section's fields come as accordion
+ * groups (FieldGroups): its text, its buttons, its images, then one panel per
+ * list or nested block, so nothing is buried in a single long column.
  */
 
 type Edit = (mutate: (draft: BuilderDoc) => void, coalesce?: boolean) => void;
@@ -170,14 +171,14 @@ export function Inspector({
       <div className="flex h-full flex-col">
         <Heading title="Footer" sub="Columns, newsletter, contact details — on every page." onClose={onClose} />
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
-          <ContentEditor
+          <FieldGroups
             key="footer"
-            value={{ footer: doc.global.footer } as never}
-            shape={{ footer: defaultGlobal.footer }}
+            value={doc.global.footer as never}
+            shape={defaultGlobal.footer}
             assist={assist}
             onChange={(next) =>
               edit((d) => {
-                d.global.footer = next.footer as never;
+                d.global.footer = next as never;
               }, true)
             }
           />
@@ -292,16 +293,16 @@ export function Inspector({
             }
           />
         ) : tab === "content" ? (
-          <ContentEditor
+          <FieldGroups
             key={`${section.id}-${section.linked}`}
-            value={{ [section.type]: content } as never}
-            shape={{ [section.type]: meta.defaults }}
+            value={(content ?? {}) as never}
+            shape={meta.defaults}
             assist={assist}
             onChange={(next) =>
               edit((d) => {
                 const target = d.layout.sections.find((s) => s.id === selected);
                 if (!target) return;
-                const value = next[target.type] as Record<string, unknown>;
+                const value = next as Record<string, unknown>;
                 if (target.linked) d.blocks[target.type] = value;
                 else target.props = value;
               }, true)

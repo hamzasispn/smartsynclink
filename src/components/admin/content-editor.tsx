@@ -13,10 +13,15 @@ import { Btn, inputClass } from "./ui";
  * Walking the value means every string, number, boolean, list and nested
  * object is editable — nav links, button labels, footer columns, all of it.
  *
- * Three shapes get special treatment rather than raw inputs:
- *   { src, alt }  -> upload / library picker, no URL typing
- *   arrays        -> drag to reorder, collapse rows, add from the shape
- *   text fields   -> optional "rewrite with AI"
+ * Some shapes get special treatment rather than raw inputs:
+ *   { src, alt }    -> upload / library picker, no URL typing
+ *   { label, href } -> one compact button row, not a box of two fields
+ *   arrays          -> drag to reorder, collapse rows, add from the shape
+ *   text fields     -> optional "rewrite with AI"
+ *
+ * And a block is never one long column: its fields are sorted into accordion
+ * groups (see FieldGroups) — the text, the buttons, the images, then a panel
+ * per list or nested block — with one open at a time.
  */
 
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
@@ -30,11 +35,12 @@ export type AssistFn = (input: {
 
 const ACRONYMS: Record<string, string> = {
   faq: "FAQ",
-  cta: "CTA",
+  cta: "Button",
   ai: "AI",
   seo: "SEO",
   url: "URL",
   id: "ID",
+  href: "Link",
 };
 
 const titleCase = (key: string) =>
@@ -110,6 +116,15 @@ function isImage(value: Json): value is { src: string; alt: string } {
     typeof (value as Record<string, Json>).src === "string"
   );
 }
+
+/** A button: a label and where it goes. More keys (a nav item, the call button) and it stays a block. */
+function isLink(value: Json): value is { label: string; href: string } {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const keys = Object.keys(value);
+  return keys.includes("href") && keys.every((k) => k === "label" || k === "href");
+}
+
+const isScalar = (value: Json) => value === null || typeof value !== "object";
 
 /**
  * Paths, links and slugs are addresses, not copy — offering to "rewrite" them
@@ -255,6 +270,7 @@ function ListEditor({
   shape,
   depth,
   assist,
+  bare = false,
   onChange,
 }: {
   label: string;
@@ -262,6 +278,8 @@ function ListEditor({
   shape?: unknown;
   depth: number;
   assist?: AssistFn;
+  /** Inside an accordion panel, which already names the list and frames it. */
+  bare?: boolean;
   onChange: (next: Json[]) => void;
 }) {
   const [dragging, setDragging] = useState<number | null>(null);
@@ -285,11 +303,14 @@ function ListEditor({
     onChange(copy);
   }
 
+  const Frame = bare ? "div" : "fieldset";
   return (
-    <fieldset className="rounded-xl border border-line p-4">
-      <legend className="px-1.5 text-[13px] font-medium text-[#1e1e1e]">
-        {label} <span className="font-normal text-muted">({value.length})</span>
-      </legend>
+    <Frame className={bare ? "" : "rounded-xl border border-line p-4"}>
+      {bare ? null : (
+        <legend className="px-1.5 text-[13px] font-medium text-[#1e1e1e]">
+          {label} <span className="font-normal text-muted">({value.length})</span>
+        </legend>
+      )}
 
       <ul className="space-y-2">
         {value.map((item, i) => {
@@ -402,7 +423,7 @@ function ListEditor({
       >
         + Add {singular(label)}
       </Btn>
-    </fieldset>
+    </Frame>
   );
 }
 
@@ -415,6 +436,7 @@ function Node({
   depth,
   shape,
   assist,
+  bare = false,
 }: {
   path: string[];
   value: Json;
@@ -422,9 +444,15 @@ function Node({
   depth: number;
   shape?: unknown;
   assist?: AssistFn;
+  /** Already framed by an accordion panel: no box and legend of its own. */
+  bare?: boolean;
 }) {
   const key = path[path.length - 1] ?? "";
   const label = titleCase(key);
+
+  if (isLink(value)) {
+    return <LinkField label={label} value={value} onChange={onChange} />;
+  }
 
   if (isImage(value)) {
     return (
@@ -515,6 +543,7 @@ function Node({
         shape={shape}
         depth={depth}
         assist={assist}
+        bare={bare}
         onChange={onChange}
       />
     );
@@ -536,7 +565,7 @@ function Node({
     </div>
   );
 
-  if (depth === 0) return inner;
+  if (depth === 0 || bare) return inner;
 
   return (
     <fieldset className="rounded-xl border border-line p-4">
@@ -545,6 +574,171 @@ function Node({
       </legend>
       {inner}
     </fieldset>
+  );
+}
+
+/* ---------------------------------------------------------- buttons -- */
+
+function LinkField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: { label: string; href: string };
+  onChange: (next: Json) => void;
+}) {
+  return (
+    <div>
+      <span className="mb-1.5 block text-[13px] font-medium text-[#1e1e1e]">{label}</span>
+      <div className="grid gap-1.5">
+        <input
+          type="text"
+          value={value.label ?? ""}
+          placeholder="Button text"
+          onChange={(e) => onChange({ ...value, label: e.target.value })}
+          className={inputClass}
+        />
+        <input
+          type="text"
+          value={value.href ?? ""}
+          placeholder="Link — /page, #call, https://…"
+          onChange={(e) => onChange({ ...value, href: e.target.value })}
+          className={`${inputClass} text-[13.5px] text-muted`}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------------------------------------- accordions -- */
+
+function Panel({
+  title,
+  meta,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  meta?: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`rounded-xl border bg-white transition-colors ${open ? "border-brand/40" : "border-line"}`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left"
+      >
+        <span className="shrink-0 text-[14px] font-medium text-[#1e1e1e]">{title}</span>
+        <span className="min-w-0 flex-1 truncate text-right text-[12px] text-muted">{meta}</span>
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className={`size-4 shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+      {open ? <div className="space-y-4 border-t border-line px-4 py-4">{children}</div> : null}
+    </div>
+  );
+}
+
+/**
+ * One block of content as accordion groups instead of a single column: the
+ * plain text first, then every button together, every image together, then a
+ * panel per list or nested block. One panel open at a time, the first to begin.
+ */
+export function FieldGroups({
+  path = [],
+  value,
+  shape,
+  assist,
+  onChange,
+}: {
+  path?: string[];
+  value: Record<string, Json>;
+  shape?: unknown;
+  assist?: AssistFn;
+  onChange: (next: Record<string, Json>) => void;
+}) {
+  const entries = orderedEntries(value, shape);
+  const field = (k: string, v: Json) => (
+    <Node
+      key={k}
+      path={[...path, k]}
+      value={v}
+      depth={1}
+      shape={at(shape, k)}
+      assist={assist}
+      bare
+      onChange={(next) => onChange({ ...value, [k]: next })}
+    />
+  );
+
+  const text = entries.filter(([, v]) => isScalar(v));
+  const links = entries.filter(([, v]) => isLink(v));
+  const images = entries.filter(([, v]) => isImage(v));
+  const blocks = entries.filter(([, v]) => !isScalar(v) && !isLink(v) && !isImage(v));
+
+  const name = (group: [string, Json][], many: string) => (group.length > 1 ? many : titleCase(group[0][0]));
+  const panels: { id: string; title: string; meta?: string; body: React.ReactNode }[] = [];
+  if (text.length) {
+    const first = text.find(([, v]) => typeof v === "string" && v.trim())?.[1];
+    panels.push({ id: "text", title: "Text", meta: typeof first === "string" ? first : undefined, body: text.map(([k, v]) => field(k, v)) });
+  }
+  if (links.length) {
+    panels.push({
+      id: "buttons",
+      title: name(links, "Buttons"),
+      meta: links.map(([, v]) => (v as { label: string }).label).filter(Boolean).join(" · "),
+      body: links.map(([k, v]) => field(k, v)),
+    });
+  }
+  if (images.length) {
+    const filled = images.filter(([, v]) => (v as { src: string }).src).length;
+    panels.push({
+      id: "images",
+      title: name(images, "Images"),
+      meta: images.length > 1 ? `${filled} of ${images.length} set` : filled ? "Set" : "Empty",
+      body: images.map(([k, v]) => field(k, v)),
+    });
+  }
+  for (const [k, v] of blocks) {
+    panels.push({
+      id: k,
+      title: titleCase(k),
+      meta: Array.isArray(v) ? `${v.length} ${v.length === 1 ? "item" : "items"}` : undefined,
+      body: field(k, v),
+    });
+  }
+
+  const [open, setOpen] = useState<string | null>(panels[0]?.id ?? null);
+
+  return (
+    <div className="space-y-2">
+      {panels.map((panel) => (
+        <Panel
+          key={panel.id}
+          title={panel.title}
+          meta={panel.meta}
+          open={open === panel.id}
+          onToggle={() => setOpen(open === panel.id ? null : panel.id)}
+        >
+          {panel.body}
+        </Panel>
+      ))}
+    </div>
   );
 }
 
@@ -583,14 +777,24 @@ export function ContentEditor({
 
           {open === section ? (
             <div className="border-t border-line px-6 py-5">
-              <Node
-                path={[section]}
-                value={data}
-                depth={0}
-                shape={at(shape, section)}
-                assist={assist}
-                onChange={(next) => onChange({ ...value, [section]: next })}
-              />
+              {data && typeof data === "object" && !Array.isArray(data) ? (
+                <FieldGroups
+                  path={[section]}
+                  value={data}
+                  shape={at(shape, section)}
+                  assist={assist}
+                  onChange={(next) => onChange({ ...value, [section]: next })}
+                />
+              ) : (
+                <Node
+                  path={[section]}
+                  value={data}
+                  depth={0}
+                  shape={at(shape, section)}
+                  assist={assist}
+                  onChange={(next) => onChange({ ...value, [section]: next })}
+                />
+              )}
             </div>
           ) : null}
         </div>
