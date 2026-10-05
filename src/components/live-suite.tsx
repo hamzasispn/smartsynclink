@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
+import type { Story } from "@/lib/stage-intro";
 import {
   LIVE_COUNT,
   REPLIES,
@@ -170,15 +171,15 @@ function TypedText() {
   return <>{useSyncExternalStore(store.subscribe, store.get, () => "")}</>;
 }
 
-export function LiveDashboard() {
-  return <SuiteDashboard chat={useContext(ChatContext)} typedSlot={<TypedText />} />;
+export function LiveDashboard({ story }: { story?: Story }) {
+  return <SuiteDashboard chat={useContext(ChatContext)} typedSlot={<TypedText />} story={story} />;
 }
 
-export function LivePhone({ idPrefix, overlay }: { idPrefix: string; overlay?: ReactNode }) {
-  return <SuitePhone idPrefix={idPrefix} chat={useContext(ChatContext)} overlay={overlay} />;
+export function LivePhone({ idPrefix, overlay, story }: { idPrefix: string; overlay?: ReactNode; story?: Story }) {
+  return <SuitePhone idPrefix={idPrefix} chat={useContext(ChatContext)} overlay={overlay} story={story} />;
 }
 
 /** The phone with the conversation open, its reply typing into the message box. */
-export function LivePhoneChat() {
-  return <SuitePhoneChat chat={useContext(ChatContext)} typedSlot={<TypedText />} />;
+export function LivePhoneChat({ story }: { story?: Story }) {
+  return <SuitePhoneChat chat={useContext(ChatContext)} typedSlot={<TypedText />} story={story} />;
 }

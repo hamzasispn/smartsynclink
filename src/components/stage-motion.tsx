@@ -9,10 +9,11 @@ import {
   INTRO_MS,
   PRESS_DOWN,
   PRESS_UP,
-  PRESSED,
+  pressedAt,
   REACH_FOR,
+  type Story,
   typingTime,
-  VALUES,
+  valuesOf,
 } from "@/lib/stage-intro";
 import { useGsap } from "@/lib/use-gsap";
 import { CLICKS, TAPS } from "./site-mockup";
@@ -31,7 +32,8 @@ const LANDING: [number, number] = [448 - 1290, 257 - 621];
  * Everything animates *in* with from(), so with reduced motion (where useGsap
  * does nothing) the stage simply sits there complete.
  *
- * With `intro` both screens open on a med spa's website instead: the page on
+ * With `intro` both screens open on a website instead — the med spa's, or the
+ * plumber's for the contractor `story`: the page on
  * the desktop and the same site on the phone, with the booking form filled in
  * on both at once — a cursor on one, a thumb on the other — and sent. The phone
  * pings with the lead, the desk catches a chip of it, and only then do the two
@@ -48,12 +50,15 @@ export function StageMotion({
   style,
   label,
   intro = false,
+  story = "medspa",
 }: {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
   label: string;
   intro?: boolean;
+  /** Whose form is filled in: the values typed, and so the clock. */
+  story?: Story;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { chat, typed } = useChatCycle(ref, intro ? INTRO_MS : 0);
@@ -109,7 +114,9 @@ export function StageMotion({
     const fields = (i: number) =>
       [q('[data-a="site"] [data-a="value"]')[i], q('[data-a="mobile-site"] [data-a="value"]')[i]].filter(Boolean);
     const buttons = q('[data-a="send"]');
-    const { cues, end } = fieldCues(VALUES);
+    const values = valuesOf(story);
+    const { cues, end } = fieldCues(values);
+    const PRESSED = pressedAt(values);
 
     // both screens, showing the same website
     tl.set(q('[data-a="value"]'), { text: "" })
@@ -120,7 +127,7 @@ export function StageMotion({
       .from(phone, { y: 160, rotate: 5, autoAlpha: 0, duration: 1, ease: "back.out(1.2)" }, 0);
 
     // cursor and thumb together: to each field, a press, then the typing
-    VALUES.forEach((text, i) => {
+    values.forEach((text, i) => {
       const cue = cues[i];
       const typing = typingTime(text);
       const landed = cue + REACH_FOR;

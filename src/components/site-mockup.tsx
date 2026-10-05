@@ -1,4 +1,4 @@
-import { VISITOR } from "@/lib/stage-intro";
+import { VISITOR, type Visitor } from "@/lib/stage-intro";
 import { BOARD, Box, Ico, INK, LINE, MUTED, T } from "./suite-mockup";
 
 /**
@@ -57,23 +57,29 @@ function Portrait({ x, y, w, h, r = 18 }: { x: number; y: number; w: number; h: 
 }
 
 /**
- * One form row, on either site. The ring is what StageMotion brightens as the
- * cursor and the thumb arrive; the value is what it types into.
+ * One form row, on any of the sites. The ring is what StageMotion brightens as
+ * the cursor and the thumb arrive; the value is what it types into. With a
+ * `placeholder` instead, the form is shown empty and nothing types into it.
  */
-function Field({
+export function Field({
   x,
   y,
   w,
   h,
   s,
-  value,
+  value = "",
+  placeholder,
+  accent = WINE,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
   s: number;
-  value: string;
+  value?: string;
+  placeholder?: string;
+  /** The site's own colour for the focus ring. */
+  accent?: string;
 }) {
   return (
     <Box
@@ -89,10 +95,10 @@ function Field({
         y={-1}
         w={w + 2}
         h={h + 2}
-        style={{ border: `2px solid ${WINE}`, borderRadius: 10, opacity: 0 }}
+        style={{ border: `2px solid ${accent}`, borderRadius: 10, opacity: 0 }}
       />
-      <T x={16} y={h > 56 ? 24 : h / 2} s={s} c={INK}>
-        <span data-a="value">{value}</span>
+      <T x={16} y={h > 56 ? 24 : h / 2} s={s} c={placeholder ? "#9CA3AF" : INK}>
+        {placeholder ?? <span data-a="value">{value}</span>}
       </T>
     </Box>
   );
@@ -101,7 +107,7 @@ function Field({
 /* --------------------------------------------------------------- desktop -- */
 
 /** The booking card on the desktop page, and where the cursor has to be for it. */
-const CARD = { x: 1000, y: 330, w: 580, h: 340 };
+export const CARD = { x: 1000, y: 330, w: 580, h: 340 };
 export const CLICKS: [number, number][] = [
   [1152, 423],
   [1152, 481],
@@ -238,33 +244,39 @@ export function VisitorSite() {
         />
       </svg>
 
-      {/* browser chrome, painted over the page it frames */}
-      <Box x={0} y={0} w={BOARD.w} h={46} style={{ background: "#F1F2F4", zIndex: 1 }}>
-        {["#FF5F57", "#FEBC2E", "#28C840"].map((colour, i) => (
-          <Box
-            key={colour}
-            x={22 + i * 20}
-            y={19}
-            w={10}
-            h={10}
-            style={{ background: colour, borderRadius: "50%" }}
-          />
-        ))}
-        <Box
-          x={120}
-          y={11}
-          w={420}
-          h={24}
-          style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 12 }}
-        >
-          <Ico n="link" x={18} y={12} s={11} c={MUTED} sw={2} />
-          <T x={32} y={12} s={12.5} c={MUTED}>
-            www.lunamedspa.com
-          </T>
-        </Box>
-        <Box x={0} y={45} w={BOARD.w} h={1} style={{ background: LINE }} />
-      </Box>
+      <BrowserChrome url="www.lunamedspa.com" />
     </div>
+  );
+}
+
+/** Browser chrome, painted over the page it frames. Last in the page, so it sits on top. */
+export function BrowserChrome({ url }: { url: string }) {
+  return (
+    <Box x={0} y={0} w={BOARD.w} h={46} style={{ background: "#F1F2F4", zIndex: 1 }}>
+      {["#FF5F57", "#FEBC2E", "#28C840"].map((colour, i) => (
+        <Box
+          key={colour}
+          x={22 + i * 20}
+          y={19}
+          w={10}
+          h={10}
+          style={{ background: colour, borderRadius: "50%" }}
+        />
+      ))}
+      <Box
+        x={120}
+        y={11}
+        w={420}
+        h={24}
+        style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 12 }}
+      >
+        <Ico n="link" x={18} y={12} s={11} c={MUTED} sw={2} />
+        <T x={32} y={12} s={12.5} c={MUTED}>
+          {url}
+        </T>
+      </Box>
+      <Box x={0} y={45} w={BOARD.w} h={1} style={{ background: LINE }} />
+    </Box>
   );
 }
 
@@ -376,7 +388,7 @@ export function VisitorSiteMobile() {
 }
 
 /** The ping on the phone the moment the form is sent. */
-export function LeadAlert() {
+export function LeadAlert({ visitor = VISITOR }: { visitor?: Visitor }) {
   return (
     <Box
       a="alert"
@@ -401,10 +413,10 @@ export function LeadAlert() {
         SMARTSYNC · NOW
       </T>
       <T x={50} y={42} s={13.5} w={600}>
-        New lead · {VISITOR.name}
+        New lead · {visitor.name}
       </T>
       <T x={50} y={58} s={12} c={MUTED} style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}>
-        {VISITOR.message}
+        {visitor.message}
       </T>
     </Box>
   );

@@ -91,7 +91,56 @@ export function FunnelMark({
   );
 }
 
-/** Mark + wordmark ("SmartSync Suite" or "SmartSync funnel"), spaced the way the logo sheet spaces them. */
+/**
+ * The SmartSync Site mark, on the same 148 grid: a browser window on the
+ * tile — the chrome rule with its two dots, a headline and a button.
+ */
+export function SiteMark({
+  id,
+  size = 40,
+  inverse = false,
+  className = "",
+}: {
+  id: string;
+  size?: number;
+  inverse?: boolean;
+  className?: string;
+}) {
+  const grad = `url(#${id})`;
+  const ink = inverse ? grad : "#fff";
+  const tile = inverse ? "#fff" : grad;
+  return (
+    <svg
+      viewBox="0 0 148 148"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      className={`shrink-0 ${className}`}
+    >
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="148" y2="0" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#052EFF" />
+          <stop offset="1" stopColor="#3300EA" />
+        </linearGradient>
+      </defs>
+      <rect width="148" height="148" rx="30" fill={tile} />
+      <rect x="25" y="33" width="98" height="82" rx="12" fill={ink} />
+      <path d="M25 56H123" stroke={tile} strokeWidth="6" />
+      <circle cx="38" cy="44.5" r="4.5" fill={tile} />
+      <circle cx="52" cy="44.5" r="4.5" fill={tile} />
+      <rect x="38" y="70" width="50" height="9" rx="4.5" fill={tile} />
+      <rect x="38" y="88" width="32" height="14" rx="7" fill={tile} />
+    </svg>
+  );
+}
+
+const PRODUCTS = {
+  suite: { name: "SmartSync Suite", Mark: SuiteMark },
+  funnel: { name: "SmartSync funnel", Mark: FunnelMark },
+  site: { name: "SmartSync Site", Mark: SiteMark },
+};
+
+/** Mark + wordmark ("SmartSync Suite", "SmartSync funnel" or "SmartSync Site"), spaced the way the logo sheet spaces them. */
 export function SuiteLockup({
   id,
   size = 40,
@@ -100,24 +149,21 @@ export function SuiteLockup({
   className = "",
 }: {
   id: string;
-  /** Which product the lockup names. Both share the wordmark treatment. */
-  product?: "suite" | "funnel";
+  /** Which product the lockup names. All share the wordmark treatment. */
+  product?: keyof typeof PRODUCTS;
   size?: number;
   inverse?: boolean;
   className?: string;
 }) {
+  const { name, Mark } = PRODUCTS[product];
   return (
     <span
       className={`inline-flex items-center ${className}`}
       style={{ gap: size * 0.25 }}
-      aria-label={product === "funnel" ? "SmartSync funnel" : "SmartSync Suite"}
+      aria-label={name}
       role="img"
     >
-      {product === "funnel" ? (
-        <FunnelMark id={id} size={size} inverse={inverse} />
-      ) : (
-        <SuiteMark id={id} size={size} inverse={inverse} />
-      )}
+      <Mark id={id} size={size} inverse={inverse} />
       <span
         className={poppins.className}
         style={{
@@ -129,7 +175,7 @@ export function SuiteLockup({
           fontWeight: 500,
         }}
       >
-        {product === "funnel" ? "SmartSync funnel" : "SmartSync Suite"}
+        {name}
       </span>
     </span>
   );

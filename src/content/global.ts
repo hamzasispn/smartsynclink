@@ -126,7 +126,7 @@ export const defaultGlobal = {
           },
         ],
       },
-      { label: "Contractors", href: "#industries", mega: false, children: [] },
+      { label: "Contractors", href: "/industries/contractors", mega: false, children: [] },
       { label: "Aesthetics", href: "#industries", mega: false, children: [] },
       { label: "Realtors", href: "#industries", mega: false, children: [] },
       { label: "Portfolio", href: "/portfolio", mega: false, children: [] },

@@ -48,6 +48,7 @@ export const SECTIONS: Record<string, SectionMeta> = {
   testimonials: meta({ label: "Testimonials", group: "Home", description: "Customer quotes.", defaults: home.testimonials }),
   faq: meta({ label: "FAQ", group: "Home", description: "Questions and answers.", defaults: home.faq }),
 
+  site: meta({ label: "SmartSync Site", group: "Shared", description: "A live client website, scrolling in a browser and on a phone.", defaults: home.site, linked: true }),
   suite: meta({ label: "SmartSync Suite", group: "Shared", description: "Live inbox dashboard and phone.", defaults: home.suite, linked: true }),
   funnel: meta({ label: "SmartSync funnel", group: "Shared", description: "Funnel screens slider with metrics.", defaults: home.funnel, linked: true }),
   steps: meta({ label: "Steps", group: "Shared", description: "How it works, step by step.", defaults: home.steps, linked: true }),

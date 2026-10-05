@@ -1,4 +1,6 @@
 import type { HomeContent } from "@/content/home";
+import { STORIES, type Story } from "@/lib/stage-intro";
+import { ContractorSite, ContractorSiteMobile } from "../contractor-site";
 import { Reveal } from "../reveal";
 import { CLICKS, LeadAlert, VisitorSite, VisitorSiteMobile } from "../site-mockup";
 import { StageMotion } from "../stage-motion";
@@ -35,6 +37,12 @@ const LAYOUTS = {
 /** The desktop booking button on the artboard: the chip leaves from there. */
 const BOOKED = { x: CLICKS[3][0], y: CLICKS[3][1] };
 
+/** The website each story opens on. Both put their form on the same grid, so the timeline fits either. */
+const SITES = {
+  medspa: { Desktop: VisitorSite, Mobile: VisitorSiteMobile },
+  contractor: { Desktop: ContractorSite, Mobile: ContractorSiteMobile },
+} satisfies Record<Story, unknown>;
+
 export function SuiteStage({
   idPrefix,
   layout = "section",
@@ -42,17 +50,22 @@ export function SuiteStage({
   className = "w-full",
   /** Open on the website whose form feeds this inbox. See StageMotion. */
   intro = false,
+  /** Whose website, lead and inbox: the med spa's, or the plumber's on the contractors page. */
+  story = "medspa",
 }: {
   idPrefix: string;
   layout?: keyof typeof LAYOUTS;
   className?: string;
   intro?: boolean;
+  story?: Story;
 }) {
   const STAGE = LAYOUTS[layout];
   const board = STAGE.board;
+  const { Desktop, Mobile } = SITES[story];
   return (
     <StageMotion
       intro={intro}
+      story={story}
       label={
         intro
           ? "A visitor sends a message from a website, and it arrives in the SmartSync Suite inbox on the desktop dashboard and in the mobile app"
@@ -71,7 +84,7 @@ export function SuiteStage({
             className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
             style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
           >
-            <LiveDashboard />
+            <LiveDashboard story={story} />
           </div>
         ) : null}
 
@@ -85,7 +98,7 @@ export function SuiteStage({
             className="stage-cue absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
             style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
           >
-            <VisitorSite />
+            <Desktop />
           </div>
         ) : null}
 
@@ -96,11 +109,12 @@ export function SuiteStage({
                 The frame, the status bar and the home bar never move. */}
             <LivePhone
               idPrefix={idPrefix}
+              story={story}
               overlay={
                 intro ? (
                   <>
-                    <VisitorSiteMobile />
-                    <LeadAlert />
+                    <Mobile />
+                    <LeadAlert visitor={STORIES[story].visitor} />
                   </>
                 ) : undefined
               }
@@ -144,7 +158,7 @@ export function SuiteStage({
  * the phone plays the whole story on its own — the website, the form sent,
  * the lead, the inbox — the same one the desktop stage plays.
  */
-export function Suite({ data }: { data: HomeContent["suite"] }) {
+export function Suite({ data, story }: { data: HomeContent["suite"]; story?: Story }) {
   return (
     <section id="suite" className="relative overflow-hidden bg-page py-14 md:py-24 lg:py-28">
       <Container>
@@ -173,8 +187,8 @@ export function Suite({ data }: { data: HomeContent["suite"] }) {
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-[10%] top-[10%] bottom-0 rounded-full bg-[radial-gradient(closest-side,rgba(5,46,255,0.16),transparent)] blur-2xl"
           />
-          <SuiteStage idPrefix="suite-stage" className="hidden w-full md:block" intro />
-          <SuiteStage idPrefix="suite-solo" layout="phone" className="mx-auto w-full max-w-75 md:hidden" intro />
+          <SuiteStage idPrefix="suite-stage" className="hidden w-full md:block" intro story={story} />
+          <SuiteStage idPrefix="suite-solo" layout="phone" className="mx-auto w-full max-w-75 md:hidden" intro story={story} />
         </div>
       </Container>
     </section>

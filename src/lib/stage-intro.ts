@@ -11,15 +11,39 @@
  * Here it can be asserted: `node scripts/check-stage-intro.ts`.
  */
 
+export type Visitor = { name: string; phone: string; message: string };
+
 /** Who fills the form in. She is also the top thread in the inbox it lands in. */
-export const VISITOR = {
+export const VISITOR: Visitor = {
   name: "Ava Bennett",
   phone: "(512) 555-0142",
   message: "Hi! I'd like to book a Hydrafacial.",
 };
 
+/**
+ * The same story told for a trade. The med spa is the default everywhere; the
+ * contractors page gets a plumber's website, a homeowner's quote request and a
+ * plumber's inbox, so nothing on it reads med spa. The message is kept to the
+ * med spa's length — it has to fit the phone's field and the clock below.
+ */
+export type Story = "medspa" | "contractor";
+export const STORIES: Record<Story, { visitor: Visitor; account: { name: string; place: string; initials: string } }> = {
+  medspa: { visitor: VISITOR, account: { name: "Radiance Med Spa - Oak ...", place: "Austin, TX", initials: "RM" } },
+  contractor: {
+    visitor: { name: "Jake Morris", phone: "(830) 555-0198", message: "Can I get a quote on a water heater?" },
+    account: { name: "McNeel Plumbing - Spri...", place: "Spring Branch, TX", initials: "MP" },
+  },
+};
+
+/** Which story a page tells, by its builder page key. */
+export const storyFor = (pageKey: string): Story => (pageKey === "industry:contractors" ? "contractor" : "medspa");
+
 /** In the order the thumb taps them. */
-export const VALUES = [VISITOR.name, VISITOR.phone, VISITOR.message];
+export const valuesOf = (story: Story) => {
+  const { name, phone, message } = STORIES[story].visitor;
+  return [name, phone, message];
+};
+export const VALUES = valuesOf("medspa");
 
 /** Seconds: before the first field, moving to it, and per typed character. */
 const OPENS_AT = 0.9;
@@ -44,9 +68,12 @@ export function fieldCues(values: string[]) {
   return { cues, end: at };
 }
 
+/** When the press on the send button has finished, for a given set of field values. */
+export const pressedAt = (values: string[]) => fieldCues(values).end + REACH + PRESS_DOWN + PRESS_UP;
+
 /** When the thumb reaches the button, and when the press has finished. */
 export const REACHES_SEND = fieldCues(VALUES).end;
-export const PRESSED = REACHES_SEND + REACH + PRESS_DOWN + PRESS_UP;
+export const PRESSED = pressedAt(VALUES);
 
 /** When the inbox takes both frames. Never before the press. */
 export const HANDOVER = 5.6;

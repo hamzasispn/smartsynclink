@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { VISITOR } from "@/lib/stage-intro";
+import { STORIES, type Story, type Visitor } from "@/lib/stage-intro";
 import { SuiteMark } from "./suite-logo";
 
 /**
@@ -125,6 +125,8 @@ const ICONS = {
       <path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />
     </>
   ),
+  drop: <path d="M12 2.7s6.5 6.6 6.5 11.3a6.5 6.5 0 0 1-13 0c0-4.7 6.5-11.3 6.5-11.3z" />,
+  shield: <path d="M12 3 4.5 6v5.6c0 4.7 3.2 8.2 7.5 9.4 4.3-1.2 7.5-4.7 7.5-9.4V6z" />,
   wrench: (
     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z" />
   ),
@@ -375,19 +377,23 @@ const PEACH: Face = { bg: "#FBE3C2", fg: "#7C5A2E" };
 const LILAC: Face = { bg: "#F6E3F7", fg: "#6B3F75" };
 const SKY: Face = { bg: "#DDEBFD", fg: "#2B4C80" };
 
-const THREADS: Thread[] = [
-  {
-    // The visitor from the website shot that opens the Suite section, because
-    // that is the whole point of it: the message she typed into a form on a
-    // website is the one at the top of the inbox, on desktop and on the phone.
-    name: VISITOR.name,
-    time: "Just now",
-    preview: VISITOR.message,
-    count: 1,
-    // the website's own chat — where a form on a site lands
-    channel: "chat",
-    face: { ...SKY, initials: "AB" },
-  },
+/**
+ * The visitor from the website shot that opens the Suite section, because
+ * that is the whole point of it: the message typed into a form on a website is
+ * the one at the top of the inbox, on desktop and on the phone. Per story, so
+ * the contractors page shows the homeowner's quote request, not the med spa's.
+ */
+const visitorThread = (v: Visitor): Thread => ({
+  name: v.name,
+  time: "Just now",
+  preview: v.message,
+  count: 1,
+  // the website's own chat — where a form on a site lands
+  channel: "chat",
+  face: { ...SKY, initials: v.name.split(" ").map((part) => part[0]).join("") },
+});
+
+const OTHER_THREADS: Thread[] = [
   { name: "Emma Brooks", time: "3:37 PM", preview: "no", count: 1, channel: "fb", face: { ...PEACH, initials: "EB" } },
   { name: "Sophia Esposito Ma...", time: "1:41 PM", preview: "Call", count: 1, channel: "phone", face: { ...LILAC, initials: "SE" } },
   { name: "Tessa Evans", time: "10:17 AM", preview: "Stop", count: 1, channel: "chat", face: { ...LILAC, initials: "TE" } },
@@ -396,6 +402,11 @@ const THREADS: Thread[] = [
   { name: "nadia2209", time: "Sep 3", preview: "Yes", count: 1, channel: "ig", face: {} },
   { name: "Clara Hoffmann", time: "Jan 24", preview: "✅ Your account and Page are now ...", count: 2, channel: "ig", face: {} },
 ];
+
+const THREADS_BY = {
+  medspa: [visitorThread(STORIES.medspa.visitor), ...OTHER_THREADS],
+  contractor: [visitorThread(STORIES.contractor.visitor), ...OTHER_THREADS],
+} satisfies Record<Story, Thread[]>;
 
 /** What the AI sends back in the live demo, in THREADS order. The demo cycles through these threads. */
 export const REPLIES = [
@@ -613,7 +624,17 @@ const FIELDS: [string, string, boolean][] = [
 /** Row pitch of the thread list: 105.17px in the 2x screenshot. */
 const PITCH = 89.87;
 
-export function SuiteDashboard({ chat = STATIC_CHAT, typedSlot }: { chat?: ChatState; typedSlot?: ReactNode }) {
+export function SuiteDashboard({
+  chat = STATIC_CHAT,
+  typedSlot,
+  story = "medspa",
+}: {
+  chat?: ChatState;
+  typedSlot?: ReactNode;
+  story?: Story;
+}) {
+  const THREADS = THREADS_BY[story];
+  const { account } = STORIES[story];
   const top = THREADS[chat.active] ?? THREADS[0];
   // handles like "nadia2209" have no surname to split off
   const [first, ...rest] = top.name.replace(/\.\.\.$/, "").split(" ");
@@ -638,10 +659,10 @@ export function SuiteDashboard({ chat = STATIC_CHAT, typedSlot }: { chat?: ChatS
       <Box x={9} y={34} w={21} h={21} style={{ borderRadius: "50%", border: "1.5px solid #6B7280" }} />
       <Ico n="user" x={19.5} y={44.5} s={12} c={MUTED} sw={2} />
       <T x={38} y={38.5} s={12.5} w={500}>
-        Radiance Med Spa - Oak ...
+        {account.name}
       </T>
       <T x={38} y={54} s={12} c={MUTED}>
-        Austin, TX
+        {account.place}
       </T>
       <Ico n="updown" x={193} y={44.5} s={12} c={MUTED} sw={2} />
 
@@ -1086,7 +1107,7 @@ function StatusIcons({ x, y }: { x: number; y: number }) {
 }
 
 /** The handset: bezel, screen, island, status bar and home indicator. Content draws on the 308 × 658 screen. */
-function PhoneFrame({ children }: { children: ReactNode }) {
+export function PhoneFrame({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -1128,11 +1149,14 @@ export function SuitePhone({
   chat = STATIC_CHAT,
   /** Drawn over the app, inside the frame: the website she books from, and the ping. */
   overlay,
+  story = "medspa",
 }: {
   idPrefix: string;
   chat?: ChatState;
   overlay?: ReactNode;
+  story?: Story;
 }) {
+  const THREADS = THREADS_BY[story];
   const ROW = 74;
   return (
     <PhoneFrame>
@@ -1144,7 +1168,7 @@ export function SuitePhone({
           Inbox
         </T>
         <Ico n="search" x={250} y={70} s={20} c={INK} sw={2} />
-        <Avatar face={{ initials: "RM", bg: "#E0E7FF", fg: "#3730A3" }} x={282} y={70} d={30} />
+        <Avatar face={{ initials: STORIES[story].account.initials, bg: "#E0E7FF", fg: "#3730A3" }} x={282} y={70} d={30} />
 
         {/* search */}
         <Box x={16} y={96} w={276} h={36} style={{ background: "#F3F4F6", borderRadius: 18 }} />
@@ -1253,7 +1277,16 @@ export function SuitePhone({
  * reply typing into the message box, then landing in the thread. It runs on the
  * same script and state as the desktop board, so both tell the same story.
  */
-export function SuitePhoneChat({ chat = STATIC_CHAT, typedSlot }: { chat?: ChatState; typedSlot?: ReactNode }) {
+export function SuitePhoneChat({
+  chat = STATIC_CHAT,
+  typedSlot,
+  story = "medspa",
+}: {
+  chat?: ChatState;
+  typedSlot?: ReactNode;
+  story?: Story;
+}) {
+  const THREADS = THREADS_BY[story];
   const top = THREADS[chat.active] ?? THREADS[0];
   const typing = chat.phase === "typing";
 

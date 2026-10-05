@@ -404,6 +404,35 @@ export const defaultHomeContent = {
     ],
   },
 
+  /** SmartSync Site: the website we build, drawn after a real client's live site. */
+  site: {
+    heading: "Websites That Win The Job, Wired Straight Into Your Suite.",
+    body: "We design, build and host a fast, mobile-first website for your business — quote forms, click-to-call and live chat on every page. Every one of them is connected to your SmartSync Suite, so a visitor becomes a lead the moment they reach out.",
+    cta: { label: "Book A Website Call", href: "#call" } as Cta,
+    /** Numbered on the drawing in this order: the quote form, the call button, the chat. */
+    features: [
+      {
+        title: "Quote Form → Suite Inbox",
+        body: "Every request lands in your inbox with the job details, and AI replies in seconds.",
+      },
+      {
+        title: "Click-To-Call → AI Answers",
+        body: "Calls ring straight through. Missed ones are answered and texted back automatically.",
+      },
+      {
+        title: "Live Chat → One Thread",
+        body: "Chat, texts and calls from the same customer stay in one conversation.",
+      },
+    ] as Bullet[],
+    /** The live site the drawing follows, linked under it. */
+    showcase: {
+      label: "Drawn from a live client site",
+      name: "McNeel Plumbing",
+      place: "Texas Hill Country",
+      url: "https://mcneelplumbing.net/",
+    },
+  },
+
   suite: {
     heading: "One Inbox For Every Conversation, On Desktop And Mobile.",
     body: "Calls, texts, Facebook, Instagram, Google and website chat land in one team inbox. Answer from the dashboard at your desk, or pick up the very same thread in the SmartSync mobile app. Nothing to sync, nothing missed.",

@@ -14,6 +14,7 @@ export { IndustryReels } from "./industry-reels";
 export { Intro } from "./intro";
 export { OneClick } from "./one-click";
 export { Pricing } from "./pricing";
+export { Site } from "./site";
 export { ShowcaseVideo } from "./showcase-video";
 export { Solutions } from "./solutions";
 export { Steps } from "./steps";

@@ -152,7 +152,7 @@ export async function defaultLayout(pageKey: string): Promise<Layout> {
 
 async function defaultBlocks(): Promise<Blocks> {
   const h = await getHomeContent();
-  return { suite: h.suite, funnel: h.funnel, steps: h.steps, pricing: h.pricing, finalCta: h.finalCta };
+  return { site: h.site, suite: h.suite, funnel: h.funnel, steps: h.steps, pricing: h.pricing, finalCta: h.finalCta };
 }
 
 /* ------------------------------------------------------------- reading -- */

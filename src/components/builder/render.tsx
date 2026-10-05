@@ -7,6 +7,7 @@ import type { LegalDoc } from "@/content/legal";
 import type { PricingTableContent, UsagePricingContent } from "@/content/pricing-pages";
 import type { SolutionsContent } from "@/content/solutions";
 import type { CustomProps } from "@/lib/builder/widgets";
+import { storyFor } from "@/lib/stage-intro";
 import { SECTIONS } from "@/lib/builder/sections";
 import type { Blocks, Device, Layout, SectionInstance } from "@/lib/builder/types";
 import type { Post } from "@/lib/posts";
@@ -29,6 +30,7 @@ import {
   OneClick,
   Pricing,
   ShowcaseVideo,
+  Site,
   Solutions,
   Steps,
   Suite,
@@ -80,7 +82,8 @@ const RENDER: Record<string, Render> = {
   testimonials: (d: HomeContent["testimonials"]) => <Testimonials data={d} />,
   faq: (d: HomeContent["faq"]) => <Faq data={d} />,
 
-  suite: (d: HomeContent["suite"]) => <Suite data={d} />,
+  site: (d: HomeContent["site"]) => <Site data={d} />,
+  suite: (d: HomeContent["suite"], ctx) => <Suite data={d} story={storyFor(ctx.pageKey)} />,
   funnel: (d: HomeContent["funnel"]) => <Funnel data={d} />,
   steps: (d: HomeContent["steps"]) => <Steps data={d} />,
   pricing: (d: HomeContent["pricing"]) => <Pricing data={d} />,
