@@ -12,6 +12,8 @@ export type SolutionCard = {
   body: string;
   bullets: string[];
   cta: Cta;
+  /** the solution's own page, linked from the title and "Learn more" */
+  href: string;
   image: Media;
 };
 
@@ -21,12 +23,14 @@ const card = (
   body: string,
   bullets: string[],
   label: string,
+  slug: string,
 ): SolutionCard => ({
   title,
   tagline,
   body,
   bullets,
   cta: { label, href: "#contact" },
+  href: `/solutions/${slug}`,
   image: { src: "", alt: title },
 });
 
@@ -53,6 +57,7 @@ export const defaultSolutions = {
         "After-hours inquiries",
       ],
       "Book AI Voice Agent",
+      "ai-voice-agent",
     ),
     card(
       "AI Conversation Assistant",
@@ -66,6 +71,7 @@ export const defaultSolutions = {
         "Appointment opportunities",
       ],
       "Book AI Conversation Assistant",
+      "ai-conversation-assistant",
     ),
     card(
       "Expert AI",
@@ -79,6 +85,7 @@ export const defaultSolutions = {
         "Consistent answers",
       ],
       "Book Expert AI",
+      "expert-ai",
     ),
     card(
       "Website Chat Widget",
@@ -92,11 +99,12 @@ export const defaultSolutions = {
         "24/7 engagement",
       ],
       "Book Website Chat",
+      "website-chat-widget",
     ),
     card(
       "Unified Smart Inbox",
       "Every Conversation. One Place.",
-      "Manage calls, SMS, email, Facebook, Instagram, Google Business Messages, and website conversations from one connected inbox.",
+      "Manage calls, SMS, email, Facebook, Instagram, Google Business Profile, and website conversations from one connected inbox.",
       [
         "Multi-channel communication",
         "Team collaboration",
@@ -105,19 +113,21 @@ export const defaultSolutions = {
         "Faster responses",
       ],
       "Book Smart Inbox",
+      "unified-inbox",
     ),
     card(
-      "Google Business Messaging",
-      "Turn Google Searches Into Conversations.",
-      "Connect with customers directly through Google Business Messages and give prospects another simple way to discover, contact, and engage with your business.",
+      "Google Business Profile Leads",
+      "Turn Google Searches Into Leads.",
+      "When someone finds you on Google Search or Maps and taps call, website or book, SmartSyncLink answers, captures the lead and follows up — so your Google Business Profile brings in customers, not just views.",
       [
-        "Google Search traffic",
-        "Customer inquiries",
+        "Google Search & Maps",
+        "Calls from your profile",
         "Local businesses",
-        "Lead conversations",
-        "Faster engagement",
+        "Lead capture",
+        "Faster follow-up",
       ],
-      "Book Google Messaging",
+      "Book Google Profile Leads",
+      "google-business-profile",
     ),
     card(
       "Missed Call Text Back",
@@ -131,6 +141,7 @@ export const defaultSolutions = {
         "Faster follow-up",
       ],
       "Book Missed Call Text Back",
+      "missed-call-text-back",
     ),
     card(
       "Google Reviews Automation",
@@ -144,6 +155,7 @@ export const defaultSolutions = {
         "Social proof",
       ],
       "Book Review Automation",
+      "google-review-automation",
     ),
     card(
       "Smart Website",
@@ -157,6 +169,7 @@ export const defaultSolutions = {
         "Customer experience",
       ],
       "Book Smart Websites",
+      "smart-website",
     ),
     card(
       "Custom Automation Workflows",
@@ -170,6 +183,7 @@ export const defaultSolutions = {
         "Customer workflows",
       ],
       "Book Automation",
+      "automation-workflows",
     ),
     card(
       "Smart Sales Pipeline",
@@ -183,6 +197,7 @@ export const defaultSolutions = {
         "Conversion tracking",
       ],
       "Book Sales Pipeline",
+      "sales-pipeline-crm",
     ),
   ] as SolutionCard[],
 };

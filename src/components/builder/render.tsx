@@ -82,7 +82,7 @@ const RENDER: Record<string, Render> = {
   testimonials: (d: HomeContent["testimonials"]) => <Testimonials data={d} />,
   faq: (d: HomeContent["faq"]) => <Faq data={d} />,
 
-  site: (d: HomeContent["site"]) => <Site data={d} />,
+  site: (d: HomeContent["site"], ctx) => <Site data={d} story={storyFor(ctx.pageKey)} />,
   suite: (d: HomeContent["suite"], ctx) => <Suite data={d} story={storyFor(ctx.pageKey)} />,
   funnel: (d: HomeContent["funnel"]) => <Funnel data={d} />,
   steps: (d: HomeContent["steps"]) => <Steps data={d} />,

@@ -1,54 +1,40 @@
 import type { CSSProperties } from "react";
 import type { HomeContent } from "@/content/home";
-import { ContractorSite, ContractorSiteMobile } from "../contractor-site";
+import { STORIES, type Story } from "@/lib/stage-intro";
 import { Reveal } from "../reveal";
 import { CARD } from "../site-mockup";
+import { SITES } from "../story-sites";
 import { BOARD, PHONE, PhoneFrame } from "../suite-mockup";
 import { SuiteLockup } from "../suite-logo";
 import { Button, Container } from "../ui";
 
 /**
- * Two arrangements on the stage's own pixel grid, as the Suite stage has:
- *   desk  — the site on the desktop with the phone over its bottom-right corner
- *   phone — the phone alone, for a phone: the desktop page would draw at a
- *           fifth of its size there
- * `pins` are the numbered marks on the three things that feed the Suite — the
- * quote form, the call button, the chat — in the order of `features`. On the
- * phone they sit beside the buttons, not on them: there the pin is as big as
- * the button it marks.
+ * The page's site on the desktop with the phone over its bottom-right corner,
+ * on the stage's own pixel grid, as the Suite stage has it — on a phone too.
+ * The client asked for it on the call: the Suite section right below plays the
+ * phone on its own, and two phones in a row read as the same section twice.
  */
 const PHONE_AT = { x: 1559, y: 309 };
 /** The mobile site's origin inside the handset: the screen inset, then the status bar. */
 const SCREEN = { x: 11, y: 11 + 44 };
-const STAGES = {
-  desk: {
-    w: PHONE_AT.x + PHONE.w,
-    h: PHONE_AT.y + PHONE.h,
-    pins: [
-      [CARD.x, CARD.y],
-      [538, 490],
-      [PHONE_AT.x + SCREEN.x + 236, PHONE_AT.y + SCREEN.y + 579],
-    ],
-  },
-  phone: {
-    w: PHONE.w,
-    h: PHONE.h,
-    pins: [
-      [SCREEN.x + 296, SCREEN.y + 416],
-      [SCREEN.x + 208, SCREEN.y + 57],
-      [SCREEN.x + 236, SCREEN.y + 579],
-    ],
-  },
-} as const;
+const DESK = { w: PHONE_AT.x + PHONE.w, h: PHONE_AT.y + PHONE.h };
 
 /**
- * SmartSync Site: the website half of "website + system". A contractor's site,
- * drawn after a live client's, on the desktop and the phone — the same drawing
- * the Suite intro opens on — with what each part of it feeds in the Suite.
+ * SmartSync Site: the website half of "website + system". The page's own
+ * industry — a med spa, a plumber, an agent — drawn on the desktop and the
+ * phone, the same drawing its Suite intro opens on, with numbered pins on the
+ * three things that feed the Suite: the form, the call button, the chat.
  */
-export function Site({ data }: { data: HomeContent["site"] }) {
-  const show = data.showcase;
-  const host = show.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+export function Site({ data, story = "medspa" }: { data: HomeContent["site"]; story?: Story }) {
+  const { Desktop, Mobile, call } = SITES[story];
+  const live = STORIES[story].live;
+  // in the order of `features`: the form, the call button, the chat
+  const deskPins: [number, number][] = [
+    [CARD.x, CARD.y],
+    call,
+    // beside the phone's chat button, not on it
+    [PHONE_AT.x + SCREEN.x + 236, PHONE_AT.y + SCREEN.y + 579],
+  ];
   return (
     <section id="site" className="relative overflow-hidden py-14 md:py-24 lg:py-28">
       <Container>
@@ -66,20 +52,15 @@ export function Site({ data }: { data: HomeContent["site"] }) {
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-[10%] top-[10%] bottom-0 rounded-full bg-[radial-gradient(closest-side,rgba(5,46,255,0.16),transparent)] blur-2xl"
           />
-          <Stage layout="desk" label={`${show.name}'s website on a desktop and a phone`} className="hidden w-full md:block">
+          <Stage w={DESK.w} h={DESK.h} pins={deskPins} label="The website we build, on a desktop and a phone" className="w-full">
             <div className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5" style={{ left: 0, top: 0, width: BOARD.w, height: BOARD.h }}>
-              <ContractorSite mode="static" />
+              <Desktop mode="static" />
             </div>
             <div className="absolute" style={{ left: PHONE_AT.x, top: PHONE_AT.y }}>
               <PhoneFrame>
-                <ContractorSiteMobile mode="static" />
+                <Mobile mode="static" />
               </PhoneFrame>
             </div>
-          </Stage>
-          <Stage layout="phone" label={`${show.name}'s website on a phone`} className="mx-auto w-full max-w-75 md:hidden">
-            <PhoneFrame>
-              <ContractorSiteMobile mode="static" />
-            </PhoneFrame>
           </Stage>
         </Reveal>
 
@@ -95,13 +76,14 @@ export function Site({ data }: { data: HomeContent["site"] }) {
           ))}
         </Reveal>
 
-        <p className="mt-8 text-center text-[15px] text-muted">
-          {show.label}: {show.name}
-          {show.place ? `, ${show.place}` : ""}.{" "}
-          <a href={show.url} target="_blank" rel="noopener noreferrer" className="font-medium whitespace-nowrap text-brand hover:underline">
-            Visit {host} <span aria-hidden="true">↗</span>
-          </a>
-        </p>
+        {live ? (
+          <p className="mt-8 text-center text-[15px] text-muted">
+            Drawn from a live client site: {live.name}, {live.place}.{" "}
+            <a href={live.url} target="_blank" rel="noopener noreferrer" className="font-medium whitespace-nowrap text-brand hover:underline">
+              Visit {live.url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")} <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        ) : null}
       </Container>
     </section>
   );
@@ -109,45 +91,50 @@ export function Site({ data }: { data: HomeContent["site"] }) {
 
 /**
  * A drawing on its fixed grid, scaled as one piece (see .suite-stage), with the
- * numbered pins laid over it in percentages — outside the scaled board, so
- * they stay a readable size at every width.
+ * numbered pins over it in percentages — outside the scaled board, so they stay
+ * a readable size at every width.
  */
 function Stage({
-  layout,
+  w,
+  h,
+  pins,
   label,
   className,
   children,
 }: {
-  layout: keyof typeof STAGES;
+  w: number;
+  h: number;
+  pins: [number, number][];
   label: string;
   className: string;
   children: React.ReactNode;
 }) {
-  const stage = STAGES[layout];
   return (
-    <div role="img" aria-label={label} className={`suite-stage relative ${className}`} style={{ aspectRatio: `${stage.w} / ${stage.h}` }}>
-      <div className="suite-board" style={{ width: stage.w, height: stage.h, ["--stage-w" as string]: `${stage.w}px` }}>
+    <div role="img" aria-label={label} className={`suite-stage relative ${className}`} style={{ aspectRatio: `${w} / ${h}` }}>
+      <div className="suite-board" style={{ width: w, height: h, ["--stage-w" as string]: `${w}px` }}>
         {children}
       </div>
-      {stage.pins.map(([x, y], i) => (
+      {pins.map(([x, y], i) => (
         <Pin
           key={i}
           n={i + 1}
           ping
           className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: `${(x / stage.w) * 100}%`, top: `${(y / stage.h) * 100}%` }}
+          style={{ left: `${(x / w) * 100}%`, top: `${(y / h) * 100}%` }}
         />
       ))}
     </div>
   );
 }
 
-/** A numbered mark, on the drawing and beside the feature it names. On the drawing it pulses. */
+/** A numbered mark, on the drawing and beside the feature it names. On the drawing it pulses; on a phone it is smaller. */
 function Pin({ n, ping = false, className = "", style }: { n: number; ping?: boolean; className?: string; style?: CSSProperties }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-[14px] font-semibold text-white shadow-[0_8px_18px_-6px_rgba(5,46,255,0.7)] ring-[3px] ring-white ${className}`}
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-r from-[#052EFF] to-[#3300EA] font-semibold text-white shadow-[0_8px_18px_-6px_rgba(5,46,255,0.7)] ${
+        ping ? "size-6 text-[11px] ring-2 ring-white md:size-8 md:text-[14px] md:ring-[3px]" : "size-8 text-[14px] ring-[3px] ring-white"
+      } ${className}`}
       style={style}
     >
       {ping ? <span className="absolute inset-0 rounded-full bg-[#052EFF]/40 motion-safe:animate-ping" /> : null}

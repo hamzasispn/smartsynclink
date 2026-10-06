@@ -26,6 +26,18 @@ export function Prose({ markdown }: { markdown: string }) {
     const item = items[i++];
     return item && String(item.level) === level ? `<h${level} id="${item.id}">` : tag;
   });
+  // A wide table scrolls sideways inside .table-scroll on a phone instead of
+  // widening the page. Every cell also carries its column's heading, so a
+  // page can restack a four-column table as one card per row (see
+  // .table-wide in globals.css) — at phone width its words no longer fit.
+  html = html.replace(/<table>([\s\S]*?)<\/table>/g, (_, inner: string) => {
+    const heads = [...inner.matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+    const rows = inner.replace(/<tr>[\s\S]*?<\/tr>/g, (row) => {
+      let i = 0;
+      return row.replace(/<td(?=[\s>])/g, () => `<td data-label="${heads[i++] ?? ""}"`);
+    });
+    return `<div class="table-scroll${heads.length > 3 ? " table-wide" : ""}"><table>${rows}</table></div>`;
+  });
 
   return <div className="prose-site" dangerouslySetInnerHTML={{ __html: html }} />;
 }

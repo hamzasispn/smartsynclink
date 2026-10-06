@@ -27,6 +27,11 @@ export type SectionMeta = {
   backdrop: boolean;
 };
 
+// The listing and a post share one content document, but each shows its own
+// part of it — so each edits only that part.
+const { byline, updatedLabel, readTimeLabel, tocLabel, relatedLabel, ...blogIndex } = defaultBlog;
+const blogPost = { badge: defaultBlog.badge, byline, updatedLabel, readTimeLabel, tocLabel, relatedLabel, newsletter: defaultBlog.newsletter };
+
 const meta = (m: Omit<SectionMeta, "linked" | "backdrop"> & Partial<Pick<SectionMeta, "linked" | "backdrop">>): SectionMeta => ({
   linked: false,
   backdrop: false,
@@ -60,11 +65,11 @@ export const SECTIONS: Record<string, SectionMeta> = {
   industryReels: meta({ label: "Reels", group: "Industry", description: "Vertical 9:16 video slider. On a page with an industry hero, the clips play in the hero's right column.", defaults: industry.reels }),
 
   solutions: meta({ label: "Solutions grid", group: "Page", description: "Intro and every solution card.", defaults: defaultSolutions }),
-  blogIndex: meta({ label: "Blog listing", group: "Page", description: "Title, categories, post grid, newsletter.", defaults: defaultBlog }),
+  blogIndex: meta({ label: "Blog listing", group: "Page", description: "Title, categories, post grid, newsletter.", defaults: blogIndex }),
   usagePricing: meta({ label: "Usage pricing tables", group: "Page", description: "Transparent pay-as-you-go rate tables.", defaults: defaultUsagePricing }),
   pricingTable: meta({ label: "Pricing packages", group: "Page", description: "Quick-start, platform and SEO packages.", defaults: defaultPricingTable }),
   legal: meta({ label: "Legal document", group: "Page", description: "A policy with its contents list.", defaults: defaultPrivacy }),
-  postArticle: meta({ label: "Blog post", group: "Page", description: "The post itself: article, contents, newsletter and related posts.", defaults: defaultBlog }),
+  postArticle: meta({ label: "Blog post", group: "Page", description: "The post itself: article, contents, newsletter and related posts.", defaults: blogPost }),
 };
 
 export const GROUP_ORDER: SectionMeta["group"][] = ["Custom", "Hero", "Home", "Shared", "Industry", "Page"];

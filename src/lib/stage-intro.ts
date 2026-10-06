@@ -21,22 +21,41 @@ export const VISITOR: Visitor = {
 };
 
 /**
- * The same story told for a trade. The med spa is the default everywhere; the
- * contractors page gets a plumber's website, a homeowner's quote request and a
- * plumber's inbox, so nothing on it reads med spa. The message is kept to the
- * med spa's length — it has to fit the phone's field and the clock below.
+ * The same story told per industry. The med spa is the default everywhere;
+ * the contractors page gets a plumber's website, a homeowner's quote request
+ * and a plumber's inbox, the realtors page an agent's — so nothing on either
+ * reads med spa. Messages are kept to the med spa's length: they have to fit
+ * the phone's field and the clock below.
+ *
+ * `live` is the real site a drawing follows, linked under it in the
+ * SmartSync Site section. Luna Med Spa and Oakline Realty are invented.
  */
-export type Story = "medspa" | "contractor";
-export const STORIES: Record<Story, { visitor: Visitor; account: { name: string; place: string; initials: string } }> = {
+export type Story = "medspa" | "contractor" | "realtor";
+type StoryData = {
+  visitor: Visitor;
+  account: { name: string; place: string; initials: string };
+  live?: { name: string; place: string; url: string };
+};
+export const STORIES: Record<Story, StoryData> = {
   medspa: { visitor: VISITOR, account: { name: "Radiance Med Spa - Oak ...", place: "Austin, TX", initials: "RM" } },
   contractor: {
     visitor: { name: "Jake Morris", phone: "(830) 555-0198", message: "Can I get a quote on a water heater?" },
     account: { name: "McNeel Plumbing - Spri...", place: "Spring Branch, TX", initials: "MP" },
+    live: { name: "McNeel Plumbing", place: "Texas Hill Country", url: "https://mcneelplumbing.net/" },
+  },
+  realtor: {
+    visitor: { name: "Emily Carter", phone: "(512) 555-0176", message: "Can I tour 412 Oak Lane this week?" },
+    account: { name: "Oakline Realty - Austin ...", place: "Austin, TX", initials: "OR" },
   },
 };
 
+const PAGE_STORIES: Record<string, Story> = {
+  "industry:contractors": "contractor",
+  "industry:realtors": "realtor",
+};
+
 /** Which story a page tells, by its builder page key. */
-export const storyFor = (pageKey: string): Story => (pageKey === "industry:contractors" ? "contractor" : "medspa");
+export const storyFor = (pageKey: string): Story => PAGE_STORIES[pageKey] ?? "medspa";
 
 /** In the order the thumb taps them. */
 export const valuesOf = (story: Story) => {

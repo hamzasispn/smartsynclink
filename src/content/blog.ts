@@ -9,30 +9,23 @@ export const defaultBlog = {
   subheading:
     "Practical insights on AI, automation, lead generation, conversion funnels, websites, and follow-up strategies designed to help businesses turn more opportunities into customers.",
 
-  /** The dark band at the top of /blog. */
-  title: "Resources",
-
   /** Sits above the "All" pill; the rest of the row comes from post tags. */
   allLabel: "All",
-  featuredLabel: "Featured Article",
-  recentLabel: "Recent post",
   relatedLabel: "Related blog post",
   tocLabel: "Table of Contents",
   updatedLabel: "Updated:",
   readTimeLabel: "min read",
-  readLabel: "Read Article",
 
   /** Author byline. Posts have no author column, so one name covers the site. */
   byline: "admin",
 
-  /** Articles in the featured column per page. */
+  /** Posts per page on the listing. */
   perPage: 10,
 
   /** How many cards sit above the newsletter band. The rest follow below it. */
   beforeNewsletter: 4,
 
   newsletter: {
-    label: "Newsletter",
     heading: "Don't want to miss anything?",
     body: "Get SmartSyncLink updates, tutorials and tips right in your mailbox.",
     namePlaceholder: "Your name",
@@ -46,7 +39,6 @@ export const defaultBlog = {
   },
 
   search: {
-    label: "Search",
     placeholder: "Search",
   },
 };

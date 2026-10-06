@@ -8,9 +8,20 @@ import { useId, useState, type FormEvent } from "react";
  * contact. `where` becomes their tag, so the team can see which form they
  * used.
  *
+ * With `details` (the footer) it also asks for a phone, a business name and
+ * an industry — name, email and industry required, the rest optional — and
+ * the button runs the full width under them.
+ *
  * Every field is 16px: iOS Safari zooms the page into any input set smaller
  * than that the moment it is tapped.
  */
+export type NewsletterDetails = {
+  phonePlaceholder: string;
+  businessPlaceholder: string;
+  industryPlaceholder: string;
+  industries: string[];
+  note: string;
+};
 type Size = "md" | "lg";
 
 const FIELD: Record<Size, string> = {
@@ -25,6 +36,7 @@ export function NewsletterForm({
   cta,
   success,
   size = "md",
+  details,
   className = "",
 }: {
   where: "footer" | "blog";
@@ -33,6 +45,7 @@ export function NewsletterForm({
   cta: string;
   success: string;
   size?: Size;
+  details?: NewsletterDetails;
   className?: string;
 }) {
   const id = useId();
@@ -52,6 +65,9 @@ export function NewsletterForm({
           name: form.get("name"),
           email: form.get("email"),
           company: form.get("company"),
+          ...(details
+            ? { phone: form.get("phone") || undefined, business: form.get("business") || undefined, industry: form.get("industry") }
+            : {}),
           where,
           page: window.location.pathname,
         }),
@@ -103,7 +119,87 @@ export function NewsletterForm({
       <label className="sr-only" htmlFor={`${id}-email`}>
         {emailPlaceholder}
       </label>
-      {size === "lg" ? (
+      {details ? (
+        <>
+          <input
+            id={`${id}-email`}
+            name="email"
+            type="email"
+            required
+            maxLength={160}
+            autoComplete="email"
+            placeholder={emailPlaceholder}
+            className={FIELD.md}
+          />
+          <div className="grid grid-cols-1 gap-2.5 min-[400px]:grid-cols-2">
+            <label className="sr-only" htmlFor={`${id}-phone`}>
+              {details.phonePlaceholder}
+            </label>
+            <input
+              id={`${id}-phone`}
+              name="phone"
+              type="tel"
+              maxLength={30}
+              autoComplete="tel"
+              placeholder={details.phonePlaceholder}
+              className={FIELD.md}
+            />
+            <label className="sr-only" htmlFor={`${id}-business`}>
+              {details.businessPlaceholder}
+            </label>
+            <input
+              id={`${id}-business`}
+              name="business"
+              type="text"
+              maxLength={120}
+              autoComplete="organization"
+              placeholder={details.businessPlaceholder}
+              className={FIELD.md}
+            />
+          </div>
+          <label className="sr-only" htmlFor={`${id}-industry`}>
+            {details.industryPlaceholder}
+          </label>
+          <div className="relative">
+            <select
+              id={`${id}-industry`}
+              name="industry"
+              required
+              defaultValue=""
+              className={`${FIELD.md} appearance-none pr-10 invalid:text-muted`}
+            >
+              <option value="" disabled>
+                {details.industryPlaceholder}
+              </option>
+              {details.industries.map((industry) => (
+                <option key={industry} value={industry} className="text-[#1e1e1e]">
+                  {industry}
+                </option>
+              ))}
+            </select>
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 right-4 size-4 -translate-y-1/2 text-muted"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+          <button
+            type="submit"
+            disabled={sending}
+            className="mt-1 rounded-full bg-brand px-5 py-3 text-[16px] font-medium text-white transition-colors hover:bg-brand-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:opacity-60"
+          >
+            {sending ? "Sending…" : cta}
+          </button>
+          {details.note ? <p className="px-2 text-[13px] leading-snug text-muted">{details.note}</p> : null}
+        </>
+      ) : size === "lg" ? (
         <div className="relative">
           <input
             id={`${id}-email`}

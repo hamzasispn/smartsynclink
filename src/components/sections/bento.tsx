@@ -100,12 +100,11 @@ export function Bento({ data }: { data: HomeContent["bento"] }) {
           {/* smart inbox — the product itself, drawn, where the screenshot was */}
           <div className="flex flex-col overflow-clip rounded-[16px] bg-gradient-to-r from-[#052EFF] to-[#3300EA] p-6 lg:col-span-6">
             <SuiteLockup id="bento-suite-lockup" size={30} inverse />
-            {/* half as wide again as the tile, clipped by its right edge */}
+            {/* wider than the tile, clipped by its right edge. The desktop scene on a
+                phone too: the Suite section right below already plays the phone
+                on its own, and the same phone twice read as one section repeated */}
             <div className="mt-auto pt-8">
-              <SuiteStage idPrefix="bento-stage" layout="tile" className="hidden w-[150%] max-w-none md:block" />
-              {/* on a phone, the phone alone — telling the whole story: the
-                  med spa's site, the form sent, the lead landing in the inbox */}
-              <SuiteStage idPrefix="bento-solo" layout="phone" intro className="mx-auto w-full max-w-66 md:hidden" />
+              <SuiteStage idPrefix="bento-stage" layout="tile" className="w-[170%] max-w-none md:w-[150%]" />
             </div>
           </div>
 

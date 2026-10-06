@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LinkPending } from "./link-pending";
 
 /**
  * Category pills and pagination.
@@ -180,10 +181,19 @@ export function TabRow({
   placeholder: string;
   query?: string;
 }) {
+  // The top few tags only (most-used first), the rest folded behind one pill —
+  // every tag at once filled the screen before the first post. The active tag
+  // stays in view even when it is not a top one. <details>, so it opens with
+  // no script and the page stays a server component.
+  const top = tags.slice(0, TOP_TAGS);
+  const rest = tags.slice(TOP_TAGS);
+  const shown = active && rest.includes(active) ? [...top, active] : top;
+  const more = rest.filter((t) => t !== active);
+
   // rounded pills, the same shape the tag filter and every button on the site
   // already use — a full-height tab block is the reference's language, not ours
   const tab = (on: boolean) =>
-    `flex shrink-0 items-center rounded-full px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-colors ${
+    `relative flex shrink-0 items-center rounded-full px-4 py-2.5 text-[15px] font-medium whitespace-nowrap transition-colors ${
       on
         ? "bg-gradient-to-r from-[#052EFF] to-[#3300EA] text-white"
         : "bg-surface text-[#1E1E1E] hover:bg-black/[0.06]"
@@ -202,17 +212,24 @@ export function TabRow({
       >
         <Link href="/blog" className={tab(!active)}>
           {allLabel}
+          <LinkPending shape="pill" />
         </Link>
-        {tags.map((t) => (
-          <Link
-            key={t}
-            href={`/blog?tag=${encodeURIComponent(t)}`}
-            className={tab(active === t)}
-            aria-current={active === t ? "page" : undefined}
-          >
-            {t}
-          </Link>
+        {shown.map((t) => (
+          <TagLink key={t} tag={t} on={active === t} className={tab(active === t)} />
         ))}
+        {more.length ? (
+          <details className="group/more open:basis-full">
+            <summary className={`${tab(false)} w-fit cursor-pointer list-none text-brand [&::-webkit-details-marker]:hidden`}>
+              <span className="group-open/more:hidden">+ {more.length} more topics</span>
+              <span className="hidden group-open/more:inline">Show fewer topics</span>
+            </summary>
+            <div className="mt-2.5 flex flex-wrap gap-2.5">
+              {more.map((t) => (
+                <TagLink key={t} tag={t} on={false} className={tab(false)} />
+              ))}
+            </div>
+          </details>
+        ) : null}
       </nav>
 
       {/* a fixed width, not a share of what is left: flex-1 against a row of
@@ -245,6 +262,18 @@ export function TabRow({
   );
 }
 
+/** How many tags the tab row shows before folding the rest away. */
+const TOP_TAGS = 5;
+
+function TagLink({ tag, on, className }: { tag: string; on: boolean; className: string }) {
+  return (
+    <Link href={`/blog?tag=${encodeURIComponent(tag)}`} className={className} aria-current={on ? "page" : undefined}>
+      {tag}
+      <LinkPending shape="pill" />
+    </Link>
+  );
+}
+
 /**
  * Numbered circles, the reference's pagination.
  *
@@ -262,7 +291,7 @@ export function CirclePagination({
 }) {
   if (total <= 1) return null;
   const ring =
-    "grid size-10 place-items-center rounded-full border-2 text-[16px] transition-colors";
+    "relative grid size-10 place-items-center rounded-full border-2 text-[16px] transition-colors";
 
   return (
     <nav aria-label="Pagination" className="mt-12 flex items-center gap-3">
@@ -283,12 +312,14 @@ export function CirclePagination({
             }`}
           >
             {entry}
+            <LinkPending />
           </Link>
         ),
       )}
       {page < total ? (
-        <Link href={hrefFor(page + 1)} aria-label="Next page" className="text-[20px] text-brand-blue">
+        <Link href={hrefFor(page + 1)} aria-label="Next page" className="relative grid size-10 place-items-center text-[20px] text-brand-blue">
           →
+          <LinkPending />
         </Link>
       ) : null}
     </nav>

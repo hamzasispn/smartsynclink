@@ -145,7 +145,10 @@ export async function upsertContact(person: {
  * the upsert — an upsert that carries tags replaces whatever tags a returning
  * contact already has (a booking's, say). Adding them never removes any.
  */
-export async function subscribeContact(person: { name: string; email: string; source: string }, tags: string[]) {
+export async function subscribeContact(
+  person: { name: string; email: string; source: string; phone?: string; companyName?: string },
+  tags: string[],
+) {
   const [firstName, ...rest] = person.name.trim().split(/\s+/);
   const data = await call<{ contact?: { id?: string } }>("/contacts/upsert", {
     version: CONTACTS,
@@ -156,6 +159,8 @@ export async function subscribeContact(person: { name: string; email: string; so
       firstName,
       lastName: rest.join(" ") || undefined,
       email: person.email,
+      phone: person.phone || undefined,
+      companyName: person.companyName || undefined,
       source: person.source,
     },
   });

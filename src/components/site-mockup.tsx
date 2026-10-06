@@ -25,6 +25,23 @@ const PHOTO = "/images/med-spa.png";
 
 const TREATMENTS = ["Facials", "Injectables", "Skin Rejuvenation", "Wellness"];
 
+/**
+ * How a drawn site is used. `stage`: the Suite intro — the visitor's details
+ * written in for StageMotion to clear and type, cursor and thumb on the page,
+ * the phone site hidden until the timeline shows it. `static`: the SmartSync
+ * Site section — an empty form, nothing hidden, and the call button and chat
+ * that the section's numbered pins point at.
+ */
+export type SiteMode = "stage" | "static";
+
+/** The med spa's form, empty, in the SmartSync Site section. */
+const ASK = ["Your name", "Phone number", "What would you like to book?"];
+const field = (mode: SiteMode, i: number) =>
+  mode === "stage" ? { value: [VISITOR.name, VISITOR.phone, VISITOR.message][i] } : { placeholder: ASK[i] };
+
+/** The top-right corner of the static site's call button: where its pin sits. */
+export const MEDSPA_CALL: [number, number] = [536, 480];
+
 /** The clinic photograph on its blush panel — cut out on white, so it sits on the tint. */
 function Portrait({ x, y, w, h, r = 18 }: { x: number; y: number; w: number; h: number; r?: number }) {
   return (
@@ -70,6 +87,9 @@ export function Field({
   value = "",
   placeholder,
   accent = WINE,
+  bg = "#FAFAFB",
+  edge = LINE,
+  hint = "#9CA3AF",
 }: {
   x: number;
   y: number;
@@ -80,6 +100,10 @@ export function Field({
   placeholder?: string;
   /** The site's own colour for the focus ring. */
   accent?: string;
+  /** The field itself, its border and its placeholder — for a site whose form is not white. */
+  bg?: string;
+  edge?: string;
+  hint?: string;
 }) {
   return (
     <Box
@@ -87,7 +111,7 @@ export function Field({
       y={y}
       w={w}
       h={h}
-      style={{ background: "#FAFAFB", border: `1px solid ${LINE}`, borderRadius: 10 }}
+      style={{ background: bg, border: `1px solid ${edge}`, borderRadius: 10 }}
     >
       <Box
         a="ring"
@@ -97,7 +121,7 @@ export function Field({
         h={h + 2}
         style={{ border: `2px solid ${accent}`, borderRadius: 10, opacity: 0 }}
       />
-      <T x={16} y={h > 56 ? 24 : h / 2} s={s} c={placeholder ? "#9CA3AF" : INK}>
+      <T x={16} y={h > 56 ? 24 : h / 2} s={s} c={placeholder ? hint : INK}>
         {placeholder ?? <span data-a="value">{value}</span>}
       </T>
     </Box>
@@ -115,7 +139,7 @@ export const CLICKS: [number, number][] = [
   [1290, 621],
 ];
 
-export function VisitorSite() {
+export function VisitorSite({ mode = "stage" }: { mode?: SiteMode }) {
   return (
     <div style={{ position: "absolute", inset: 0, background: "#fff", color: INK }}>
       {/* site header */}
@@ -164,6 +188,22 @@ export function VisitorSite() {
         </T>
       ))}
 
+      {mode === "static" ? (
+        <>
+          <Box x={60} y={480} w={230} h={46} style={{ background: WINE, borderRadius: 23 }}>
+            <T x={115} y={23} s={15} w={600} c="#fff" align="center">
+              Book a Consultation
+            </T>
+          </Box>
+          <Box x={306} y={480} w={230} h={46} style={{ border: `1.5px solid ${WINE}`, borderRadius: 23 }}>
+            <Ico n="phone" x={42} y={23} s={16} c={WINE} sw={2} />
+            <T x={60} y={23} s={15} w={600} c={WINE_DEEP}>
+              (512) 555-0100
+            </T>
+          </Box>
+        </>
+      ) : null}
+
       {/* what they do */}
       {TREATMENTS.map((name, i) => (
         <Box key={name} x={60 + i * 210} y={588} w={190} h={112} style={{ background: CREAM, borderRadius: 14 }}>
@@ -199,9 +239,9 @@ export function VisitorSite() {
         <T x={548} y={44} s={13} c={MUTED} align="right">
           Replies in a minute
         </T>
-        <Field x={32} y={70} w={516} h={46} s={15} value={VISITOR.name} />
-        <Field x={32} y={128} w={516} h={46} s={15} value={VISITOR.phone} />
-        <Field x={32} y={186} w={516} h={64} s={15} value={VISITOR.message} />
+        <Field x={32} y={70} w={516} h={46} s={15} {...field(mode, 0)} />
+        <Field x={32} y={128} w={516} h={46} s={15} {...field(mode, 1)} />
+        <Field x={32} y={186} w={516} h={64} s={15} {...field(mode, 2)} />
         <Box
           a="send"
           x={32}
@@ -220,7 +260,13 @@ export function VisitorSite() {
         </Box>
       </Box>
 
-      {/* the visitor's cursor */}
+      {mode === "static" ? (
+        // the site's chat
+        <Box x={1626} y={762} w={54} h={54} style={{ background: WINE, borderRadius: "50%", boxShadow: "0 12px 24px -10px rgba(139,21,56,.8)" }}>
+          <Ico n="bubble" x={27} y={27} s={24} c="#fff" sw={2} />
+        </Box>
+      ) : (
+      /* the visitor's cursor */
       <svg
         data-a="pointer"
         viewBox="0 0 24 24"
@@ -243,6 +289,7 @@ export function VisitorSite() {
           strokeLinejoin="round"
         />
       </svg>
+      )}
 
       <BrowserChrome url="www.lunamedspa.com" />
     </div>
@@ -293,17 +340,17 @@ export const TAPS: [number, number][] = [
   [154, 439],
 ];
 
-export function VisitorSiteMobile() {
+export function VisitorSiteMobile({ mode = "stage" }: { mode?: SiteMode }) {
   return (
     <Box
-      a="mobile-site"
+      a={mode === "stage" ? "mobile-site" : undefined}
       x={MOBILE.x}
       y={MOBILE.y}
       w={MOBILE.w}
       h={MOBILE.h}
       // hidden like .stage-cue, and for the same reason: where the timeline
       // never runs, the phone must be the inbox rather than a website over it
-      style={{ background: "#fff", overflow: "hidden", visibility: "hidden", opacity: 0 }}
+      style={{ background: "#fff", overflow: "hidden", ...(mode === "stage" ? { visibility: "hidden", opacity: 0 } : {}) }}
     >
       {/* the browser it is being read in — this is her own phone, not the app */}
       <Box x={12} y={6} w={284} h={30} style={{ background: "#F1F2F4", borderRadius: 15 }}>
@@ -316,6 +363,12 @@ export function VisitorSiteMobile() {
       <T x={154} y={56} s={16} w={500} c={WINE_DEEP} align="center" style={{ fontFamily: SERIF }}>
         Luna Med Spa
       </T>
+      {mode === "static" ? (
+        // one-tap call
+        <Box x={234} y={43} w={28} h={28} style={{ background: WINE, borderRadius: "50%" }}>
+          <Ico n="phone" x={14} y={14} s={13} c="#fff" sw={2} />
+        </Box>
+      ) : null}
 
       <Portrait x={12} y={72} w={284} h={132} r={14} />
       {/* kept clear of the photograph on the panel's right */}
@@ -336,9 +389,9 @@ export function VisitorSiteMobile() {
       <T x={16} y={228} s={15} w={600}>
         Book your visit
       </T>
-      <Field x={12} y={242} w={284} h={42} s={13.5} value={VISITOR.name} />
-      <Field x={12} y={294} w={284} h={42} s={13.5} value={VISITOR.phone} />
-      <Field x={12} y={346} w={284} h={56} s={13.5} value={VISITOR.message} />
+      <Field x={12} y={242} w={284} h={42} s={13.5} {...field(mode, 0)} />
+      <Field x={12} y={294} w={284} h={42} s={13.5} {...field(mode, 1)} />
+      <Field x={12} y={346} w={284} h={56} s={13.5} {...field(mode, 2)} />
 
       <Box
         a="send"
@@ -369,20 +422,27 @@ export function VisitorSiteMobile() {
         </Box>
       ))}
 
-      {/* her thumb */}
-      <Box
-        a="tap"
-        x={-17}
-        y={-17}
-        w={34}
-        h={34}
-        style={{
-          background: "rgba(17,24,39,.22)",
-          border: "2px solid rgba(17,24,39,.35)",
-          borderRadius: "50%",
-          opacity: 0,
-        }}
-      />
+      {mode === "static" ? (
+        // the site's chat
+        <Box x={264} y={568} w={32} h={32} style={{ background: WINE, borderRadius: "50%" }}>
+          <Ico n="bubble" x={16} y={16} s={15} c="#fff" sw={2} />
+        </Box>
+      ) : (
+        // her thumb
+        <Box
+          a="tap"
+          x={-17}
+          y={-17}
+          w={34}
+          h={34}
+          style={{
+            background: "rgba(17,24,39,.22)",
+            border: "2px solid rgba(17,24,39,.35)",
+            borderRadius: "50%",
+            opacity: 0,
+          }}
+        />
+      )}
     </Box>
   );
 }

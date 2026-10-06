@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { SolutionsContent } from "@/content/solutions";
 import { Reveal } from "../reveal";
 import { Badge, Container, Media } from "../ui";
@@ -41,7 +42,13 @@ export function Solutions({ data }: { data: SolutionsContent }) {
               className="flex flex-col rounded-[14px] border border-line bg-white p-5"
             >
               <h2 className="text-[19px] font-medium leading-[1.25] tracking-[-0.01em] text-ink">
-                {card.title}
+                {card.href ? (
+                  <Link href={card.href} className="transition-colors hover:text-brand">
+                    {card.title}
+                  </Link>
+                ) : (
+                  card.title
+                )}
               </h2>
               <p className="mt-3 text-[13.5px] font-medium leading-[1.45] text-ink">
                 {card.tagline}
@@ -67,6 +74,14 @@ export function Solutions({ data }: { data: SolutionsContent }) {
                 {card.cta.label}
                 <span aria-hidden="true">→</span>
               </a>
+              {card.href ? (
+                <Link
+                  href={card.href}
+                  className="mt-3 text-center text-[13.5px] font-medium text-brand hover:underline"
+                >
+                  Learn more about {card.title}
+                </Link>
+              ) : null}
 
               <Media
                 image={card.image}

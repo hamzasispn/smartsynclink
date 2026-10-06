@@ -1,8 +1,8 @@
 import type { HomeContent } from "@/content/home";
 import { STORIES, type Story } from "@/lib/stage-intro";
-import { ContractorSite, ContractorSiteMobile } from "../contractor-site";
 import { Reveal } from "../reveal";
-import { CLICKS, LeadAlert, VisitorSite, VisitorSiteMobile } from "../site-mockup";
+import { CLICKS, LeadAlert } from "../site-mockup";
+import { SITES } from "../story-sites";
 import { StageMotion } from "../stage-motion";
 import { SuiteLockup } from "../suite-logo";
 import { LiveDashboard, LivePhone } from "../live-suite";
@@ -37,12 +37,6 @@ const LAYOUTS = {
 /** The desktop booking button on the artboard: the chip leaves from there. */
 const BOOKED = { x: CLICKS[3][0], y: CLICKS[3][1] };
 
-/** The website each story opens on. Both put their form on the same grid, so the timeline fits either. */
-const SITES = {
-  medspa: { Desktop: VisitorSite, Mobile: VisitorSiteMobile },
-  contractor: { Desktop: ContractorSite, Mobile: ContractorSiteMobile },
-} satisfies Record<Story, unknown>;
-
 export function SuiteStage({
   idPrefix,
   layout = "section",
@@ -50,7 +44,7 @@ export function SuiteStage({
   className = "w-full",
   /** Open on the website whose form feeds this inbox. See StageMotion. */
   intro = false,
-  /** Whose website, lead and inbox: the med spa's, or the plumber's on the contractors page. */
+  /** Whose website, lead and inbox: the med spa's, or the plumber's or the agent's on those pages. */
   story = "medspa",
 }: {
   idPrefix: string;

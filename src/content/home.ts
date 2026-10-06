@@ -404,16 +404,16 @@ export const defaultHomeContent = {
     ],
   },
 
-  /** SmartSync Site: the website we build, drawn after a real client's live site. */
+  /** SmartSync Site: the website we build. The drawing is the page's own industry (see SITES). */
   site: {
-    heading: "Websites That Win The Job, Wired Straight Into Your Suite.",
+    heading: "A Website That Brings In Leads, Wired Straight Into Your Suite.",
     body: "We design, build and host a fast, mobile-first website for your business — quote forms, click-to-call and live chat on every page. Every one of them is connected to your SmartSync Suite, so a visitor becomes a lead the moment they reach out.",
     cta: { label: "Book A Website Call", href: "#call" } as Cta,
-    /** Numbered on the drawing in this order: the quote form, the call button, the chat. */
+    /** Numbered on the drawing in this order: the form, the call button, the chat. */
     features: [
       {
-        title: "Quote Form → Suite Inbox",
-        body: "Every request lands in your inbox with the job details, and AI replies in seconds.",
+        title: "Lead Form → Suite Inbox",
+        body: "Every request — a quote, a booking, a showing — lands in your inbox with the details, and AI replies in seconds.",
       },
       {
         title: "Click-To-Call → AI Answers",
@@ -424,13 +424,6 @@ export const defaultHomeContent = {
         body: "Chat, texts and calls from the same customer stay in one conversation.",
       },
     ] as Bullet[],
-    /** The live site the drawing follows, linked under it. */
-    showcase: {
-      label: "Drawn from a live client site",
-      name: "McNeel Plumbing",
-      place: "Texas Hill Country",
-      url: "https://mcneelplumbing.net/",
-    },
   },
 
   suite: {

@@ -406,6 +406,7 @@ const OTHER_THREADS: Thread[] = [
 const THREADS_BY = {
   medspa: [visitorThread(STORIES.medspa.visitor), ...OTHER_THREADS],
   contractor: [visitorThread(STORIES.contractor.visitor), ...OTHER_THREADS],
+  realtor: [visitorThread(STORIES.realtor.visitor), ...OTHER_THREADS],
 } satisfies Record<Story, Thread[]>;
 
 /** What the AI sends back in the live demo, in THREADS order. The demo cycles through these threads. */

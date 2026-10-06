@@ -58,6 +58,7 @@ export default function Footer({
                 emailPlaceholder={data.newsletter.placeholder}
                 cta={data.newsletter.cta.label}
                 success={data.newsletter.success}
+                details={data.newsletter}
                 className="mt-4"
               />
             </div>

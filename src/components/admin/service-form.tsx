@@ -113,6 +113,15 @@ export function ServiceForm({ service }: { service: Service | null }) {
         />
 
         <Field label="Body">
+          {/* the conventions the solution page reads, see lib/solution-page */}
+          <span className="mb-2 block text-[13px] leading-relaxed text-muted">
+            Shows at /solutions/{"{slug}"}. Optional settings at the very top, between two <code>---</code> lines:{" "}
+            <code>title:</code>, <code>description:</code> and <code>keywords:</code> for Google, <code>heading:</code> for
+            the big headline, <code>related:</code> for the solutions linked at the bottom (their slugs, comma-separated),
+            and <code>cta_heading:</code>, <code>cta_text:</code>, <code>cta_note:</code> for the closing box. Questions
+            under a <code>## Frequently asked questions</code> heading, each as <code>### question</code> with its answer
+            below, show as an accordion and become FAQ results on Google.
+          </span>
           <textarea
             name="body"
             rows={16}

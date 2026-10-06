@@ -34,7 +34,7 @@ export default async function ServicesPage() {
               {services.map((service) => (
                 <Link
                   key={service.id}
-                  href={`/services/${service.slug}`}
+                  href={`/solutions/${service.slug}`}
                   className="group flex flex-col overflow-hidden rounded-[22px] border border-line bg-white shadow-card transition-shadow hover:shadow-lift"
                 >
                   <Media

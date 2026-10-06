@@ -49,77 +49,77 @@ export const defaultGlobal = {
         children: [
           {
             label: "AI Voice Agent",
-            href: "#solutions",
+            href: "/solutions/ai-voice-agent",
             description:
               "Answer every call instantly, qualify leads, answer FAQs, and book appointments 24/7.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Unified Smart Inbox",
-            href: "#solutions",
+            href: "/solutions/unified-inbox",
             description:
-              "Manage calls, SMS, email, Facebook, Instagram, Google Business Messages, and web chats from one organized inbox.",
+              "Manage calls, SMS, email, Facebook, Instagram, Google Business Profile, and web chats from one organized inbox.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Smart Website",
-            href: "#solutions",
+            href: "/solutions/smart-website",
             description:
               "Launch a fast, high-converting website with integrated lead capture, booking, chat, and automation built in.",
             icon: { src: "", alt: "" },
           },
           {
             label: "AI Conversation Assistant",
-            href: "#solutions",
+            href: "/solutions/ai-conversation-assistant",
             description:
               "Engage customers across every touchpoint with intelligent, human-like conversations that convert more leads into customers.",
             icon: { src: "", alt: "" },
           },
           {
-            label: "Google Business Messaging",
-            href: "#solutions",
+            label: "Google Business Profile Leads",
+            href: "/solutions/google-business-profile",
             description:
-              "Instantly connect with customers who discover your business on Google Search and Google Maps.",
+              "Turn calls, website clicks and booking taps from your Google Business Profile into leads your team follows up on.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Custom Automation Workflows",
-            href: "#solutions",
+            href: "/solutions/automation-workflows",
             description:
               "Automate repetitive tasks, lead nurturing, reminders, follow-ups, notifications, and customer journeys without manual work.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Expert AI",
-            href: "#solutions",
+            href: "/solutions/expert-ai",
             description:
               "An AI assistant trained on your business to answer questions, guide customers, and support your team around the clock.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Missed Call Text Back",
-            href: "#solutions",
+            href: "/solutions/missed-call-text-back",
             description:
               "Automatically text customers whenever your business misses a call, helping recover leads before they're lost.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Smart Sales Pipeline",
-            href: "#solutions",
+            href: "/solutions/sales-pipeline-crm",
             description:
               "Track every opportunity from first contact to closed deal with customizable pipelines and real-time visibility.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Website Chat Widget",
-            href: "#solutions",
+            href: "/solutions/website-chat-widget",
             description:
               "Convert more visitors into qualified leads with an AI-powered live chat experience available 24/7.",
             icon: { src: "", alt: "" },
           },
           {
             label: "Google Reviews Automation",
-            href: "#solutions",
+            href: "/solutions/google-review-automation",
             description:
               "Automatically request customer reviews after every interaction to build trust, improve rankings, and attract more customers.",
             icon: { src: "", alt: "" },
@@ -128,7 +128,7 @@ export const defaultGlobal = {
       },
       { label: "Contractors", href: "/industries/contractors", mega: false, children: [] },
       { label: "Aesthetics", href: "#industries", mega: false, children: [] },
-      { label: "Realtors", href: "#industries", mega: false, children: [] },
+      { label: "Realtors", href: "/industries/realtors", mega: false, children: [] },
       { label: "Portfolio", href: "/portfolio", mega: false, children: [] },
       { label: "Blog", href: "/blog", mega: false, children: [] },
     ] as NavItem[],
@@ -159,13 +159,13 @@ export const defaultGlobal = {
       {
         title: "Solutions",
         links: [
-          { label: "AI Voice Receptionist", href: "#solutions" },
-          { label: "Smart CRM", href: "#solutions" },
-          { label: "Unified Inbox", href: "#solutions" },
+          { label: "AI Voice Receptionist", href: "/solutions/ai-voice-agent" },
+          { label: "Smart CRM", href: "/solutions/sales-pipeline-crm" },
+          { label: "Unified Inbox", href: "/solutions/unified-inbox" },
           { label: "Appointment Scheduling", href: "#solutions" },
-          { label: "Marketing Automation", href: "#solutions" },
-          { label: "Reputation Management", href: "#solutions" },
-          { label: "Workflow Automation", href: "#solutions" },
+          { label: "Marketing Automation", href: "/solutions/automation-workflows" },
+          { label: "Reputation Management", href: "/solutions/google-review-automation" },
+          { label: "Workflow Automation", href: "/solutions/automation-workflows" },
           { label: "Business Analytics", href: "#solutions" },
         ] as NavItem[],
       },
@@ -199,6 +199,12 @@ export const defaultGlobal = {
       body: "Join thousands of business owners receiving proven strategies, product updates, and automation insights.",
       namePlaceholder: "Your Name",
       placeholder: "Email Address",
+      phonePlaceholder: "Phone (optional)",
+      businessPlaceholder: "Business name",
+      industryPlaceholder: "Your industry",
+      /** The industry choices; the one picked is tagged on the contact in GHL. */
+      industries: ["Med Spa & Aesthetics", "Contractor & Home Services", "Real Estate", "Other"],
+      note: "No spam — just practical tips. Unsubscribe anytime.",
       cta: { label: "Subscribe", href: "#subscribe" } as Cta,
       /** Shown in place of the form once the person is in GHL. */
       success: "Thanks — you're subscribed.",

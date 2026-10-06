@@ -277,12 +277,61 @@ summary::-webkit-details-marker {
 
 
 /* --- first-paint loader ---------------------------------------------------
- * The mark keeps a CSS spin everywhere else, but a running CSS animation
- * beats inline styles, so it would fight every transform GSAP writes here.
- * Inside the loader, GSAP drives the rotation alone.
+ * The whole intro is CSS and starts with the first paint: the mark spins in
+ * (its two violet shapes a beat later), the wordmark wipes open beside it,
+ * then the line rises in under it, a word at a time, and the mark keeps
+ * turning while the page arrives. It used to be a GSAP timeline, and that
+ * waits for the page's JavaScript — the curtain stood blank for a second or
+ * more, and the line (already CSS) came in ahead of the logo. The script now
+ * only lifts the curtain (see Loader).
  */
+.site-loader .loader-logo {
+  animation: loaderWipe 0.7s cubic-bezier(0.77, 0, 0.18, 1) 0.5s both;
+}
 .site-loader .logo-spin {
-  animation: none;
+  animation:
+    loaderMark 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    logoSpin 4s linear 1.2s infinite;
+}
+.site-loader .logo-spin path[fill="#3300EA"] {
+  animation: loaderAccent 0.4s ease-out 0.45s both;
+}
+.loader-word {
+  animation: loaderWord 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(0.85s + var(--i, 0) * 0.07s);
+}
+@keyframes loaderWipe {
+  from {
+    clip-path: inset(0% 84.3% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+@keyframes loaderMark {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-270deg);
+  }
+}
+@keyframes loaderAccent {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes loaderWord {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-loader .loader-logo,
+  .site-loader .logo-spin,
+  .site-loader .logo-spin path,
+  .loader-word {
+    animation: none;
+  }
 }
 
 /* useGsap marks its element while it is off screen: keyframe loops inside it
@@ -393,14 +442,18 @@ summary::-webkit-details-marker {
 
 
 /* Markdown tables. GFM gives editors a table with a pipe row, and without
-   these it renders as unstyled rows that read as run-on text. The wrapper
-   scrolls on narrow screens so a wide table never widens the page. */
+   these it renders as unstyled rows that read as run-on text. Prose wraps each
+   one in .table-scroll, which scrolls on narrow screens so a wide table never
+   widens the page. Tighter cells on a phone let a three- or four-column
+   comparison fit the screen instead of hiding its last column off to the side. */
+.prose-site .table-scroll {
+  overflow-x: auto;
+}
 .prose-site table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
-  display: block;
-  overflow-x: auto;
+  line-height: 1.55;
 }
 .prose-site th,
 .prose-site td {
@@ -408,6 +461,93 @@ summary::-webkit-details-marker {
   padding: 10px 14px;
   text-align: left;
   vertical-align: top;
+}
+@media (max-width: 639px) {
+  .prose-site table {
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  .prose-site th,
+  .prose-site td {
+    padding: 8px 9px;
+  }
+}
+/* solution pages: feature names in the brand colour, bold lead-ins that read
+   as bold, sample texts and conversations as tinted cards, and the
+   SmartSyncLink column of every comparison picked out */
+.solution-article .prose-site > :first-child {
+  margin-top: 0;
+}
+.solution-article .prose-site h2,
+.solution-article .prose-site h3 {
+  line-height: 1.3;
+}
+.solution-article .prose-site h3 {
+  color: var(--color-brand);
+}
+.solution-article .prose-site strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.solution-article .prose-site th:last-child {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+.solution-article .prose-site td:last-child {
+  background: #f6f5ff;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+/* a four-column comparison on a phone: one card per row, the row's subject on
+   top and each value under its column's name (Prose stamps it on the cell) */
+@media (max-width: 639px) {
+  .solution-article .prose-site .table-wide :is(table, tbody, tr, td) {
+    display: block;
+  }
+  .solution-article .prose-site .table-wide thead {
+    display: none;
+  }
+  .solution-article .prose-site .table-wide tr {
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: #fff;
+  }
+  .solution-article .prose-site .table-wide tr + tr {
+    margin-top: 12px;
+  }
+  .solution-article .prose-site .table-wide td {
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    padding: 10px 14px;
+    font-size: 14.5px;
+  }
+  .solution-article .prose-site .table-wide td:first-child {
+    border-top: 0;
+    background: var(--color-surface);
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .solution-article .prose-site .table-wide td:not(:first-child)::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .solution-article .prose-site .table-wide td:last-child::before {
+    color: var(--color-brand);
+  }
+}
+.solution-article .prose-site blockquote {
+  border-radius: 0 14px 14px 0;
+  background: #f6f5ff;
+  padding: 0.9em 1.2em;
+  color: #1e1e1e;
+}
+.solution-article .prose-site blockquote > * + * {
+  margin-top: 0.6em;
 }
 .prose-site th {
   background: var(--color-surface);

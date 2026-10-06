@@ -86,7 +86,14 @@ function orderedEntries(value: Record<string, Json>, shape: unknown) {
   // and rendering only what the document has would hide it forever. Missing
   // keys are surfaced as *blank* values — never the shape's own content, or
   // every nav item would inherit the example submenu.
-  const merged: Record<string, Json> = { ...value };
+  //
+  // The other way round, a key the code no longer has is left over from an
+  // older version of the content: the site never reads it, so it is not
+  // offered. With no shape to go by, everything shows.
+  const merged: Record<string, Json> = {};
+  for (const [key, v] of Object.entries(value)) {
+    if (!ref.length || ref.includes(key)) merged[key] = v;
+  }
   for (const key of ref) {
     if (!(key in merged)) merged[key] = blankLike(shapeObj[key]);
   }
@@ -146,22 +153,35 @@ const isProse = (key: string, value: string) =>
  * mean the Solution item could never gain one. Scoring by how much structure
  * an entry actually carries finds the entry that shows the full shape.
  */
+const score = (v: unknown): number => {
+  if (Array.isArray(v)) return 1 + v.reduce<number>((n, x) => n + score(x), 0);
+  if (v && typeof v === "object")
+    return Object.values(v as Record<string, unknown>).reduce<number>((n, x) => n + 1 + score(x), 0);
+  return 0;
+};
+
 function richest(shape: unknown): unknown {
   if (!Array.isArray(shape) || !shape.length) return undefined;
-  const score = (v: unknown): number => {
-    if (Array.isArray(v))
-      return 1 + v.reduce<number>((n, x) => n + score(x), 0);
-    if (v && typeof v === "object")
-      return Object.values(v as Record<string, unknown>).reduce<number>(
-        (n, x) => n + 1 + score(x),
-        0,
-      );
-    return 0;
-  };
   return shape.reduce(
     (best, item) => (score(item) > score(best) ? item : best),
     shape[0],
   );
+}
+
+/**
+ * The shape of one list item: every key any example item has, each at its
+ * richest. Items differ — only the mega menu's children carry a description —
+ * and the shape decides what is offered, so one example item is not enough.
+ */
+function itemShape(shape: unknown): unknown {
+  if (!Array.isArray(shape)) return undefined;
+  const objects = shape.filter((x) => x && typeof x === "object" && !Array.isArray(x)) as Record<string, unknown>[];
+  if (!objects.length) return richest(shape);
+  const out: Record<string, unknown> = {};
+  for (const item of objects) {
+    for (const [k, v] of Object.entries(item)) if (!(k in out) || score(v) > score(out[k])) out[k] = v;
+  }
+  return out;
 }
 
 /** "Children" -> "child", "Topics" -> "topic". Plain -s trimming is not enough. */
@@ -291,9 +311,10 @@ function ListEditor({
     value.length === 1 ? 0 : null,
   );
 
-  // Falling back to the shape is what makes "Add" work on an empty list —
-  // there is no existing item to copy the structure from.
-  const template = value[0] ?? richest(shape);
+  // From the shape, not the first row: a new item gets every field the code
+  // uses (and none left over in old content). The first row is the fallback
+  // where there is no shape to go by.
+  const template = itemShape(shape) ?? value[0];
 
   function move(from: number, to: number) {
     if (from === to) return;
@@ -394,7 +415,7 @@ function ListEditor({
                     path={[label, String(i)]}
                     value={item}
                     depth={depth + 1}
-                    shape={richest(shape)}
+                    shape={itemShape(shape)}
                     assist={assist}
                     onChange={(next) => {
                       const copy = [...value];

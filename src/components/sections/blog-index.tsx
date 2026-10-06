@@ -27,7 +27,10 @@ export function BlogIndex({
   // Every tag any published post carries, in the order they first appear —
   // alphabetical would put "AI & Automation" wherever the alphabet says, and
   // the editor's own ordering is more useful than that.
-  const tags = [...new Set(posts.flatMap((post) => post.tags))];
+  // most-used first: the tab row shows the top few and folds the rest away
+  const counts = new Map<string, number>();
+  for (const t of posts.flatMap((post) => post.tags)) counts.set(t, (counts.get(t) ?? 0) + 1);
+  const tags = [...counts.keys()].sort((a, b) => counts.get(b)! - counts.get(a)!);
 
   const needle = (q ?? "").trim().toLowerCase();
   const matching = posts.filter((post) => {
