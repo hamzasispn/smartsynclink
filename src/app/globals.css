@@ -444,8 +444,7 @@ summary::-webkit-details-marker {
 /* Markdown tables. GFM gives editors a table with a pipe row, and without
    these it renders as unstyled rows that read as run-on text. Prose wraps each
    one in .table-scroll, which scrolls on narrow screens so a wide table never
-   widens the page. Tighter cells on a phone let a three- or four-column
-   comparison fit the screen instead of hiding its last column off to the side. */
+   widens the page. */
 .prose-site .table-scroll {
   overflow-x: auto;
 }
@@ -462,92 +461,136 @@ summary::-webkit-details-marker {
   text-align: left;
   vertical-align: top;
 }
-@media (max-width: 639px) {
-  .prose-site table {
-    font-size: 13.5px;
-    line-height: 1.45;
-  }
-  .prose-site th,
-  .prose-site td {
-    padding: 8px 9px;
-  }
+
+/* --- solution pages (components/solution) ---------------------------------
+ * .sol-md is the Markdown inside their cards; -light on a dark or brand ground.
+ */
+.sol-md > * + * {
+  margin-top: 0.8em;
 }
-/* solution pages: feature names in the brand colour, bold lead-ins that read
-   as bold, sample texts and conversations as tinted cards, and the
-   SmartSyncLink column of every comparison picked out */
-.solution-article .prose-site > :first-child {
-  margin-top: 0;
-}
-.solution-article .prose-site h2,
-.solution-article .prose-site h3 {
-  line-height: 1.3;
-}
-.solution-article .prose-site h3 {
+.sol-md a {
   color: var(--color-brand);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-brand) 35%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
 }
-.solution-article .prose-site strong {
+.sol-md a:hover {
+  text-decoration-color: currentColor;
+}
+.sol-md strong {
   font-weight: 600;
   color: var(--color-ink);
 }
-.solution-article .prose-site th:last-child {
+.sol-md ul {
+  list-style: disc;
+  padding-left: 1.3em;
+}
+.sol-md li + li {
+  margin-top: 0.35em;
+}
+/* a sample text written in the copy ("Example text:" then a quote) */
+.sol-md blockquote {
+  max-width: 34rem;
+  border-radius: 18px 18px 18px 6px;
+  background: #f1eeff;
+  box-shadow: inset 0 0 0 1px rgba(51, 0, 234, 0.1);
+  padding: 0.8em 1.1em;
+  color: var(--color-ink);
+  text-align: left;
+}
+.sol-md-light a,
+.sol-md-light strong {
+  color: #fff;
+}
+.sol-md-light a {
+  text-decoration-color: rgba(255, 255, 255, 0.45);
+}
+/* "New Lead → Contacted → Won" as stage chips… */
+.sol-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.sol-flow span {
+  border-radius: 999px;
   background: var(--color-brand-soft);
+  padding: 4px 11px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
   color: var(--color-brand);
 }
-.solution-article .prose-site td:last-child {
-  background: #f6f5ff;
-  font-weight: 500;
-  color: var(--color-ink);
+.sol-flow i {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-brand) 30%, transparent);
 }
-/* a four-column comparison on a phone: one card per row, the row's subject on
-   top and each value under its column's name (Prose stamps it on the cell) */
-@media (max-width: 639px) {
-  .solution-article .prose-site .table-wide :is(table, tbody, tr, td) {
-    display: block;
-  }
-  .solution-article .prose-site .table-wide thead {
-    display: none;
-  }
-  .solution-article .prose-site .table-wide tr {
-    overflow: hidden;
-    border: 1px solid var(--color-line);
-    border-radius: 14px;
-    background: #fff;
-  }
-  .solution-article .prose-site .table-wide tr + tr {
-    margin-top: 12px;
-  }
-  .solution-article .prose-site .table-wide td {
-    border: 0;
-    border-top: 1px solid var(--color-line);
-    padding: 10px 14px;
-    font-size: 14.5px;
-  }
-  .solution-article .prose-site .table-wide td:first-child {
-    border-top: 0;
-    background: var(--color-surface);
-    font-weight: 600;
-    color: var(--color-ink);
-  }
-  .solution-article .prose-site .table-wide td:not(:first-child)::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: 2px;
-    font-size: 12.5px;
-    font-weight: 400;
-    color: var(--color-muted);
-  }
-  .solution-article .prose-site .table-wide td:last-child::before {
-    color: var(--color-brand);
+/* …or, when the stages are sentences, a small timeline */
+.sol-flow-v {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding-left: 22px;
+}
+.sol-flow-v::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 5px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(var(--color-brand), color-mix(in srgb, var(--color-brand) 15%, transparent));
+}
+.sol-flow-v li {
+  position: relative;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.sol-flow-v li::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: -21px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2.5px var(--color-brand);
+}
+/* the hero's faint grid, fading out towards the copy */
+.sol-hero-grid {
+  background-image:
+    linear-gradient(to right, rgba(14, 14, 20, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14, 14, 20, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 80% at 80% 30%, #000 30%, transparent 75%);
+}
+/* the grid inside the brand-coloured picture frames */
+.sol-art-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at center, #000 40%, transparent 85%);
+}
+/* the caller's voice on the AI Voice Agent picture */
+.sol-wave {
+  transform-origin: center;
+  animation: solWave 1.1s ease-in-out infinite alternate;
+}
+@keyframes solWave {
+  from {
+    transform: scaleY(0.35);
   }
 }
-.solution-article .prose-site blockquote {
-  border-radius: 0 14px 14px 0;
-  background: #f6f5ff;
-  padding: 0.9em 1.2em;
-  color: #1e1e1e;
-}
-.solution-article .prose-site blockquote > * + * {
-  margin-top: 0.6em;
+@media (prefers-reduced-motion: reduce) {
+  .sol-wave {
+    animation: none;
+  }
 }
 .prose-site th {
   background: var(--color-surface);
