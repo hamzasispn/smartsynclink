@@ -39,6 +39,8 @@ export type SeoBlock = {
   cta_text?: string;
   /** inline Markdown, so a phone number can be a tel: link */
   cta_note?: string;
+  /** comma-separated phrases painted in the brand gradient in headings, beside the solution's name */
+  highlight?: string;
 };
 
 /** Splits the optional `---` block off the top of a body. */
@@ -89,6 +91,22 @@ export function splitFaq(markdown: string): { article: string; title: string; it
     title: lines[start].replace(/^##\s+/, "").trim(),
     items,
   };
+}
+
+/**
+ * A heading cut around the phrases to paint: the solution's own name, and the
+ * page's `highlight:` phrases for headings that say it another way ("The AI
+ * Receptionist That…"). Any case, whole words, the longest phrase first.
+ */
+export function highlightParts(text: string, terms: string[]): { text: string; hit: boolean }[] {
+  const list = [...new Set(terms.map((t) => t.trim()).filter(Boolean))].sort((a, b) => b.length - a.length);
+  if (!list.length) return [{ text, hit: false }];
+  const escaped = list.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const lower = list.map((t) => t.toLowerCase());
+  return text
+    .split(new RegExp(`(?<!\\w)(${escaped.join("|")})(?!\\w)`, "gi"))
+    .filter(Boolean)
+    .map((part) => ({ text: part, hit: lower.includes(part.toLowerCase()) }));
 }
 
 /* -------------------------------------------------------------- sections -- */

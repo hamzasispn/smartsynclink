@@ -13,7 +13,7 @@ import {
 import type { Story } from "@/lib/stage-intro";
 import {
   LIVE_COUNT,
-  REPLIES,
+  repliesFor,
   STATIC_CHAT,
   SuiteDashboard,
   SuitePhone,
@@ -76,7 +76,7 @@ const HOLD_SENT = 2800;
  * filled in; the inbox answering that message before it is sent would give the
  * story away.
  */
-export function useChatCycle(ref: RefObject<HTMLElement | null>, startDelay = 0) {
+export function useChatCycle(ref: RefObject<HTMLElement | null>, startDelay = 0, story: Story = "medspa") {
   const [chat, setChat] = useState<ChatState>(STATIC_CHAT);
   const [typed] = useState(createTypedStore);
   const [inView, setInView] = useState(false);
@@ -112,7 +112,7 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>, startDelay = 0)
       }
       while (!cancelled) {
         const i = index.current;
-        const reply = REPLIES[i];
+        const reply = repliesFor(story)[i];
 
         typed.set("");
         setChat((c) => ({ ...c, active: i, phase: "incoming" }));
@@ -147,7 +147,7 @@ export function useChatCycle(ref: RefObject<HTMLElement | null>, startDelay = 0)
       cancelled = true;
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [inView, typed, startDelay]);
+  }, [inView, typed, startDelay, story]);
 
   return { chat, typed };
 }

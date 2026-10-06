@@ -1,6 +1,6 @@
 // Self-check for the solution page's Markdown conventions: `node scripts/check-solution-page.ts`
 import assert from "node:assert/strict";
-import { frontMatter, pageSections, plain, splitFaq } from "../src/lib/solution-page.ts";
+import { frontMatter, highlightParts, pageSections, plain, splitFaq } from "../src/lib/solution-page.ts";
 
 const body = `---
 title: AI Voice Agent | SmartSyncLink
@@ -106,5 +106,17 @@ assert.equal(sections[6].items[1].body, "Knows things.");
 assert.equal(sections[7].items[0].title, "", "a plain list has no titles");
 assert.equal(sections[5].id, "who-it-s-for");
 assert.equal(pageSections("## A\n\nOne.\n\nTwo.\n\n- x\n- y")[0].intro, "One.\n\nTwo.", "paragraphs stay apart");
+
+// the phrases a heading paints
+const painted = (text: string, terms: string[]) =>
+  highlightParts(text, terms)
+    .filter((p) => p.hit)
+    .map((p) => p.text);
+assert.deepEqual(painted("What the SmartSyncLink AI Voice Agent does", ["AI Voice Agent"]), ["AI Voice Agent"]);
+assert.deepEqual(painted("How missed call text back works", ["Missed Call Text Back"]), ["missed call text back"], "any case");
+assert.deepEqual(painted("Expert AI vs. other options", ["Expert AI", " ", ""]), ["Expert AI"], "blank phrases ignored");
+assert.deepEqual(painted("Unified inbox vs. separate apps", ["Inbox", "Unified inbox"]), ["Unified inbox"], "longest phrase first");
+assert.deepEqual(painted("Expert AIs everywhere", ["Expert AI"]), [], "whole words only");
+assert.equal(highlightParts("No match (here)", ["x.y"]).map((p) => p.text).join(""), "No match (here)", "text kept whole");
 
 console.log("solution page ok —", faq.items.length, "FAQ pairs;", sections.map((s) => s.kind).join(", "));

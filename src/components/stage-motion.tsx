@@ -61,7 +61,7 @@ export function StageMotion({
   story?: Story;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { chat, typed } = useChatCycle(ref, intro ? INTRO_MS : 0);
+  const { chat, typed } = useChatCycle(ref, intro ? INTRO_MS : 0, story);
 
   useGsap(ref, (gsap, el) => {
     const q = gsap.utils.selector(el);

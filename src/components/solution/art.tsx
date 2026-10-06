@@ -552,7 +552,7 @@ function MissedCall() {
         </div>
       </At>
       <Event x={8} y={84} w={164} n="zap" title="Texted back" sub="4 seconds later" />
-      <Event x={398} y={248} w={154} n="userPlus" {...GREEN} title="Lead saved" sub="Synced to CRM" />
+      <Event x={398} y={248} w={154} n="userPlus" {...GREEN} title="Lead saved" sub="In your CRM" />
     </>
   );
 }

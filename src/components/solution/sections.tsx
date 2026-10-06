@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { marked } from "marked";
-import type { Item, Section } from "@/lib/solution-page";
+import { highlightParts, type Item, type Section } from "@/lib/solution-page";
 import { Reveal } from "../reveal";
 import { Button, Chevron, Container } from "../ui";
 import { Icon, iconFor, industryIcon } from "./icons";
@@ -13,6 +13,8 @@ import { Icon, iconFor, industryIcon } from "./icons";
  */
 
 type Tone = "plain" | "white" | "dark";
+/** Every section gets its content, its ground, and the phrases its heading paints. */
+type Props = { s: Section; tone: Tone; hl: string[] };
 
 /* ------------------------------------------------------------- building blocks */
 
@@ -39,6 +41,29 @@ function Inline({ text }: { text: string }) {
   return <span className="sol-md" dangerouslySetInnerHTML={{ __html: marked.parseInline(text, { async: false }) as string }} />;
 }
 
+/** A heading with the solution's name (and its highlight phrases) in the brand gradient. */
+export function Hl({ text, terms = [], dark = false }: { text: string; terms?: string[]; dark?: boolean }) {
+  return (
+    <>
+      {highlightParts(text, terms).map((part, i) =>
+        part.hit ? (
+          <span
+            key={i}
+            className={`bg-gradient-to-r bg-clip-text text-transparent [-webkit-box-decoration-break:clone] [box-decoration-break:clone] ${
+              // the brand blue is too dark to read on the dark sections
+              dark ? "from-[#7C9BFF] to-[#B49CFF]" : "from-[#052EFF] to-[#3300EA]"
+            }`}
+          >
+            {part.text}
+          </span>
+        ) : (
+          part.text
+        ),
+      )}
+    </>
+  );
+}
+
 export function Eyebrow({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <span
@@ -53,12 +78,14 @@ export function Eyebrow({ children, dark = false }: { children: React.ReactNode;
 }
 
 function Head({
+  hl = [],
   eyebrow,
   title,
   intro,
   center = false,
   dark = false,
 }: {
+  hl?: string[];
   eyebrow: string;
   title: string;
   intro?: string;
@@ -73,7 +100,7 @@ function Head({
           dark ? "text-white" : "text-ink"
         }`}
       >
-        {title}
+        <Hl text={title} terms={hl} dark={dark} />
       </h2>
       {intro ? (
         <Md
@@ -126,7 +153,7 @@ const paragraphs = (md: string) => md.split(/\n{2,}/).map((p) => p.trim()).filte
 /* ------------------------------------------------------------------ problem */
 
 /** The page's opening: what goes wrong today, as cards, and the answer picked out under them. */
-function Problem({ s, tone }: { s: Section; tone: Tone }) {
+function Problem({ s, tone, hl }: Props) {
   // a section of plain paragraphs: the first leads, the last is the fix, the ones between are the pains
   const prose = s.kind === "prose" ? paragraphs(s.intro) : null;
   const outro = paragraphs(s.outro);
@@ -139,7 +166,7 @@ function Problem({ s, tone }: { s: Section; tone: Tone }) {
     <Shell id={s.id} tone={tone}>
       <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
         <div className="lg:sticky lg:top-28">
-          <Head eyebrow="The problem" title={s.title} intro={intro} />
+          <Head hl={hl} eyebrow="The problem" title={s.title} intro={intro} />
           {outro.length ? <Md md={outro.join("\n\n")} className="mt-5 max-w-[640px] text-[16.5px] leading-[1.65] text-[#1E1E1E]/80" /> : null}
         </div>
 
@@ -211,12 +238,12 @@ const SPANS: Record<number, number[]> = {
 };
 const SPAN_CLASS: Record<number, string> = { 2: "lg:col-span-2", 3: "lg:col-span-3", 4: "lg:col-span-4", 6: "lg:col-span-6" };
 
-function Features({ s, tone }: { s: Section; tone: Tone }) {
+function Features({ s, tone, hl }: Props) {
   const spans = SPANS[s.items.length] ?? s.items.map(() => 2);
   let featured = 0;
   return (
     <Shell id={s.id} tone={tone}>
-      <Head eyebrow="What you get" title={s.title} intro={s.intro} center />
+      <Head hl={hl} eyebrow="What you get" title={s.title} intro={s.intro} center />
       <Reveal className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-6" stagger={0.06}>
         {s.items.map((item, i) => {
           const big = spans[i] >= 4;
@@ -264,10 +291,10 @@ function Features({ s, tone }: { s: Section; tone: Tone }) {
 /* -------------------------------------------------------------------- cards */
 
 /** Industries: one card each, with its icon; a pipeline in the text shows as its stages. */
-function Cards({ s, tone }: { s: Section; tone: Tone }) {
+function Cards({ s, tone, hl }: Props) {
   return (
     <Shell id={s.id} tone={tone}>
-      <Head eyebrow="By industry" title={s.title} intro={s.intro} />
+      <Head hl={hl} eyebrow="By industry" title={s.title} intro={s.intro} />
       <Reveal className="mt-12 flex flex-wrap justify-center gap-4" stagger={0.06}>
         {s.items.map((item) => (
           <article
@@ -416,11 +443,11 @@ function Grid({ head, rows }: { head: string[]; rows: string[][] }) {
   );
 }
 
-function Compare({ s, tone }: { s: Section; tone: Tone }) {
+function Compare({ s, tone, hl }: Props) {
   const t = s.table!;
   return (
     <Shell id={s.id} tone={tone}>
-      <Head eyebrow="Compare" title={s.title} intro={s.intro} center />
+      <Head hl={hl} eyebrow="Compare" title={s.title} intro={s.intro} center />
       {t.head.length === 2 ? <Pairs head={t.head} rows={t.rows} /> : <Grid head={t.head} rows={t.rows} />}
       {s.outro ? (
         <div className="mx-auto mt-10 flex max-w-[780px] gap-4 rounded-2xl border border-line bg-white p-6">
@@ -447,14 +474,14 @@ function TextBubble({ text }: { text: string }) {
   );
 }
 
-function Steps({ s, tone }: { s: Section; tone: Tone }) {
+function Steps({ s, tone, hl }: Props) {
   const across = s.items.length <= 5 && s.items.every((item) => item.title && !item.quote);
   const cols = { 3: "lg:grid-cols-3", 4: "lg:grid-cols-4", 5: "lg:grid-cols-5" }[s.items.length] ?? "lg:grid-cols-4";
 
   if (across) {
     return (
       <Shell id={s.id} tone={tone}>
-        <Head eyebrow="How it works" title={s.title} intro={s.intro} center />
+        <Head hl={hl} eyebrow="How it works" title={s.title} intro={s.intro} center />
         <div className="relative mt-14">
           <span aria-hidden="true" className="absolute top-6 right-[8%] left-[8%] hidden border-t-2 border-dashed border-brand/20 lg:block" />
           <Reveal className={`relative grid gap-4 sm:grid-cols-2 ${cols}`} stagger={0.08}>
@@ -486,7 +513,7 @@ function Steps({ s, tone }: { s: Section; tone: Tone }) {
     <Shell id={s.id} tone={tone}>
       <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
         <div className="lg:sticky lg:top-28">
-          <Head eyebrow="How it works" title={s.title} intro={s.intro} />
+          <Head hl={hl} eyebrow="How it works" title={s.title} intro={s.intro} />
           {s.outro ? <StepsOutro md={s.outro} className="mt-8 hidden lg:flex" /> : null}
         </div>
         <Reveal as="ul" className="relative" stagger={0.07}>
@@ -542,11 +569,11 @@ function channelOf(label: string) {
   return { n: "sms" as const, name: "Text" };
 }
 
-function Chats({ s }: { s: Section }) {
+function Chats({ s, hl }: { s: Section; hl: string[] }) {
   const cols = s.chats.length % 3 === 0 ? "lg:grid-cols-3" : s.chats.length % 2 === 0 ? "lg:grid-cols-2" : "lg:grid-cols-3";
   return (
     <Shell id={s.id} tone="dark">
-      <Head eyebrow="See it in action" title={s.title} intro={s.intro} center dark />
+      <Head hl={hl} eyebrow="See it in action" title={s.title} intro={s.intro} center dark />
       <Reveal className={`mx-auto mt-12 grid max-w-[1180px] gap-4 md:grid-cols-2 ${cols}`} stagger={0.08}>
         {s.chats.map((chat, i) => {
           const channel = channelOf(chat.label);
@@ -594,11 +621,11 @@ function Chats({ s }: { s: Section }) {
 
 /* -------------------------------------------------------------------- links */
 
-function Links({ s, tone }: { s: Section; tone: Tone }) {
+function Links({ s, tone, hl }: Props) {
   const cols = s.items.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3";
   return (
     <Shell id={s.id} tone={tone}>
-      <Head eyebrow="Connected system" title={s.title} intro={s.intro} center />
+      <Head hl={hl} eyebrow="Connected system" title={s.title} intro={s.intro} center />
       <Reveal className={`mt-12 grid gap-4 md:grid-cols-2 ${cols}`} stagger={0.07}>
         {s.items.map((item) => (
           <Link
@@ -623,14 +650,14 @@ function Links({ s, tone }: { s: Section; tone: Tone }) {
 
 /* --------------------------------------------------------------------- list */
 
-function List({ s, tone }: { s: Section; tone: Tone }) {
+function List({ s, tone, hl }: Props) {
   const titled = s.items.some((item) => item.title);
 
   if (titled) {
     const four = s.items.length >= 7 || s.items.length === 4;
     return (
       <Shell id={s.id} tone={tone}>
-        <Head eyebrow="Highlights" title={s.title} intro={s.intro} center />
+        <Head hl={hl} eyebrow="Highlights" title={s.title} intro={s.intro} center />
         <Reveal className="mt-12 flex flex-wrap justify-center gap-4" stagger={0.05}>
           {s.items.map((item: Item) => (
             <article
@@ -655,7 +682,7 @@ function List({ s, tone }: { s: Section; tone: Tone }) {
   return (
     <Shell id={s.id} tone={tone}>
       <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-        <Head eyebrow="Checklist" title={s.title} intro={s.intro} />
+        <Head hl={hl} eyebrow="Checklist" title={s.title} intro={s.intro} />
         <div className={`rounded-[28px] border border-line p-3 shadow-[0_30px_60px_-40px_rgba(14,14,20,0.35)] ${cardBg(tone)}`}>
           <Reveal as="ul" className="grid gap-1" stagger={0.05}>
             {s.items.map((item) => (
@@ -677,7 +704,7 @@ function List({ s, tone }: { s: Section; tone: Tone }) {
 /* ------------------------------------------------------------------- prose */
 
 /** A short section on its own: a statement card, heading on the left and the words on the right. */
-function Statement({ s, tone }: { s: Section; tone: Tone }) {
+function Statement({ s, tone, hl }: Props) {
   return (
     <Shell id={s.id} tone={tone}>
       <div className="relative overflow-hidden rounded-[32px] border border-brand/10 bg-gradient-to-br from-[#F3F0FF] via-white to-white p-7 sm:p-12 lg:p-16">
@@ -685,7 +712,9 @@ function Statement({ s, tone }: { s: Section; tone: Tone }) {
         <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div>
             <IconTile n={iconFor(s.title, s.intro)} tone="solid" />
-            <h2 className="mt-6 text-balance text-[28px] font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px]">{s.title}</h2>
+            <h2 className="mt-6 text-balance text-[28px] font-medium leading-[1.12] tracking-[-0.03em] text-ink sm:text-[36px]">
+              <Hl text={s.title} terms={hl} />
+            </h2>
           </div>
           <Md md={s.intro} className="text-[17px] leading-[1.7] text-[#1E1E1E]/85 lg:pt-2" />
         </div>
@@ -696,38 +725,48 @@ function Statement({ s, tone }: { s: Section; tone: Tone }) {
 
 /* --------------------------------------------------------------- dispatch */
 
-export function SolutionSection({ s, index }: { s: Section; index: number }) {
+export function SolutionSection({ s, index, hl }: { s: Section; index: number; hl: string[] }) {
   // the page alternates its ground so sections read apart; the chats are always dark
   const tone: Tone = index % 2 ? "white" : "plain";
-  if (index === 0) return <Problem s={s} tone={tone} />;
+  if (index === 0) return <Problem s={s} tone={tone} hl={hl} />;
   switch (s.kind) {
     case "features":
-      return <Features s={s} tone={tone} />;
+      return <Features s={s} tone={tone} hl={hl} />;
     case "cards":
-      return <Cards s={s} tone={tone} />;
+      return <Cards s={s} tone={tone} hl={hl} />;
     case "compare":
-      return <Compare s={s} tone={tone} />;
+      return <Compare s={s} tone={tone} hl={hl} />;
     case "steps":
-      return <Steps s={s} tone={tone} />;
+      return <Steps s={s} tone={tone} hl={hl} />;
     case "chats":
-      return <Chats s={s} />;
+      return <Chats s={s} hl={hl} />;
     case "links":
-      return <Links s={s} tone={tone} />;
+      return <Links s={s} tone={tone} hl={hl} />;
     case "list":
-      return <List s={s} tone={tone} />;
+      return <List s={s} tone={tone} hl={hl} />;
     default:
-      return <Statement s={s} tone={tone} />;
+      return <Statement s={s} tone={tone} hl={hl} />;
   }
 }
 
 /* ---------------------------------------------------------------------- faq */
 
-export function SolutionFaq({ title, items, demo }: { title: string; items: { q: string; a: string }[]; demo: { label: string; href: string } }) {
+export function SolutionFaq({
+  title,
+  items,
+  demo,
+  hl,
+}: {
+  title: string;
+  items: { q: string; a: string }[];
+  demo: { label: string; href: string };
+  hl: string[];
+}) {
   return (
     <Shell id="faq" tone="plain">
       <div className="grid items-start gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div className="lg:sticky lg:top-28">
-          <Head eyebrow="FAQ" title={title} />
+          <Head hl={hl} eyebrow="FAQ" title={title} />
           <p className="mt-5 max-w-[42ch] text-[16px] leading-[1.65] text-[#1E1E1E]/75">
             Still wondering how it would work for your business? Ask us on a live demo.
           </p>

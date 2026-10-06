@@ -118,7 +118,8 @@ export function ServiceForm({ service }: { service: Service | null }) {
             Shows at /solutions/{"{slug}"}. Optional settings at the very top, between two <code>---</code> lines:{" "}
             <code>title:</code>, <code>description:</code> and <code>keywords:</code> for Google, <code>heading:</code> for
             the big headline, <code>related:</code> for the solutions linked at the bottom (their slugs, comma-separated),
-            and <code>cta_heading:</code>, <code>cta_text:</code>, <code>cta_note:</code> for the closing box. Questions
+            <code>cta_heading:</code>, <code>cta_text:</code>, <code>cta_note:</code> for the closing box, and{" "}
+            <code>highlight:</code> for phrases to colour in the headings (the solution&apos;s name is coloured anyway). Questions
             under a <code>## Frequently asked questions</code> heading, each as <code>### question</code> with its answer
             below, show as an accordion and become FAQ results on Google.
           </span>

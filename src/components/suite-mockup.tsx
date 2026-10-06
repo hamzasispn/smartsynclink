@@ -419,6 +419,14 @@ export const REPLIES = [
 ];
 export const LIVE_COUNT = REPLIES.length;
 
+/** The first thread is the visitor from the website, so its reply answers what they asked. */
+const FIRST_REPLY: Record<Story, string> = {
+  medspa: REPLIES[0],
+  contractor: "Absolutely! A tech can come out Thursday 10 AM for a free quote — shall I book it?",
+  realtor: "Yes! 412 Oak Lane is open Thursday at 5 PM — shall I book your showing?",
+};
+export const repliesFor = (story: Story = "medspa") => [FIRST_REPLY[story], ...REPLIES.slice(1)];
+
 /** Where the scripted demo is: the open thread, how far its reply has got, and which threads are answered. */
 export type ChatState = {
   active: number;
@@ -635,6 +643,7 @@ export function SuiteDashboard({
   story?: Story;
 }) {
   const THREADS = THREADS_BY[story];
+  const replies = repliesFor(story);
   const { account } = STORIES[story];
   const top = THREADS[chat.active] ?? THREADS[0];
   // handles like "nadia2209" have no surname to split off
@@ -804,7 +813,7 @@ export function SuiteDashboard({
             </T>
             {chat.read.includes(i) ? null : <Count x={295} y={18} w={17} h={19} n={t.count} />}
             <T x={40} y={61} s={14} c={MUTED} style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }}>
-              {chat.read.includes(i) ? `You: ${REPLIES[i]}` : t.preview}
+              {chat.read.includes(i) ? `You: ${replies[i]}` : t.preview}
             </T>
             <Ico n="star" x={305} y={61} s={14} c="#9CA3AF" />
           </Box>
@@ -881,7 +890,7 @@ export function SuiteDashboard({
               whiteSpace: "nowrap",
             }}
           >
-            {REPLIES[chat.active]}
+            {replies[chat.active]}
           </div>
           <div style={{ marginTop: 8, fontSize: 12.5, color: MUTED }}>Sent by AI · just now</div>
         </div>
@@ -1158,6 +1167,7 @@ export function SuitePhone({
   story?: Story;
 }) {
   const THREADS = THREADS_BY[story];
+  const replies = repliesFor(story);
   const ROW = 74;
   return (
     <PhoneFrame>
@@ -1239,7 +1249,7 @@ export function SuitePhone({
                 {chat.active === i && chat.phase === "typing"
                   ? "typing…"
                   : chat.read.includes(i)
-                    ? `You: ${REPLIES[i]}`
+                    ? `You: ${replies[i]}`
                     : t.preview}
               </T>
               {chat.read.includes(i) ? null : <Count x={274} y={41} w={18} h={18} n={t.count} r={9} />}
@@ -1288,6 +1298,7 @@ export function SuitePhoneChat({
   story?: Story;
 }) {
   const THREADS = THREADS_BY[story];
+  const replies = repliesFor(story);
   const top = THREADS[chat.active] ?? THREADS[0];
   const typing = chat.phase === "typing";
 
@@ -1367,7 +1378,7 @@ export function SuitePhoneChat({
               lineHeight: 1.35,
             }}
           >
-            {REPLIES[chat.active]}
+            {replies[chat.active]}
           </div>
           <div style={{ marginTop: 6, fontSize: 11, color: MUTED }}>Sent by AI · just now</div>
         </div>

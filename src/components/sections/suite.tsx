@@ -10,20 +10,22 @@ import { BOARD, INK, LINE, PHONE } from "../suite-mockup";
 import { Button, Container } from "../ui";
 
 /**
- * Two arrangements of the same two shots, on the stage's own pixel grid.
+ * Arrangements of the same two shots, on the stage's own pixel grid.
  *   section — the phone over the dashboard's right-hand corner
  *   tile    — the phone in front on the left, the dashboard running off the
  *             right edge; for the bento tile, which is too narrow to show the
  *             whole screen at a readable size, so it shows the part that matters
- *   phone   — the phone alone, for the Suite section on a phone: the desktop
- *             screen would draw at a fifth of its size there, and the phone
- *             tells the same story — the website, the form sent, the lead
- *             landing, the inbox — at a size that reads
+ *   mobile  — the Suite section on a phone: the dashboard drawn at half size
+ *             across the top, wider than the screen so it runs off both edges,
+ *             and the phone big in front of its lower half. Both shots, as on a
+ *             desktop — with the phone alone, people did not see there is a
+ *             desktop app too.
+ * `scale` draws the dashboard (and what plays over it) smaller than the phone.
  */
 const LAYOUTS = {
-  section: { board: { x: 0, y: 0 }, phone: { x: 1559, y: 309 }, w: 1559 + PHONE.w, h: 309 + PHONE.h },
-  tile: { board: { x: 200, y: 0 }, phone: { x: 0, y: 250 }, w: 200 + BOARD.w, h: 250 + PHONE.h },
-  phone: { board: null, phone: { x: 0, y: 0 }, w: PHONE.w, h: PHONE.h },
+  section: { board: { x: 0, y: 0 }, phone: { x: 1559, y: 309 }, w: 1559 + PHONE.w, h: 309 + PHONE.h, scale: 1 },
+  tile: { board: { x: 200, y: 0 }, phone: { x: 0, y: 250 }, w: 200 + BOARD.w, h: 250 + PHONE.h, scale: 1 },
+  mobile: { board: { x: (600 - BOARD.w / 2) / 2, y: 0 }, phone: { x: (600 - PHONE.w) / 2, y: 300 }, w: 600, h: 300 + PHONE.h, scale: 0.5 },
 } as const;
 
 /**
@@ -56,6 +58,15 @@ export function SuiteStage({
   const STAGE = LAYOUTS[layout];
   const board = STAGE.board;
   const { Desktop, Mobile } = SITES[story];
+  // the dashboard's own grid, placed and scaled as one piece
+  const desk = {
+    left: board.x,
+    top: board.y,
+    width: BOARD.w,
+    height: BOARD.h,
+    transform: `scale(${STAGE.scale})`,
+    transformOrigin: "0 0",
+  } as const;
   return (
     <StageMotion
       intro={intro}
@@ -72,29 +83,27 @@ export function SuiteStage({
         className="suite-board"
         style={{ width: STAGE.w, height: STAGE.h, ["--stage-w" as string]: `${STAGE.w}px` }}
       >
-        {board ? (
+        <div className="absolute" style={desk}>
           <div
             data-sa="board"
-            className="absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
-            style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
+            className="absolute inset-0 overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
           >
             <LiveDashboard story={story} />
           </div>
-        ) : null}
 
-        {/* Between the dashboard and the phone on purpose: it covers the
-            dashboard exactly, so the inbox opens where the website was, but the
-            phone stays in front of it the way it does over the finished screen.
-            stage-cue keeps it out of the way wherever the timeline never runs. */}
-        {intro && board ? (
-          <div
-            data-a="site"
-            className="stage-cue absolute overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
-            style={{ left: board.x, top: board.y, width: BOARD.w, height: BOARD.h }}
-          >
-            <Desktop />
-          </div>
-        ) : null}
+          {/* Between the dashboard and the phone on purpose: it covers the
+              dashboard exactly, so the inbox opens where the website was, but the
+              phone stays in front of it the way it does over the finished screen.
+              stage-cue keeps it out of the way wherever the timeline never runs. */}
+          {intro ? (
+            <div
+              data-a="site"
+              className="stage-cue absolute inset-0 overflow-hidden rounded-[14px] shadow-[0_30px_80px_-30px_rgba(14,14,20,0.35)] ring-1 ring-black/5"
+            >
+              <Desktop />
+            </div>
+          ) : null}
+        </div>
 
         <div data-sa="phone" className="absolute" style={{ left: STAGE.phone.x, top: STAGE.phone.y }}>
           <div data-sa="float" className="will-change-transform">
@@ -116,15 +125,15 @@ export function SuiteStage({
           </div>
         </div>
 
-        {intro && board ? (
-          <>
+        {intro ? (
+          <div className="pointer-events-none absolute" style={desk}>
             {/* what the desk catches the moment the form is sent */}
             <div
               data-a="chip"
               className="stage-cue absolute flex items-center gap-2.5"
               style={{
-                left: board.x + BOOKED.x - 95,
-                top: board.y + BOOKED.y - 22,
+                left: BOOKED.x - 95,
+                top: BOOKED.y - 22,
                 width: 190,
                 height: 44,
                 paddingLeft: 16,
@@ -140,7 +149,7 @@ export function SuiteStage({
               <span className="size-2.5 rounded-full bg-[#052EFF]" />
               New lead
             </div>
-          </>
+          </div>
         ) : null}
       </div>
     </StageMotion>
@@ -148,9 +157,8 @@ export function SuiteStage({
 }
 
 /**
- * SmartSync Suite. Below md the desktop screen would shrink past reading, so
- * the phone plays the whole story on its own — the website, the form sent,
- * the lead, the inbox — the same one the desktop stage plays.
+ * SmartSync Suite. Below md the stage is rearranged rather than shrunk: the
+ * desktop screen at half size behind, the phone big in front (see LAYOUTS).
  */
 export function Suite({ data, story }: { data: HomeContent["suite"]; story?: Story }) {
   return (
@@ -182,7 +190,7 @@ export function Suite({ data, story }: { data: HomeContent["suite"]; story?: Sto
             className="pointer-events-none absolute inset-x-[10%] top-[10%] bottom-0 rounded-full bg-[radial-gradient(closest-side,rgba(5,46,255,0.16),transparent)] blur-2xl"
           />
           <SuiteStage idPrefix="suite-stage" className="hidden w-full md:block" intro story={story} />
-          <SuiteStage idPrefix="suite-solo" layout="phone" className="mx-auto w-full max-w-75 md:hidden" intro story={story} />
+          <SuiteStage idPrefix="suite-solo" layout="mobile" className="mx-auto w-full max-w-[440px] md:hidden" intro story={story} />
         </div>
       </Container>
     </section>

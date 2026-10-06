@@ -6,7 +6,7 @@ import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { SolutionArt } from "@/components/solution/art";
 import { Icon, iconFor } from "@/components/solution/icons";
-import { Eyebrow, SolutionFaq, SolutionSection } from "@/components/solution/sections";
+import { Eyebrow, Hl, SolutionFaq, SolutionSection } from "@/components/solution/sections";
 import { Button, Container, Media } from "@/components/ui";
 import { getGlobalContent } from "@/lib/content";
 import { getService, listServices, type Service } from "@/lib/services";
@@ -60,6 +60,8 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
   const { seo, markdown } = frontMatter(service.body);
   const faq = splitFaq(markdown);
   const sections = pageSections(faq.article);
+  // the solution's name, painted wherever a heading says it, and the page's own phrases
+  const hl = [service.title, ...(seo.highlight ?? "").split(",")];
   // three of the page's own features, as proof points under the hero copy
   const proof = sections.find((s) => s.kind === "features")?.items.slice(0, 3).map((item) => item.title) ?? [];
 
@@ -122,7 +124,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
                   </span>
                 </nav>
                 <h1 className="mt-6 text-balance text-[38px] font-medium leading-[1.05] tracking-[-0.035em] text-ink sm:text-[54px] xl:text-[60px]">
-                  {seo.heading || service.title}
+                  <Hl text={seo.heading || service.title} terms={hl} />
                 </h1>
                 {service.excerpt ? (
                   <p className="mt-6 max-w-[56ch] text-pretty text-[17px] leading-[1.65] text-[#1E1E1E]/80">{service.excerpt}</p>
@@ -160,10 +162,10 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
         </section>
 
         {sections.map((section, i) => (
-          <SolutionSection key={section.id} s={section} index={i} />
+          <SolutionSection key={section.id} s={section} index={i} hl={hl} />
         ))}
 
-        {faq.items.length ? <SolutionFaq title={faq.title} items={faq.items} demo={DEMO} /> : null}
+        {faq.items.length ? <SolutionFaq title={faq.title} items={faq.items} demo={DEMO} hl={hl} /> : null}
 
         {others.length ? (
           <section className="bg-white py-16 md:py-24">
@@ -209,7 +211,7 @@ export default async function SolutionPage({ params }: { params: Promise<{ slug:
               <div className="relative">
                 <Eyebrow dark>Live demo · 20 minutes</Eyebrow>
                 <h2 className="mx-auto mt-6 max-w-[22ch] text-balance text-[32px] font-medium leading-[1.1] tracking-[-0.03em] sm:text-[48px]">
-                  {seo.cta_heading || `See ${service.title} working on your business`}
+                  <Hl text={seo.cta_heading || `See ${service.title} working on your business`} terms={hl} dark />
                 </h2>
                 <p className="mx-auto mt-5 max-w-[58ch] text-pretty text-[16.5px] leading-[1.7] text-white/70">
                   {seo.cta_text || "A short live demo on your own calls and leads, or pick a plan and start today."}
