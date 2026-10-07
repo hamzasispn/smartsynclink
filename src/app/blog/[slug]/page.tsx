@@ -52,7 +52,7 @@ export default async function PostPage({
       layout={layout}
       blocks={blocks}
       global={global}
-      ctx={{ pageKey: "post", post: { post, all } }}
+      ctx={{ pageKey: "post", post: { post, all }, newsletter: global.footer.newsletter }}
     />
   );
 }

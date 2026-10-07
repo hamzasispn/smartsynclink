@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { BlogContent } from "@/content/blog";
+import type { GlobalContent } from "@/content/global";
 import { formatDate } from "@/lib/format";
 import type { Post } from "@/lib/posts";
 import { tableOfContents } from "@/lib/toc";
@@ -19,7 +20,17 @@ const readingMinutes = (body: string) => Math.max(1, Math.round(body.trim().spli
  * it come from the section's content, so the template is built once in the
  * builder and every post follows it.
  */
-export function PostArticle({ data: blog, post, all }: { data: BlogContent; post: Post; all: Post[] }) {
+export function PostArticle({
+  data: blog,
+  post,
+  all,
+  newsletter,
+}: {
+  data: BlogContent;
+  post: Post;
+  all: Post[];
+  newsletter?: GlobalContent["footer"]["newsletter"];
+}) {
   const toc = tableOfContents(post.body);
   const others = all.filter((p) => p.id !== post.id);
   // Same tag first, newest otherwise — a related list that ignores tags is just
@@ -103,7 +114,7 @@ export function PostArticle({ data: blog, post, all }: { data: BlogContent; post
         </div>
       </div>
 
-      <NewsletterBand blog={blog} />
+      <NewsletterBand blog={blog} form={newsletter} />
 
       {related.length ? (
         <div className="mx-auto w-full max-w-[1200px] px-5 pt-16">

@@ -1,4 +1,5 @@
 import type { BlogContent } from "@/content/blog";
+import type { GlobalContent } from "@/content/global";
 import type { Post } from "@/lib/posts";
 import { CirclePagination, TabRow } from "../blog/filters";
 import { NewsletterBand, PostTile } from "../blog/parts";
@@ -17,10 +18,12 @@ export function BlogIndex({
   data: blog,
   posts,
   searchParams,
+  newsletter,
 }: {
   data: BlogContent;
   posts: Post[];
   searchParams: { tag?: string; page?: string; q?: string };
+  newsletter?: GlobalContent["footer"]["newsletter"];
 }) {
   const { tag, page: pageParam, q } = searchParams;
 
@@ -92,7 +95,7 @@ export function BlogIndex({
         )}
       </div>
 
-      {above.length ? <NewsletterBand blog={blog} /> : null}
+      {above.length ? <NewsletterBand blog={blog} form={newsletter} /> : null}
 
       <div className="mx-auto w-full max-w-[1200px] px-5">
         {below.length ? (

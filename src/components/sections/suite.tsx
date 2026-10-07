@@ -15,17 +15,17 @@ import { Button, Container } from "../ui";
  *   tile    — the phone in front on the left, the dashboard running off the
  *             right edge; for the bento tile, which is too narrow to show the
  *             whole screen at a readable size, so it shows the part that matters
- *   mobile  — the Suite section on a phone: the dashboard drawn at half size
- *             across the top, wider than the screen so it runs off both edges,
- *             and the phone big in front of its lower half. Both shots, as on a
- *             desktop — with the phone alone, people did not see there is a
- *             desktop app too.
+ *   mobile  — the Suite section on a phone: the whole dashboard across the top,
+ *             scaled to the screen's width (cut off at the edges it looked
+ *             broken), and the phone big in front of its lower part. Both
+ *             shots, as on a desktop — with the phone alone, people did not see
+ *             there is a desktop app too.
  * `scale` draws the dashboard (and what plays over it) smaller than the phone.
  */
 const LAYOUTS = {
   section: { board: { x: 0, y: 0 }, phone: { x: 1559, y: 309 }, w: 1559 + PHONE.w, h: 309 + PHONE.h, scale: 1 },
   tile: { board: { x: 200, y: 0 }, phone: { x: 0, y: 250 }, w: 200 + BOARD.w, h: 250 + PHONE.h, scale: 1 },
-  mobile: { board: { x: (600 - BOARD.w / 2) / 2, y: 0 }, phone: { x: (600 - PHONE.w) / 2, y: 300 }, w: 600, h: 300 + PHONE.h, scale: 0.5 },
+  mobile: { board: { x: 0, y: 0 }, phone: { x: (600 - PHONE.w) / 2, y: 190 }, w: 600, h: 190 + PHONE.h, scale: 600 / BOARD.w },
 } as const;
 
 /**
@@ -158,7 +158,7 @@ export function SuiteStage({
 
 /**
  * SmartSync Suite. Below md the stage is rearranged rather than shrunk: the
- * desktop screen at half size behind, the phone big in front (see LAYOUTS).
+ * whole desktop screen small behind, the phone big in front (see LAYOUTS).
  */
 export function Suite({ data, story }: { data: HomeContent["suite"]; story?: Story }) {
   return (

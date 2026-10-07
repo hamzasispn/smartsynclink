@@ -53,6 +53,10 @@ export async function recordRun(error: string | null) {
  *
  * The check and the write are one statement, so two ticks arriving together
  * cannot both take it.
+ *
+ * A tenth of the interval counts as on time. The cron fires once a day but
+ * anywhere in its hour, so with every 24 hours a 09:40 run made the next day's
+ * 09:05 tick "not due yet" — and a day was skipped every few days.
  */
 export async function claimRun() {
   const rows = await sql`
@@ -62,7 +66,7 @@ export async function claimRun() {
       last_error  = 'started — no result recorded, the run did not finish'
     where id = 1
       and enabled
-      and (next_run_at is null or next_run_at <= now())
+      and (next_run_at is null or next_run_at <= now() + make_interval(hours => every_hours) / 10)
     returning id`;
   return rows.length > 0;
 }

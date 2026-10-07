@@ -63,6 +63,8 @@ export type RenderContext = {
   preview?: boolean;
   /** The post a blog post template renders, and every post for its related list. */
   post?: { post: Post; all: Post[] };
+  /** The footer's newsletter form, which the blog's "Don't want to miss anything?" band reuses. */
+  newsletter?: GlobalContent["footer"]["newsletter"];
 };
 
 type Render = (data: never, ctx: RenderContext) => ReactNode;
@@ -95,14 +97,14 @@ const RENDER: Record<string, Render> = {
 
   solutions: (d: SolutionsContent) => <Solutions data={d} />,
   blogIndex: (d: BlogContent, ctx) => (
-    <BlogIndex data={d} posts={ctx.blog?.posts ?? []} searchParams={ctx.blog?.searchParams ?? {}} />
+    <BlogIndex data={d} posts={ctx.blog?.posts ?? []} searchParams={ctx.blog?.searchParams ?? {}} newsletter={ctx.newsletter} />
   ),
   usagePricing: (d: UsagePricingContent) => <UsagePricing data={d} />,
   pricingTable: (d: PricingTableContent) => <PricingPackages data={d} />,
   legal: (d: LegalDoc) => <LegalPage doc={d} />,
   postArticle: (d: BlogContent, ctx) =>
     ctx.post ? (
-      <PostArticle data={d} post={ctx.post.post} all={ctx.post.all} />
+      <PostArticle data={d} post={ctx.post.post} all={ctx.post.all} newsletter={ctx.newsletter} />
     ) : (
       <section className="px-6 pt-44 pb-24 text-center text-[15px] text-muted">
         No published posts yet — publish one to see this template filled in.

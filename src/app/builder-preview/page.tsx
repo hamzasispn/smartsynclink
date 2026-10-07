@@ -55,6 +55,7 @@ export default async function BuilderPreview({
         pageKey,
         blog: { posts, searchParams: {} },
         post: pageKey === "post" && posts[0] ? { post: posts[0], all: posts } : undefined,
+        newsletter: global.footer.newsletter,
       }}
       brand={chrome?.brand}
       after={chrome?.after}

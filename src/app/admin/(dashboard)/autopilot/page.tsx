@@ -60,6 +60,10 @@ export default async function AutopilotPage() {
                   defaultValue={cfg.every_hours}
                   className={inputClass}
                 />
+                {/* vercel.json runs the writer once a day, so nothing under 24 adds posts */}
+                <span className="mt-1.5 block text-[13px] text-muted">
+                  The writer checks once a day (9:00 UTC): 24 or less means one post a day.
+                </span>
               </Field>
               <Field label="Length (words)">
                 <input

@@ -83,6 +83,9 @@ function assertConfigured(ai: ResolvedAi) {
   );
 }
 
+/** A picture sent with a request, for the model to look at. */
+export type AiImage = { mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif"; base64: string };
+
 /* ------------------------------------------------------------- anthropic -- */
 
 async function viaAnthropic<T extends z.ZodType>(
@@ -90,6 +93,7 @@ async function viaAnthropic<T extends z.ZodType>(
   schema: T,
   system: string,
   prompt: string,
+  images: AiImage[] = [],
 ): Promise<z.infer<T>> {
   const client = new Anthropic({ apiKey: ai.apiKey });
   const model = ai.model;
@@ -97,7 +101,20 @@ async function viaAnthropic<T extends z.ZodType>(
     model,
     max_tokens: 16000,
     system,
-    messages: [{ role: "user", content: prompt }],
+    messages: [
+      {
+        role: "user",
+        content: images.length
+          ? [
+              ...images.map((image) => ({
+                type: "image" as const,
+                source: { type: "base64" as const, media_type: image.mediaType, data: image.base64 },
+              })),
+              { type: "text" as const, text: prompt },
+            ]
+          : prompt,
+      },
+    ],
     output_config: { format: zodOutputFormat(schema) },
   });
 
@@ -130,12 +147,19 @@ async function viaOpenAiCompatible<T extends z.ZodType>(
   schema: T,
   system: string,
   prompt: string,
+  images: AiImage[] = [],
 ): Promise<z.infer<T>> {
   const model = ai.model;
   const jsonSchema = z.toJSONSchema(schema);
+  const user = images.length
+    ? [
+        ...images.map((image) => ({ type: "image_url", image_url: { url: `data:${image.mediaType};base64,${image.base64}` } })),
+        { type: "text", text: prompt },
+      ]
+    : prompt;
   const messages = [
     { role: "system", content: system },
-    { role: "user", content: prompt },
+    { role: "user", content: user },
   ];
   const base = { model, messages, max_tokens: 8000 };
 
@@ -160,7 +184,7 @@ async function viaOpenAiCompatible<T extends z.ZodType>(
           role: "system",
           content: `${system}\n\nReply with JSON only, matching this schema:\n${JSON.stringify(jsonSchema)}`,
         },
-        { role: "user", content: prompt },
+        { role: "user", content: user },
       ],
     });
   }
@@ -202,11 +226,28 @@ async function viaOpenAiCompatible<T extends z.ZodType>(
 
 export async function completeStructured<T extends z.ZodType>(
   schema: T,
-  opts: { system: string; prompt: string },
+  opts: {
+    system: string;
+    prompt: string;
+    images?: AiImage[];
+    /** This call only; the saved model otherwise. Claude ids only apply on the Anthropic connection. */
+    model?: string;
+  },
 ): Promise<z.infer<T>> {
-  const ai = await resolveAi();
-  assertConfigured(ai);
+  const saved = await resolveAi();
+  assertConfigured(saved);
+  const ai = opts.model && saved.provider === "anthropic" ? { ...saved, model: opts.model } : saved;
   return ai.provider === "anthropic"
-    ? viaAnthropic(ai, schema, opts.system, opts.prompt)
-    : viaOpenAiCompatible(ai, schema, opts.system, opts.prompt);
+    ? viaAnthropic(ai, schema, opts.system, opts.prompt, opts.images)
+    : viaOpenAiCompatible(ai, schema, opts.system, opts.prompt, opts.images);
 }
+
+/**
+ * The models the builder's AI boxes offer on the Anthropic connection — the
+ * saved model is always the default. Ids from the Claude 5 family and Haiku 4.5.
+ */
+export const CLAUDE_MODELS = [
+  { id: "claude-opus-5-5", label: "Claude Opus 5.5", note: "Best results — whole sections, careful rewrites" },
+  { id: "claude-sonnet-5-5", label: "Claude Sonnet 5.5", note: "Fast and strong — most edits" },
+  { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5", note: "Quickest and cheapest — small text changes" },
+] as const;

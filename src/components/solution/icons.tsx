@@ -160,6 +160,9 @@ const PATHS = {
 
 export type IconName = keyof typeof PATHS;
 
+/** Every icon there is, for pickers and for checking a name before drawing it. */
+export const ICON_NAMES = Object.keys(PATHS) as IconName[];
+
 export function Icon({ n, className = "size-5", sw = 1.75 }: { n: IconName; className?: string; sw?: number }) {
   return (
     <svg

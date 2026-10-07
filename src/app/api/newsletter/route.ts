@@ -9,7 +9,7 @@ import { ghlReady, subscribeContact } from "@/lib/ghl";
  * tag is what notifies the team. Validated here, not only in the form: this
  * route is open to the internet and the values become a real contact.
  *
- * The footer form also sends a phone, a business name and an industry; the
+ * The footer and blog forms also send a phone, a business name and an industry; the
  * industry becomes a tag too (`industry-real-estate`), so a workflow can
  * send each trade its own emails.
  *

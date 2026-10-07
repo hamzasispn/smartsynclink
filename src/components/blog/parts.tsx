@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { BlogContent } from "@/content/blog";
+import type { GlobalContent } from "@/content/global";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
 import { NewsletterForm } from "../newsletter-form";
@@ -53,11 +54,16 @@ export function PostTile({ post }: { post: Post }) {
  * column rather than stretching across the band, so the band still reads as
  * designed instead of as a wide empty stripe.
  */
-export function NewsletterBand({ blog }: { blog: BlogContent }) {
+/**
+ * "Don't want to miss anything?" — the words are the blog's, the form is the
+ * footer's: name, email, phone, business and industry, into GHL the same way.
+ */
+export function NewsletterBand({ blog, form }: { blog: BlogContent; form?: GlobalContent["footer"]["newsletter"] }) {
   const n = blog.newsletter;
+  if (!form) return null;
   return (
     <section className="mt-16 bg-brand-soft">
-      <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 py-12 md:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-[1200px] items-center gap-8 px-5 py-12 md:grid-cols-2 md:gap-14 md:py-16">
         <div>
           <h2 className="blog-heading text-[32px] leading-[40px] text-ink">
             {n.heading}
@@ -65,34 +71,35 @@ export function NewsletterBand({ blog }: { blog: BlogContent }) {
           <p className="mt-2 max-w-[38ch] text-[16px] leading-[24px] text-muted">
             {n.body}
           </p>
+          {n.image?.src ? (
+            <Media
+              image={n.image}
+              variant="plain"
+              sizes="(max-width: 768px) 100vw, 560px"
+              className="mt-8 aspect-16/10 w-full rounded-2xl"
+            />
+          ) : null}
+        </div>
 
-          {/* into GHL as a contact tagged newsletter + newsletter-blog */}
+        {/* the footer's form, in a card like the footer's */}
+        <div className="rounded-2xl bg-white p-6 shadow-[0_24px_48px_-32px_rgba(51,0,234,0.45)] sm:p-8">
+          {/* into GHL as a contact tagged newsletter + newsletter-blog (+ its industry) */}
           <NewsletterForm
             where="blog"
-            size="lg"
-            namePlaceholder={n.namePlaceholder}
-            emailPlaceholder={n.placeholder}
-            cta={n.cta}
-            success={n.success}
-            className="mt-6 w-full max-w-[360px]"
+            namePlaceholder={form.namePlaceholder}
+            emailPlaceholder={form.placeholder}
+            cta={form.cta.label}
+            success={form.success}
+            details={form}
+            className="w-full"
           />
-
-          <p className="mt-3 text-[16px] leading-[24px] text-muted">
+          <p className="mt-3 px-2 text-[13px] leading-snug text-muted">
             {n.note}{" "}
             <a href={n.noteLink.href} className="text-brand underline">
               {n.noteLink.label}
             </a>
           </p>
         </div>
-
-        {n.image?.src ? (
-          <Media
-            image={n.image}
-            variant="plain"
-            sizes="(max-width: 768px) 100vw, 560px"
-            className="aspect-16/10 w-full rounded-none"
-          />
-        ) : null}
       </div>
     </section>
   );

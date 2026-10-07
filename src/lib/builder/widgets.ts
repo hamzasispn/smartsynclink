@@ -7,7 +7,18 @@
  * components/builder/custom-section.tsx — no new editor code.
  */
 
-export type FieldKind = "text" | "textarea" | "markdown" | "select" | "toggle" | "image" | "video" | "link" | "list";
+export type FieldKind =
+  | "text"
+  | "textarea"
+  | "markdown"
+  | "select"
+  | "toggle"
+  | "image"
+  | "video"
+  | "link"
+  | "list"
+  | "icon"
+  | "items";
 
 export type Field = {
   key: string;
@@ -15,6 +26,12 @@ export type Field = {
   kind: FieldKind;
   options?: { value: string; label: string }[];
   help?: string;
+  /** "items": a repeatable group — each item has these fields (Shopify's blocks). */
+  itemFields?: Field[];
+  /** "items": what a new item starts as. */
+  itemDefaults?: Record<string, unknown>;
+  /** "items": the field shown as an item's name in the list. */
+  itemLabel?: string;
 };
 
 export type Widget = { id: string; type: string } & Record<string, unknown>;
@@ -134,6 +151,123 @@ export const WIDGETS: Record<
       cta: { label: "", href: "#call" },
       style: "surface",
     },
+  },
+  features: {
+    label: "Feature grid",
+    description: "Icon cards in a grid — plain, cards, or a bento with the first one large.",
+    icon: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",
+    fields: [
+      {
+        key: "items",
+        label: "Features",
+        kind: "items",
+        itemLabel: "title",
+        itemFields: [
+          { key: "icon", label: "Icon", kind: "icon" },
+          { key: "title", label: "Title", kind: "text" },
+          { key: "text", label: "Text", kind: "markdown" },
+        ],
+        itemDefaults: { icon: "sparkle", title: "New feature", text: "One or two lines on what it does for the customer." },
+      },
+      { key: "columns", label: "Per row", kind: "select", options: opts(["2", "Two"], ["3", "Three"], ["4", "Four"]) },
+      { key: "style", label: "Style", kind: "select", options: opts(["cards", "Cards"], ["bento", "Bento — first card large"], ["plain", "Plain"]) },
+    ],
+    defaults: {
+      items: [
+        { icon: "phone", title: "Every call answered", text: "The AI picks up on the first ring, day or night." },
+        { icon: "calendar", title: "Booked on your calendar", text: "Appointments land in your real availability." },
+        { icon: "sms", title: "Missed calls texted back", text: "Anyone who hangs up hears from you in seconds." },
+      ],
+      columns: "3",
+      style: "cards",
+    },
+  },
+  steps: {
+    label: "Steps",
+    description: "Numbered steps in a row or down a timeline.",
+    icon: "M5 6h2M5 12h2M5 18h2M10 6h9M10 12h9M10 18h9",
+    fields: [
+      {
+        key: "items",
+        label: "Steps",
+        kind: "items",
+        itemLabel: "title",
+        itemFields: [
+          { key: "title", label: "Title", kind: "text" },
+          { key: "text", label: "Text", kind: "markdown" },
+        ],
+        itemDefaults: { title: "New step", text: "What happens here." },
+      },
+      { key: "layout", label: "Layout", kind: "select", options: opts(["row", "In a row"], ["timeline", "Timeline"]) },
+    ],
+    defaults: {
+      items: [
+        { title: "Discovery call", text: "We learn your services, hours and booking rules." },
+        { title: "We build it", text: "Your greeting, questions and follow-ups, set up for you." },
+        { title: "Go live", text: "Calls start getting answered the same day." },
+      ],
+      layout: "row",
+    },
+  },
+  faq: {
+    label: "FAQ",
+    description: "Questions that open to show their answers.",
+    icon: "M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z",
+    fields: [
+      {
+        key: "items",
+        label: "Questions",
+        kind: "items",
+        itemLabel: "q",
+        itemFields: [
+          { key: "q", label: "Question", kind: "text" },
+          { key: "a", label: "Answer", kind: "markdown" },
+        ],
+        itemDefaults: { q: "A new question?", a: "Its answer." },
+      },
+    ],
+    defaults: {
+      items: [
+        { q: "How long does setup take?", a: "Most businesses are live within a few days." },
+        { q: "Can I keep my phone number?", a: "Yes. You can forward your current number." },
+      ],
+    },
+  },
+  testimonial: {
+    label: "Testimonial",
+    description: "A quote with stars, a name and a photo.",
+    icon: "M7 7h4v6H7l-2 4M15 7h4v6h-4l-2 4",
+    fields: [
+      { key: "quote", label: "Quote", kind: "textarea" },
+      { key: "name", label: "Name", kind: "text" },
+      { key: "role", label: "Role or business", kind: "text" },
+      { key: "image", label: "Photo (optional)", kind: "image" },
+      { key: "stars", label: "Stars", kind: "select", options: opts(["5", "Five"], ["4", "Four"], ["none", "None"]) },
+    ],
+    defaults: {
+      quote: "We stopped losing after-hours calls the first week. It just books them.",
+      name: "Customer name",
+      role: "Business, City",
+      image: { src: "", alt: "" },
+      stars: "5",
+    },
+  },
+  logos: {
+    label: "Logo strip",
+    description: "A row of uploaded logos, greyed until hovered.",
+    icon: "M3 8h4v8H3zM10 8h4v8h-4zM17 8h4v8h-4z",
+    fields: [
+      { key: "label", label: "Line above (optional)", kind: "text" },
+      {
+        key: "items",
+        label: "Logos",
+        kind: "items",
+        itemLabel: "image",
+        itemFields: [{ key: "image", label: "Logo", kind: "image" }],
+        itemDefaults: { image: { src: "", alt: "" } },
+      },
+    ],
+    defaults: { label: "Trusted by local businesses", items: [{ image: { src: "", alt: "" } }] },
   },
   stat: {
     label: "Stat",

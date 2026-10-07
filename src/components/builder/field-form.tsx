@@ -2,6 +2,7 @@
 
 import type { Field } from "@/lib/builder/widgets";
 import { MediaPicker, type ImageValue } from "../admin/media-picker";
+import { Icon, ICON_NAMES } from "../solution/icons";
 
 /**
  * One form for every widget and for custom-section settings, driven by the
@@ -30,6 +31,22 @@ function Label({ field }: { field: Field }) {
 function Help({ field }: { field: Field }) {
   return field.help ? <span className="mt-1 block text-[11.5px] leading-snug text-muted">{field.help}</span> : null;
 }
+
+/** An item's name in a repeatable list: its label field, flattened to a line. */
+function nameOf(item: Value, key: string | undefined, index: number) {
+  const raw = key ? item[key] : undefined;
+  const text =
+    typeof raw === "string"
+      ? raw
+      : raw && typeof raw === "object" && "src" in raw
+        ? String((raw as ImageValue).alt || ((raw as ImageValue).src ? "Image" : ""))
+        : "";
+  const plain = text.replace(/[*_`#>[\]()]/g, "").trim();
+  return plain || `Item ${index + 1}`;
+}
+
+const miniBtn =
+  "grid size-7 shrink-0 place-items-center rounded-md text-[12px] text-muted transition-colors hover:bg-surface hover:text-ink disabled:opacity-30";
 
 export function FieldForm({ fields, value, onChange }: { fields: Field[]; value: Value; onChange: OnChange }) {
   const set = (key: string, next: unknown, coalesce: boolean) => onChange({ ...value, [key]: next }, coalesce);
@@ -191,6 +208,118 @@ export function FieldForm({ fields, value, onChange }: { fields: Field[]; value:
                 >
                   + Add point
                 </button>
+              </div>
+            );
+          }
+
+          case "icon":
+            return (
+              <div key={field.key}>
+                <Label field={field} />
+                <div className="grid grid-cols-8 gap-1 rounded-xl border border-line bg-white p-1.5">
+                  {ICON_NAMES.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      title={name}
+                      aria-label={name}
+                      aria-pressed={current === name}
+                      onClick={() => set(field.key, name, false)}
+                      className={`grid aspect-square place-items-center rounded-lg transition-colors ${
+                        current === name ? "bg-gradient-to-br from-[#052EFF] to-[#3300EA] text-white" : "text-muted hover:bg-surface hover:text-ink"
+                      }`}
+                    >
+                      <Icon n={name} className="size-4" />
+                    </button>
+                  ))}
+                </div>
+                <Help field={field} />
+              </div>
+            );
+
+          case "items": {
+            const items = (current as Value[]) ?? [];
+            const update = (next: Value[], coalesce: boolean) => set(field.key, next, coalesce);
+            const stop = (fn: () => void) => (e: React.MouseEvent) => {
+              // the buttons sit in the <summary>: without this a click also folds the item
+              e.preventDefault();
+              e.stopPropagation();
+              fn();
+            };
+            return (
+              <div key={field.key}>
+                <Label field={field} />
+                <ul className="space-y-2">
+                  {items.map((item, i) => (
+                    <li key={i}>
+                      <details className="group rounded-xl border border-line bg-white open:border-brand/40 open:shadow-[0_8px_24px_-18px_rgba(51,0,234,0.5)]">
+                        <summary className="flex cursor-pointer list-none items-center gap-2 px-2.5 py-2">
+                          <span className="grid size-6 shrink-0 place-items-center rounded-md bg-surface text-[11px] font-medium text-muted group-open:bg-brand-soft group-open:text-brand">
+                            {i + 1}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink">{nameOf(item, field.itemLabel, i)}</span>
+                          <button
+                            type="button"
+                            aria-label="Move up"
+                            disabled={i === 0}
+                            className={miniBtn}
+                            onClick={stop(() => {
+                              const next = [...items];
+                              [next[i - 1], next[i]] = [next[i], next[i - 1]];
+                              update(next, false);
+                            })}
+                          >
+                            ↑
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Move down"
+                            disabled={i === items.length - 1}
+                            className={miniBtn}
+                            onClick={stop(() => {
+                              const next = [...items];
+                              [next[i + 1], next[i]] = [next[i], next[i + 1]];
+                              update(next, false);
+                            })}
+                          >
+                            ↓
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Duplicate"
+                            className={miniBtn}
+                            onClick={stop(() => update([...items.slice(0, i + 1), structuredClone(item), ...items.slice(i + 1)], false))}
+                          >
+                            ⧉
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Remove"
+                            className={`${miniBtn} hover:text-red-600`}
+                            onClick={stop(() => update(items.filter((_, j) => j !== i), false))}
+                          >
+                            ✕
+                          </button>
+                        </summary>
+                        <div className="border-t border-line p-3">
+                          <FieldForm
+                            fields={field.itemFields ?? []}
+                            value={item}
+                            onChange={(next, coalesce) => update(items.map((x, j) => (j === i ? next : x)), coalesce)}
+                          />
+                        </div>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => update([...items, structuredClone(field.itemDefaults ?? {})], false)}
+                  className="mt-2 rounded-full border border-dashed border-line px-3 py-1.5 text-[12px] text-muted hover:border-brand hover:text-brand"
+                >
+                  + Add {field.label.toLowerCase().replace(/s$/, "")}
+                </button>
+                <Help field={field} />
               </div>
             );
           }

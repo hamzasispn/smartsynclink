@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { newSection } from "@/lib/builder/instance";
+import { SECTIONS } from "@/lib/builder/sections";
+import { CreateWithAi, Spark } from "./ai-studio";
 import { Inspector } from "./inspector";
 import { StructurePanel } from "./structure-panel";
 import { useBuilder } from "./use-builder";
@@ -40,6 +42,8 @@ export function Builder({ initialPage }: { initialPage: string }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [device, setDevice] = useState<DeviceView>("desktop");
   const [notice, setNotice] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
+  const closeAi = useCallback(() => setAiOpen(false), []);
   const frame = useRef<HTMLIFrameElement>(null);
   // the newest document, for a preview that (re)loads after edits were made
   const latestDoc = useRef(b.doc);
@@ -152,13 +156,18 @@ export function Builder({ initialPage }: { initialPage: string }) {
     if (selected === id) setSelected(null);
   };
 
-  const add = (type: string, props?: Record<string, unknown>) => {
-    const section = newSection(type, props);
+  const add = (type: string, props?: Record<string, unknown>, label = "") => {
+    const section = { ...newSection(type, props), label };
     b.edit((d) => {
       const at = d.layout.sections.findIndex((x) => x.id === selected);
       d.layout.sections.splice(at >= 0 ? at + 1 : d.layout.sections.length, 0, section);
     });
-    setSelected(section.id);
+    select(section.id);
+  };
+
+  const sectionName = (id: string | null) => {
+    const s = doc?.layout.sections.find((x) => x.id === id);
+    return s ? s.label || SECTIONS[s.type]?.label || s.type : null;
   };
 
   const page = loaded?.page;
@@ -217,6 +226,16 @@ export function Builder({ initialPage }: { initialPage: string }) {
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setAiOpen(true)}
+          disabled={!doc}
+          className="flex items-center gap-1.5 rounded-lg bg-brand-soft px-3 py-1.5 text-[13px] font-medium text-brand transition-colors hover:bg-[#E6E1FF] disabled:opacity-40"
+          title="Build a new section from a description"
+        >
+          <Spark /> Create with AI
+        </button>
 
         <div className="flex items-center gap-1">
           <button type="button" className={iconBtn} onClick={b.undo} disabled={!b.canUndo} aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)">
@@ -300,6 +319,7 @@ export function Builder({ initialPage }: { initialPage: string }) {
               onDuplicate={duplicate}
               onDelete={remove}
               onAdd={add}
+              onAi={() => setAiOpen(true)}
             />
           ) : (
             <p className="p-4 text-[13px] text-muted">Loading structure…</p>
@@ -327,6 +347,19 @@ export function Builder({ initialPage }: { initialPage: string }) {
           ) : null}
         </aside>
       </div>
+
+      {doc && aiOpen ? (
+        <CreateWithAi
+          onClose={closeAi}
+          page={{ label: page?.label ?? b.pageKey, sections: doc.layout.sections.map((s) => s.label || SECTIONS[s.type]?.label || s.type) }}
+          after={sectionName(selected)}
+          onCreate={(props, label) => add("custom", props, label)}
+          onUndo={() => {
+            b.undo();
+            select(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -85,8 +85,8 @@ export default function Footer({
           </div>
         </div>
 
-        {/* one tap each: dial, open a WhatsApp chat, write an email */}
-        <ul className="mt-14 grid gap-3 sm:grid-cols-3">
+        {/* one tap each: dial, open a WhatsApp chat, write an email, find the office */}
+        <ul className={`mt-14 grid gap-3 ${data.contact.address ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
           {[
             {
               key: "phone",
@@ -113,6 +113,15 @@ export default function Footer({
               icon: <MailIcon className="size-5" />,
               tone: "bg-brand-soft text-brand",
             },
+            {
+              key: "address",
+              href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.contact.address ?? "")}`,
+              label: "Visit us",
+              value: data.contact.address,
+              icon: <PinIcon className="size-5" />,
+              tone: "bg-brand-soft text-brand",
+              external: true,
+            },
           ]
             .filter((item) => item.value)
             .map((item) => (
@@ -127,7 +136,7 @@ export default function Footer({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[13px] text-muted">{item.label}</span>
-                    <span className="block truncate text-[16px] font-medium text-ink">{item.value}</span>
+                    <span className={`block text-[16px] font-medium text-ink ${item.key === "address" ? "leading-snug" : "truncate"}`}>{item.value}</span>
                   </span>
                   <svg
                     viewBox="0 0 24 24"
@@ -172,6 +181,15 @@ export default function Footer({
 function whatsappLink(number: string) {
   const digits = number.replace(/\D/g, "");
   return `https://wa.me/${digits.length === 10 ? `1${digits}` : digits}`;
+}
+
+function PinIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 10c0 5-8 12-8 12s-8-7-8-12a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
 }
 
 function MailIcon({ className = "" }: { className?: string }) {

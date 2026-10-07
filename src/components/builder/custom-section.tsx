@@ -3,7 +3,8 @@ import type { Media as MediaValue } from "@/content/home";
 import type { Column, CustomProps, Widget } from "@/lib/builder/widgets";
 import { Prose } from "../prose";
 import { Reveal } from "../reveal";
-import { CheckRing, Media, Placeholder } from "../ui";
+import { Icon, ICON_NAMES, type IconName } from "../solution/icons";
+import { CheckRing, Chevron, Media, Placeholder, Star } from "../ui";
 
 /**
  * A custom section: columns of widgets, styled from its settings.
@@ -58,6 +59,26 @@ const HEADING_SIZE: Record<string, string> = {
 };
 const TEXT_SIZE: Record<string, string> = { lg: "[&_.prose-site]:text-[18px]", md: "", sm: "[&_.prose-site]:text-[14px]" };
 const SPACER: Record<string, string> = { sm: "h-4", md: "h-10", lg: "h-16", xl: "h-24" };
+const FEATURE_COLS: Record<string, string> = {
+  "2": "md:grid-cols-2",
+  "3": "md:grid-cols-2 lg:grid-cols-3",
+  "4": "sm:grid-cols-2 lg:grid-cols-4",
+};
+// spans on a six-column grid that fill every row, by item count — the bento
+const BENTO: Record<number, number[]> = {
+  1: [6],
+  2: [3, 3],
+  3: [2, 2, 2],
+  4: [4, 2, 2, 4],
+  5: [4, 2, 2, 2, 2],
+  6: [4, 2, 2, 4, 3, 3],
+  7: [4, 2, 2, 2, 2, 2, 4],
+  8: [4, 2, 2, 2, 2, 2, 2, 2],
+};
+const BENTO_SPAN: Record<number, string> = { 2: "lg:col-span-2", 3: "lg:col-span-3", 4: "lg:col-span-4", 6: "lg:col-span-6" };
+const STEP_COLS: Record<number, string> = { 2: "lg:grid-cols-2", 3: "lg:grid-cols-3", 4: "lg:grid-cols-4", 5: "lg:grid-cols-5" };
+const iconOf = (name: unknown): IconName => (ICON_NAMES.includes(name as IconName) ? (name as IconName) : "sparkle");
+type Entry = Record<string, unknown>;
 
 type Ctx = { preview: boolean; inverted: boolean; center: boolean };
 
@@ -247,6 +268,196 @@ function renderWidget(w: Widget, path: string, ctx: Ctx): ReactNode {
           </p>
         </div>
       );
+    case "features": {
+      const items = (w.items as Entry[]) ?? [];
+      const style = s("style");
+      const bento = style === "bento";
+      const spans = BENTO[items.length] ?? items.map(() => 2);
+      let featured = 0;
+      return (
+        <div className={`grid gap-4 text-left ${bento ? "md:grid-cols-2 lg:grid-cols-6" : FEATURE_COLS[s("columns")] ?? FEATURE_COLS["3"]}`}>
+          {items.map((item, i) => {
+            const big = bento && spans[i] >= 4;
+            const look = big ? (featured++ % 2 ? "gradient" : "dark") : style;
+            const light = !big && !ctx.inverted;
+            const skin = {
+              dark: "bg-[#0E0E14] text-white",
+              gradient: "bg-gradient-to-br from-[#052EFF] to-[#3300EA] text-white",
+              cards: ctx.inverted ? "bg-white/10 ring-1 ring-white/15" : "border border-line bg-white",
+              bento: ctx.inverted ? "bg-white/10 ring-1 ring-white/15" : "border border-line bg-white",
+              plain: "",
+            }[look] ?? "";
+            const odd = items.length % 2 === 1 && i === items.length - 1;
+            return (
+              <article
+                key={i}
+                className={`relative flex flex-col overflow-hidden rounded-[22px] ${look === "plain" ? "" : "p-6 sm:p-7"} ${skin} ${
+                  bento ? `${BENTO_SPAN[spans[i]] ?? "lg:col-span-2"} ${odd ? "md:col-span-2" : ""} ${big ? "lg:min-h-[240px]" : ""}` : ""
+                }`}
+              >
+                {big ? (
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute -top-24 -right-16 size-72 rounded-full ${
+                      look === "dark" ? "bg-[radial-gradient(closest-side,rgba(51,0,234,0.6),transparent)]" : "bg-white/10"
+                    }`}
+                  />
+                ) : null}
+                <span
+                  className={`relative grid size-11 shrink-0 place-items-center rounded-xl ${
+                    light ? "bg-brand-soft text-brand" : "bg-white/10 text-white ring-1 ring-white/15"
+                  }`}
+                >
+                  <Icon n={iconOf(item.icon)} className="size-[22px]" />
+                </span>
+                <h3
+                  className={`relative mt-5 text-[19px] font-medium leading-snug tracking-[-0.01em] ${big ? "sm:text-[23px]" : ""} ${light ? "text-ink" : "text-white"}`}
+                  {...field(ctx, `${path}.items.${i}.title`)}
+                >
+                  {String(item.title ?? "")}
+                </h3>
+                <div className={`relative mt-2 [&_.prose-site]:text-[15px] [&_.prose-site]:leading-[1.6] ${light ? "[&_.prose-site]:text-muted" : "[&_.prose-site]:text-white/75"}`}>
+                  <Prose markdown={String(item.text ?? "")} />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      );
+    }
+    case "steps": {
+      const items = (w.items as Entry[]) ?? [];
+      const number = `grid size-11 shrink-0 place-items-center rounded-full text-[16px] font-medium ${
+        ctx.inverted ? "bg-white text-brand" : "bg-gradient-to-br from-[#052EFF] to-[#3300EA] text-white shadow-[0_10px_24px_-10px_rgba(51,0,234,0.7)]"
+      }`;
+      const card = ctx.inverted ? "bg-white/10 ring-1 ring-white/15" : "border border-line bg-white";
+      if (s("layout") === "timeline") {
+        return (
+          <ol className="mx-auto w-full max-w-[720px] text-left">
+            {items.map((item, i) => (
+              <li key={i} className="relative flex gap-5 pb-6 last:pb-0">
+                {i < items.length - 1 ? (
+                  <span aria-hidden="true" className={`absolute top-11 bottom-0 left-[21px] w-px ${ctx.inverted ? "bg-white/25" : "bg-brand/20"}`} />
+                ) : null}
+                <span className={`relative ${number}`}>{i + 1}</span>
+                <div className={`min-w-0 flex-1 rounded-[20px] px-5 py-4 ${card}`}>
+                  <h3 className={`text-[17px] font-medium ${ctx.inverted ? "text-white" : "text-ink"}`} {...field(ctx, `${path}.items.${i}.title`)}>
+                    {String(item.title ?? "")}
+                  </h3>
+                  <div className={`mt-1 [&_.prose-site]:text-[15px] ${ctx.inverted ? "[&_.prose-site]:text-white/75" : "[&_.prose-site]:text-muted"}`}>
+                    <Prose markdown={String(item.text ?? "")} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        );
+      }
+      return (
+        <ol className={`grid gap-4 text-left sm:grid-cols-2 ${STEP_COLS[Math.min(items.length, 5)] ?? "lg:grid-cols-3"}`}>
+          {items.map((item, i) => (
+            <li key={i} className={`flex flex-col rounded-[20px] p-6 ${card}`}>
+              <span className={number}>{i + 1}</span>
+              <div className="mt-5">
+                <h3 className={`text-[18px] font-medium ${ctx.inverted ? "text-white" : "text-ink"}`} {...field(ctx, `${path}.items.${i}.title`)}>
+                  {String(item.title ?? "")}
+                </h3>
+                <div className={`mt-2 [&_.prose-site]:text-[15px] ${ctx.inverted ? "[&_.prose-site]:text-white/75" : "[&_.prose-site]:text-muted"}`}>
+                  <Prose markdown={String(item.text ?? "")} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      );
+    }
+    case "faq": {
+      const items = (w.items as Entry[]) ?? [];
+      return (
+        <div className="mx-auto grid w-full max-w-[860px] gap-3 text-left">
+          {items.map((item, i) => (
+            <details
+              key={i}
+              className={`group rounded-2xl px-6 ${ctx.inverted ? "bg-white/10 ring-1 ring-white/15" : "border border-line bg-white open:shadow-[0_20px_40px_-28px_rgba(14,14,20,0.35)]"}`}
+            >
+              <summary
+                className={`flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-[17px] font-medium leading-snug ${ctx.inverted ? "text-white" : "text-ink hover:text-brand"}`}
+              >
+                <span {...field(ctx, `${path}.items.${i}.q`)}>{String(item.q ?? "")}</span>
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-black/5 transition-colors group-open:bg-brand group-open:text-white">
+                  <Chevron className="size-3.5 transition-transform duration-200 group-open:-rotate-180" />
+                </span>
+              </summary>
+              <div className={`pb-6 [&_.prose-site]:text-[15.5px] ${ctx.inverted ? "[&_.prose-site]:text-white/80" : "[&_.prose-site]:text-muted"}`}>
+                <Prose markdown={String(item.a ?? "")} />
+              </div>
+            </details>
+          ))}
+        </div>
+      );
+    }
+    case "testimonial": {
+      const image = w.image as MediaValue;
+      const stars = Number(s("stars")) || 0;
+      return (
+        <figure
+          className={`flex h-full flex-col rounded-[24px] p-7 text-left sm:p-8 ${ctx.inverted ? "bg-white/10 ring-1 ring-white/15" : "border border-line bg-white"}`}
+        >
+          {stars ? (
+            <div className="flex gap-0.5 text-amber-400" aria-label={`${stars} out of 5 stars`}>
+              {Array.from({ length: stars }).map((_, i) => (
+                <Star key={i} className="size-4" />
+              ))}
+            </div>
+          ) : null}
+          <blockquote
+            className={`mt-4 flex-1 text-[19px] leading-[1.5] tracking-[-0.01em] ${ctx.inverted ? "text-white" : "text-ink"}`}
+            {...field(ctx, `${path}.quote`)}
+          >
+            “{s("quote")}”
+          </blockquote>
+          <figcaption className="mt-6 flex items-center gap-3">
+            {image?.src ? <Media image={image} variant="plain" sizes="48px" className="size-12 shrink-0 rounded-full" /> : null}
+            <span>
+              <span className={`block text-[15px] font-medium ${ctx.inverted ? "text-white" : "text-ink"}`} {...field(ctx, `${path}.name`)}>
+                {s("name")}
+              </span>
+              <span className={`block text-[13.5px] ${ctx.inverted ? "text-white/70" : "text-muted"}`} {...field(ctx, `${path}.role`)}>
+                {s("role")}
+              </span>
+            </span>
+          </figcaption>
+        </figure>
+      );
+    }
+    case "logos": {
+      const logos = ((w.items as Entry[]) ?? []).map((item) => item.image as MediaValue).filter((image) => image?.src);
+      return (
+        <div className="flex flex-col items-center gap-6">
+          {s("label") ? (
+            <p className={`text-[13px] font-medium tracking-[0.08em] uppercase ${ctx.inverted ? "text-white/70" : "text-muted"}`} {...field(ctx, `${path}.label`)}>
+              {s("label")}
+            </p>
+          ) : null}
+          {logos.length ? (
+            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
+              {logos.map((image, i) => (
+                <Media
+                  key={i}
+                  image={image}
+                  variant="plain"
+                  fit="contain"
+                  sizes="140px"
+                  className={`h-10 w-32 opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0 ${ctx.inverted ? "brightness-0 invert" : ""}`}
+                />
+              ))}
+            </div>
+          ) : ctx.preview ? (
+            <Placeholder label="Logos — upload them in the Logos list" className="h-16 w-full max-w-[640px] rounded-2xl" />
+          ) : null}
+        </div>
+      );
+    }
     case "spacer":
       return <div aria-hidden="true" className={SPACER[s("size")] ?? SPACER.md} />;
     case "divider":
@@ -273,7 +484,7 @@ export function CustomSection({ data, preview = false }: { data: CustomProps; pr
   const grid = (
     <>
       {columns.map((column, ci) => (
-        <div key={column.id} className={`col-span-12 flex flex-col gap-5 ${SPAN[column.width] ?? SPAN["12"]} ${center ? "items-center text-center" : ""}`}>
+        <div key={column.id} className={`flex min-w-0 flex-col gap-5 ${SPAN[column.width] ?? SPAN["12"]} ${center ? "items-center text-center" : ""}`}>
           {column.widgets.map((widget, wi) => (
             <div key={widget.id} className={center ? "w-full [&>*]:mx-auto" : "w-full"}>
               {renderWidget(widget, `columns.${ci}.widgets.${wi}`, ctx)}
@@ -284,7 +495,8 @@ export function CustomSection({ data, preview = false }: { data: CustomProps; pr
     </>
   );
 
-  const gridClass = `grid grid-cols-12 ${GAP[data.gap] ?? GAP.md} ${VALIGN[data.verticalAlign] ?? VALIGN.center}`;
+  // one track until columns sit side by side: twelve tracks on a phone would add eleven gaps (up to 704px) to its width
+  const gridClass = `grid grid-cols-1 lg:grid-cols-12 ${GAP[data.gap] ?? GAP.md} ${VALIGN[data.verticalAlign] ?? VALIGN.center}`;
 
   return (
     <section id={data.anchor || undefined} className={`${BG[data.background] ?? ""} ${PT[data.paddingTop] ?? PT.lg} ${PB[data.paddingBottom] ?? PB.lg}`}>

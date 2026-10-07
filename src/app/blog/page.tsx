@@ -30,7 +30,7 @@ export default async function BlogPage({
       layout={layout}
       blocks={blocks}
       global={global}
-      ctx={{ pageKey: "blog", blog: { posts, searchParams: params } }}
+      ctx={{ pageKey: "blog", blog: { posts, searchParams: params }, newsletter: global.footer.newsletter }}
     />
   );
 }

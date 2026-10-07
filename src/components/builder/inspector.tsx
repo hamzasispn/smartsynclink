@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { assistAction } from "@/app/admin/ai-actions";
+import { assistAction, customizeAction, type CustomizeTarget } from "@/app/admin/ai-actions";
 import { defaultGlobal } from "@/content/global";
 import type { BuilderPage } from "@/lib/builder/pages";
 import { SECTIONS } from "@/lib/builder/sections";
 import type { Device } from "@/lib/builder/types";
 import type { CustomProps } from "@/lib/builder/widgets";
 import { ContentEditor, FieldGroups } from "../admin/content-editor";
+import { AiComposer, Spark, type AiRequest } from "./ai-studio";
 import { CustomEditor } from "./custom-editor";
 import type { BuilderDoc } from "./use-builder";
 
@@ -28,6 +29,117 @@ async function assist({ text, instruction, context }: { text: string; instructio
   if (!result.ok) throw new Error(result.error);
   if (result.kind !== "rewrite") throw new Error("Unexpected response");
   return result.text;
+}
+
+/**
+ * "Customize with AI": an instruction in, the section's content rewritten.
+ * The answer is applied as one ordinary edit — into the draft, one Undo step —
+ * and this panel keeps the content from before it, so "Undo" here puts back
+ * this section even after other edits. Nothing goes live until Publish.
+ */
+function AiCustomize({
+  target,
+  value,
+  onApply,
+}: {
+  target: CustomizeTarget;
+  value: unknown;
+  onApply: (next: unknown) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState<{ summary: string; before: unknown } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run(request: AiRequest) {
+    setBusy(true);
+    setError(null);
+    setDone(null);
+    const before = structuredClone(value);
+    try {
+      const result = await customizeAction({
+        target,
+        value,
+        instruction: request.instruction,
+        model: request.model,
+        images: request.images.map(({ id, url }) => ({ id, url })),
+        placeImages: request.placeImages,
+      });
+      if (!result.ok) throw new Error(result.error);
+      onApply(result.value);
+      setDone({ summary: result.summary, before });
+      return true;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "The AI could not make this change.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const custom = target.kind === "section" && target.type === "custom";
+  const suggestions =
+    target.kind === "footer"
+      ? ["Add our address to the copyright line", "Shorten the about text", "Add a Pricing link to the first column"]
+      : target.kind === "header"
+        ? ["Add a Pricing link to the menu", "Change the header button to Book a Demo"]
+        : custom
+          ? ["Make it a dark band", "Turn the points into a bento grid", "Add an FAQ under it", "Make the copy shorter"]
+          : ["Make the copy shorter and punchier", "Rewrite it for plumbers", "Add one more item to the list"];
+
+  return (
+    <div className="mb-4 rounded-2xl bg-gradient-to-br from-[#052EFF]/25 via-[#3300EA]/15 to-transparent p-px">
+      <div className="rounded-[15px] bg-gradient-to-br from-[#F4F2FF] to-white">
+        <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center gap-3 px-4 py-3 text-left">
+          <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#052EFF] to-[#3300EA] text-white shadow-[0_6px_14px_-6px_rgba(51,0,234,0.8)]">
+            <Spark className="size-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold text-ink">Customize with AI</span>
+            <span className="block truncate text-[11.5px] text-muted">{custom ? "Change the blocks, layout or copy" : "Say what to change — the design stays"}</span>
+          </span>
+          <svg viewBox="0 0 24 24" className={`size-4 text-muted transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+        {open || busy || done || error ? (
+          <div className="px-3 pb-3">
+            {open || busy ? (
+              <AiComposer
+                busy={busy}
+                submitLabel="Apply"
+                placeholder={
+                  target.kind === "footer"
+                    ? "e.g. Add our address to the copyright line: 8911 N Capital of Texas Hwy, Austin, TX"
+                    : custom
+                      ? "e.g. Put the heading on the left and the points on the right, on a dark background"
+                      : "e.g. Make the heading about contractors, and add a fourth point about after-hours calls"
+                }
+                suggestions={suggestions}
+                onSubmit={run}
+              />
+            ) : null}
+            {error ? <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-[12.5px] leading-relaxed text-red-700">{error}</p> : null}
+            {done ? (
+              <div className="mt-3 rounded-xl bg-white px-3 py-2.5 text-[12.5px] leading-relaxed text-ink ring-1 ring-emerald-200">
+                <span className="font-medium text-[#0E9F5B]">✓ Done.</span> {done.summary}{" "}
+                <button
+                  type="button"
+                  className="font-medium text-brand underline"
+                  onClick={() => {
+                    onApply(done.before);
+                    setDone(null);
+                  }}
+                >
+                  Undo
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 const DEVICES: { key: Device; label: string }[] = [
@@ -137,6 +249,17 @@ export function Inspector({
       <div className="flex h-full flex-col">
         <Heading title="Header & menu" sub="Logo, links, mega menu panels and the header buttons — on every page." onClose={onClose} />
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <AiCustomize
+            target={{ kind: "header" }}
+            value={{ brand: doc.global.brand, nav: doc.global.nav }}
+            onApply={(next) =>
+              edit((d) => {
+                const v = next as { brand: typeof d.global.brand; nav: typeof d.global.nav };
+                d.global.brand = v.brand;
+                d.global.nav = v.nav;
+              })
+            }
+          />
           <ContentEditor
             key="header"
             value={{ brand: doc.global.brand, nav: doc.global.nav } as never}
@@ -171,6 +294,15 @@ export function Inspector({
       <div className="flex h-full flex-col">
         <Heading title="Footer" sub="Columns, newsletter, contact details — on every page." onClose={onClose} />
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <AiCustomize
+            target={{ kind: "footer" }}
+            value={doc.global.footer}
+            onApply={(next) =>
+              edit((d) => {
+                d.global.footer = next as typeof d.global.footer;
+              })
+            }
+          />
           <FieldGroups
             key="footer"
             value={doc.global.footer as never}
@@ -282,32 +414,59 @@ export function Inspector({
 
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
         {tab === "content" && section.type === "custom" ? (
-          <CustomEditor
-            key={section.id}
-            value={section.props as unknown as CustomProps}
-            onChange={(next, coalesce) =>
-              edit((d) => {
-                const target = d.layout.sections.find((s) => s.id === selected);
-                if (target) target.props = next as unknown as Record<string, unknown>;
-              }, coalesce)
-            }
-          />
+          <>
+            <AiCustomize
+              target={{ kind: "section", type: "custom", label: section.label }}
+              value={section.props}
+              onApply={(next) =>
+                edit((d) => {
+                  const target = d.layout.sections.find((s) => s.id === selected);
+                  if (target) target.props = next as Record<string, unknown>;
+                })
+              }
+            />
+            <CustomEditor
+              key={section.id}
+              value={section.props as unknown as CustomProps}
+              onChange={(next, coalesce) =>
+                edit((d) => {
+                  const target = d.layout.sections.find((s) => s.id === selected);
+                  if (target) target.props = next as unknown as Record<string, unknown>;
+                }, coalesce)
+              }
+            />
+          </>
         ) : tab === "content" ? (
-          <FieldGroups
-            key={`${section.id}-${section.linked}`}
-            value={(content ?? {}) as never}
-            shape={meta.defaults}
-            assist={assist}
-            onChange={(next) =>
-              edit((d) => {
-                const target = d.layout.sections.find((s) => s.id === selected);
-                if (!target) return;
-                const value = next as Record<string, unknown>;
-                if (target.linked) d.blocks[target.type] = value;
-                else target.props = value;
-              }, true)
-            }
-          />
+          <>
+            <AiCustomize
+              target={{ kind: "section", type: section.type, label: section.label }}
+              value={content ?? {}}
+              onApply={(next) =>
+                edit((d) => {
+                  const target = d.layout.sections.find((s) => s.id === selected);
+                  if (!target) return;
+                  const value = next as Record<string, unknown>;
+                  if (target.linked) d.blocks[target.type] = value;
+                  else target.props = value;
+                })
+              }
+            />
+            <FieldGroups
+              key={`${section.id}-${section.linked}`}
+              value={(content ?? {}) as never}
+              shape={meta.defaults}
+              assist={assist}
+              onChange={(next) =>
+                edit((d) => {
+                  const target = d.layout.sections.find((s) => s.id === selected);
+                  if (!target) return;
+                  const value = next as Record<string, unknown>;
+                  if (target.linked) d.blocks[target.type] = value;
+                  else target.props = value;
+                }, true)
+              }
+            />
+          </>
         ) : (
           <div className="space-y-6">
             <label className="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3">

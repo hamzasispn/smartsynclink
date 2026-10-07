@@ -4,14 +4,11 @@ import { gsap } from "gsap";
 import { useLayoutEffect, useRef, useState } from "react";
 import { SiteLogo } from "./site-logo";
 
-/** What the curtain says under the logo, word by word; the second sentence in the brand gradient. */
+/** What the curtain says under the logo, word by word; the last word in the brand gradient. */
 const TAGLINE: [string, boolean][] = [
-  ["Every", false],
-  ["call", false],
-  ["answered.", false],
-  ["Every", true],
-  ["lead", true],
-  ["booked.", true],
+  ["Connect.", false],
+  ["Automate.", false],
+  ["Grow.", true],
 ];
 
 /** Long enough for the intro to finish, so a fast load does not flash. */

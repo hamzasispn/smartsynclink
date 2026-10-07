@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { GROUP_ORDER, SECTIONS } from "@/lib/builder/sections";
 import { CUSTOM_PRESETS } from "@/lib/builder/widgets";
+import { Spark } from "./ai-studio";
 import type { Layout, SectionInstance } from "@/lib/builder/types";
 
 /**
@@ -22,6 +23,8 @@ type Props = {
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
   onAdd: (type: string, props?: Record<string, unknown>) => void;
+  /** Opens "Create with AI". */
+  onAi: () => void;
 };
 
 const icon = (d: string) => (
@@ -147,7 +150,7 @@ function SectionRow({
 }
 
 export function StructurePanel(props: Props) {
-  const { layout, selected, onSelect, onMove, onAdd } = props;
+  const { layout, selected, onSelect, onMove, onAdd, onAi } = props;
   const [drag, setDrag] = useState<number | null>(null);
   const [drop, setDrop] = useState<number | null>(null);
   const [library, setLibrary] = useState(false);
@@ -178,6 +181,20 @@ export function StructurePanel(props: Props) {
 
       {library ? (
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+          <button
+            type="button"
+            onClick={() => {
+              onAi();
+              setLibrary(false);
+            }}
+            className="group relative mb-5 w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#052EFF] to-[#3300EA] p-4 text-left text-white shadow-[0_14px_30px_-16px_rgba(51,0,234,0.9)]"
+          >
+            <span aria-hidden="true" className="pointer-events-none absolute -top-10 -right-8 size-28 rounded-full bg-white/10 transition-transform duration-500 group-hover:scale-125" />
+            <span className="relative flex items-center gap-2 text-[14px] font-semibold">
+              <Spark className="size-4" /> Create with AI
+            </span>
+            <span className="relative mt-1 block text-[12px] leading-snug text-white/75">Describe it — or drop a screenshot — and get a finished section in the site&apos;s design.</span>
+          </button>
           {GROUP_ORDER.map((group) => (
             <div key={group} className="mb-4">
               <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-muted uppercase">{group}</p>

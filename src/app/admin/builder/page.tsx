@@ -5,6 +5,8 @@ import { Builder } from "@/components/builder/builder";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+// "Customize with AI" runs as a server action from this page, and a big section can take a minute
+export const maxDuration = 300;
 
 export const metadata: Metadata = {
   title: "Page builder — SmartSyncLink",

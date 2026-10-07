@@ -36,12 +36,15 @@ export function PreviewBridge() {
     document.head.appendChild(style);
 
     let selected: string | null = null;
+    // a section selected before it is drawn (just added) is scrolled to once it appears
+    let scrollPending = false;
     const send = (message: object) => window.parent.postMessage(message, window.location.origin);
 
     const mark = (scroll: boolean) => {
       document.querySelectorAll(".builder-selected").forEach((el) => el.classList.remove("builder-selected"));
       if (!selected) return;
       const el = document.querySelector<HTMLElement>(`[data-builder-id="${CSS.escape(selected)}"]`);
+      scrollPending = scroll && !el;
       if (!el) return;
       el.classList.add("builder-selected");
       if (scroll) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -126,7 +129,7 @@ export function PreviewBridge() {
 
     // a refresh re-renders the sections and can drop the selection class
     const observer = new MutationObserver(() => {
-      if (selected && !document.querySelector(".builder-selected")) mark(false);
+      if (selected && !document.querySelector(".builder-selected")) mark(scrollPending);
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
