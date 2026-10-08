@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { uploadMediaAction } from "@/app/admin/actions";
 import { aiOptionsAction, createSectionAction, type AttachedImage } from "@/app/admin/ai-actions";
 
@@ -40,26 +41,64 @@ export function Spark({ className = "size-3.5" }: { className?: string }) {
 
 /* ---------------------------------------------------------------- model -- */
 
+const MENU_W = 260;
+const MENU_H = 280;
+
+/**
+ * The menu is drawn on <body> at fixed screen coordinates: inside the composer
+ * (rounded, clipped) or the inspector (a scrolling column) it would be cut off.
+ * It opens below the button when there is room, above it otherwise, and closes
+ * on a click elsewhere, Escape, scrolling or resizing.
+ */
 function ModelPicker({ options, value, onChange }: { options: Options; value: string; onChange: (id: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const box = useRef<HTMLDivElement>(null);
+  const [at, setAt] = useState<{ left: number; top?: number; bottom?: number } | null>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLUListElement>(null);
   useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) => box.current?.contains(e.target as Node) || setOpen(false);
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [open]);
+    if (!at) return;
+    const close = () => setAt(null);
+    const outside = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!button.current?.contains(t) && !menu.current?.contains(t)) close();
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation(); // closes the menu, not the dialog it sits in
+      close();
+    };
+    // scrolling the menu itself is fine; anything else moving would leave it behind
+    const scroll = (e: Event) => !menu.current?.contains(e.target as Node) && close();
+    document.addEventListener("mousedown", outside);
+    document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", scroll, true);
+    window.addEventListener("resize", close);
+    return () => {
+      document.removeEventListener("mousedown", outside);
+      document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", scroll, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [at]);
 
   if (!options.models.length) return <span className="text-[11.5px] text-muted">{options.model}</span>;
   const current = options.models.find((m) => m.id === value);
+
+  const toggle = () => {
+    if (at) return setAt(null);
+    const r = button.current!.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8));
+    setAt(window.innerHeight - r.bottom >= MENU_H ? { left, top: r.bottom + 6 } : { left, bottom: window.innerHeight - r.top + 6 });
+  };
+
   return (
-    <div ref={box} className="relative">
+    <>
       <button
+        ref={button}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={toggle}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[12px] font-medium text-muted transition-colors hover:bg-surface hover:text-ink"
         aria-haspopup="listbox"
-        aria-expanded={open}
+        aria-expanded={Boolean(at)}
       >
         <span className="size-1.5 rounded-full bg-gradient-to-br from-[#052EFF] to-[#3300EA]" />
         {current ? current.label.replace("Claude ", "") : "Default"}
@@ -67,28 +106,36 @@ function ModelPicker({ options, value, onChange }: { options: Options; value: st
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
-      {open ? (
-        <ul role="listbox" className="absolute bottom-full left-0 z-30 mb-1.5 w-[260px] rounded-xl border border-line bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(14,14,20,0.35)]">
-          {[{ id: "", label: "Default", note: `Your saved model (${options.model})` }, ...options.models].map((m) => (
-            <li key={m.id}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={value === m.id}
-                onClick={() => {
-                  onChange(m.id);
-                  setOpen(false);
-                }}
-                className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${value === m.id ? "bg-brand-soft" : "hover:bg-surface"}`}
-              >
-                <span className={`block text-[12.5px] font-medium ${value === m.id ? "text-brand" : "text-ink"}`}>{m.label}</span>
-                <span className="block text-[11.5px] leading-snug text-muted">{m.note}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+      {at
+        ? createPortal(
+            <ul
+              ref={menu}
+              role="listbox"
+              style={{ left: at.left, top: at.top, bottom: at.bottom, width: MENU_W, maxHeight: MENU_H }}
+              className="fixed z-[60] overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-[0_20px_40px_-16px_rgba(14,14,20,0.35)]"
+            >
+              {[{ id: "", label: "Default", note: `Your saved model (${options.model})` }, ...options.models].map((m) => (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={value === m.id}
+                    onClick={() => {
+                      onChange(m.id);
+                      setAt(null);
+                    }}
+                    className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${value === m.id ? "bg-brand-soft" : "hover:bg-surface"}`}
+                  >
+                    <span className={`block text-[12.5px] font-medium ${value === m.id ? "text-brand" : "text-ink"}`}>{m.label}</span>
+                    <span className="block text-[11.5px] leading-snug text-muted">{m.note}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 
